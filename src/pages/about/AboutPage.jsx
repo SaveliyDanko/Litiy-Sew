@@ -5,8 +5,10 @@ export const AboutPage = ({toggleSideMenu, toggleContactsMenu}) => (
     <div className={`w-full h-[100vh]
                      lg:snap-start lg:h-screen lg:flex`}>
         <AboutHeader toggleSideMenu={toggleSideMenu} toggleContactsMenu={toggleContactsMenu}/>
-        <div className={`w-full h-[60vh] bg-[url(${aboutImage})] bg-cover
-                         lg:h-screen lg:order-2 lg:w-[40%]`}>
+        <div className={`w-full h-[60vh] bg-cover
+                         lg:h-screen lg:order-2 lg:w-[40%]`}
+             style={{backgroundImage: `url(${aboutImage})`}}
+        >
         </div>
 
         <div className={`w-full h-[40vh] font-zen text-center

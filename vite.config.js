@@ -6,4 +6,5 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: "/Litiy-Sew/",
+  assetsInclude: ['**/*.woff2', '**/*.jpg', '**/*.png', '**/*.svg'],
 })
