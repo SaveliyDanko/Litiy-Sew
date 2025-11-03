@@ -1,0 +1,1 @@
+npx @svgr/cli -- icons/clock-icon.svg

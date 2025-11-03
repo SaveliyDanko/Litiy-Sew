@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'Buran';
+    src: url('src/assets/fonts/Buran-USSR.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bacasime';
+    src: url('/src/assets/fonts/BacasimeAntique-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bungee';
+    src: url('/src/assets/fonts/BungeeHairline-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Viaoda';
+    src: url('/src/assets/fonts/ViaodaLibre-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Zen';
+    src: url('/src/assets/fonts/ZenKakuGothicAntique-Regular.woff2') format('woff2');
+}
+
+@theme {
+    --font-buran: Buran;
+    --font-bacasime: Bacasime;
+    --font-bungee: Bungee;
+    --font-viaoda: Viaoda;
+    --font-zen: Zen;
+}
