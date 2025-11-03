@@ -25,7 +25,7 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = "100%";
 
-        const handlePointerDown = (event) => {
+        const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 safeToggle(false);
             }
@@ -35,7 +35,8 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
             safeToggle(false);
         };
 
-        window.addEventListener("pointerdown", handlePointerDown);
+        // 💡 Используем click вместо pointerdown
+        window.addEventListener("click", handleClickOutside);
         window.addEventListener("scroll", handleScroll, { passive: true });
 
         return () => {
@@ -44,7 +45,7 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
             document.body.style.width = "";
             window.scrollTo(0, scrollY);
 
-            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("click", handleClickOutside);
             window.removeEventListener("scroll", handleScroll);
         };
     }, [safeToggle]);
