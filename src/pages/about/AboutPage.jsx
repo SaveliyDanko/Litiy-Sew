@@ -1,10 +1,11 @@
 import {AboutHeader} from "./AboutHeader.jsx";
+import aboutImage from "../../assets/about.jpg";
 
 export const AboutPage = ({toggleSideMenu, toggleContactsMenu}) => (
     <div className={`w-full h-[100vh]
                      lg:snap-start lg:h-screen lg:flex`}>
         <AboutHeader toggleSideMenu={toggleSideMenu} toggleContactsMenu={toggleContactsMenu}/>
-        <div className={`w-full h-[60vh] bg-[url(about.jpg)] bg-cover
+        <div className={`w-full h-[60vh] bg-[url(${aboutImage})] bg-cover
                          lg:h-screen lg:order-2 lg:w-[40%]`}>
         </div>
 

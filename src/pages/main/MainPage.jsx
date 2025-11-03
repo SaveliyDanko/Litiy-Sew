@@ -1,4 +1,4 @@
-import mainImage from "/main.jpg";
+import mainImage from "../../assets/main.jpg";
 
 export const MainPage = () => (
     <div id={'#main'} className={`w-full relative mt-12
