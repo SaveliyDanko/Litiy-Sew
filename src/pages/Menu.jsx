@@ -23,18 +23,12 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = "100%";
 
-        const handleScroll = () => {
-            safeToggle(false);
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
 
         return () => {
             document.body.style.position = "";
             document.body.style.top = "";
             document.body.style.width = "";
             window.scrollTo(0, scrollY);
-            window.removeEventListener("scroll", handleScroll);
         };
     }, [safeToggle]);
 
