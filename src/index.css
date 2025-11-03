@@ -2,7 +2,7 @@
 
 @font-face {
     font-family: 'Buran';
-    src: url('src/assets/fonts/Buran-USSR.woff2') format('woff2');
+    src: url('./assets/fonts/Buran-USSR.woff2') format('woff2');
 }
 
 @font-face {
