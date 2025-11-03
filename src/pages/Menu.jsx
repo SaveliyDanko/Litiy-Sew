@@ -52,10 +52,12 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
                 className="fixed right-0 top-0 w-full h-[100vh] bg-white lg:w-[40%] lg:opacity-80 shadow-lg"
             >
                 <div className="w-full h-screen flex flex-col">
-                    <div className="flex justify-end cursor-pointer">
+                    <div className="flex justify-end cursor-pointer"
+                         onClick={(e) => e.stopPropagation()}
+                    >
                         <SvgClose
                             className="w-10 h-10 fill-black mt-2 cursor-pointer lg:w-16 lg:h-16 lg:mr-4"
-                            toggleMenu={toggleMenu}
+                            toggleMenu={() => safeToggle(false)}
                         />
                     </div>
 
