@@ -41,15 +41,17 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
     return (
         <div
             className="fixed inset-0 z-10 bg-black/30 backdrop-blur-sm"
-            onClick={(e) => {
-                // Закрытие только если кликнули по фону, а не по меню
-                if (!menuRef.current?.contains(e.target)) {
-                    safeToggle(false);
-                }
+            onMouseDown={(e) => {
+                if (!menuRef.current?.contains(e.target)) safeToggle(false);
+            }}
+            onTouchStart={(e) => {
+                if (!menuRef.current?.contains(e.target)) safeToggle(false);
             }}
         >
             <div
                 ref={menuRef}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 className="fixed right-0 top-0 w-full h-[100vh] bg-white lg:w-[40%] lg:opacity-80 shadow-lg"
             >
                 <div className="w-full h-screen flex flex-col">
@@ -81,7 +83,7 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
                             <div className="text-[20px]">Творческие проекты</div>
                             <div className="text-[20px]">Верхняя одежда</div>
                             <div className="text-[20px]">Платья</div>
-                            <div className="text-[20px]">Юбки </div>
+                            <div className="text-[20px]">Юбки</div>
 
                             <div className="text-[35px] mt-[30px]">Другое</div>
                         </div>
