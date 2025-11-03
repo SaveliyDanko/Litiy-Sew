@@ -41,10 +41,7 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
     return (
         <div
             className="fixed inset-0 z-10 bg-black/30 backdrop-blur-sm"
-            onMouseDown={(e) => {
-                if (!menuRef.current?.contains(e.target)) safeToggle(false);
-            }}
-            onTouchStart={(e) => {
+            onClick={(e) => {
                 if (!menuRef.current?.contains(e.target)) safeToggle(false);
             }}
         >
