@@ -4,7 +4,7 @@ import Model from "./pages/model/Model.jsx";
 import DesignPage from "./pages/design/DesignPage.jsx";
 
 export const AppRouter = () => (
-    <BrowserRouter>
+    <BrowserRouter basename="/Litiy-Sew">
         <Routes>
             <Route index element={<HeroPage />}/>
             <Route path={'/model'} element={<Model />} />
