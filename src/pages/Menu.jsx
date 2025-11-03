@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import SvgClose from "../components/SvgClose.jsx";
 import {useNavigate} from "react-router-dom";
 
@@ -8,12 +8,16 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
 
     const navigate = useNavigate();
 
-    const safeToggle = (value) => {
-        if (isLocked) return;
-        setLocked(true);
-        toggleMenu(value);
-        setTimeout(() => setLocked(false), 300); // 300мс защиты
-    };
+    const safeToggle = useCallback(
+        (value) => {
+            if (isLocked) return;
+            setLocked(true);
+            toggleMenu(value);
+            setTimeout(() => setLocked(false), 300);
+        },
+        [isLocked, toggleMenu]
+    );
+
 
     useEffect(() => {
         const scrollY = window.scrollY;
@@ -21,17 +25,17 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = "100%";
 
-        const handleClickOutside = (event) => {
+        const handlePointerDown = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                toggleMenu(false);
+                safeToggle(false);
             }
         };
 
         const handleScroll = () => {
-            toggleMenu(false);
+            safeToggle(false);
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
+        window.addEventListener("pointerdown", handlePointerDown);
         window.addEventListener("scroll", handleScroll, { passive: true });
 
         return () => {
@@ -40,10 +44,10 @@ export const Menu = ({toggleMenu, sideMenu, contactMenu}) => {
             document.body.style.width = "";
             window.scrollTo(0, scrollY);
 
-            document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("pointerdown", handlePointerDown);
             window.removeEventListener("scroll", handleScroll);
         };
-    }, [toggleMenu]);
+    }, [safeToggle]);
 
     return (
         <div
