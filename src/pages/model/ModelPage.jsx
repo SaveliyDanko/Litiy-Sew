@@ -5,7 +5,7 @@ import fashionImage from "../../assets/fashion.jpg";
 import {useMenuController} from "../../useMenuController.js";
 import Header from "../../components/Header.jsx";
 
-export default function Model() {
+export default function ModelPage() {
     const {
         // sideMenu,
         // contactMenu,
@@ -16,9 +16,9 @@ export default function Model() {
     } = useMenuController();
 
     const containers = [
-        {image: personalImage, className: ''},
-        {image: testImage, className: 'bg-position-[0%_100%]'},
-        {image: fashionImage, className: ''},
+        {image: personalImage, text: 'ЛИЧНЫЕ', className: 'bg-position-[0%_30%]'},
+        {image: testImage, text: 'ТЕСТЫ', className: 'bg-position-[0%_100%]'},
+        {image: fashionImage, text: 'ФЕШН', className: ''},
     ]
 
     return (
@@ -34,9 +34,12 @@ export default function Model() {
 
             <div className={'lg:grid lg:grid-cols-3 lg:h-[calc(100vh-4rem)]'}>
                 {containers.map((container, index) => (
-                    <div key={index} className={`max-lg:w-full max-lg:h-[50vh] bg-cover ${container.className}`}
+                    <div key={index} className={`max-lg:w-full max-lg:h-[50vh] 
+                                                 relative justify-end bg-cover ${container.className}`}
                          style={{backgroundImage: `url(${container.image})`}}
-                    ></div>
+                    >
+                        <div className={'absolute bottom-0 mb-10 text-white w-full text-center font-buran text-[90px]'}>{container.text}</div>
+                    </div>
                 ))}
             </div>
         </div>

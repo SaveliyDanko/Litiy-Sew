@@ -19,7 +19,7 @@ export const HeroPage = () => {
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
 
-            <Header toggleSideMenu={openSideMenu} toggleContactsMenu={openContactsMenu} variant={'hero'}/>
+            <Header openSideMenu={openSideMenu} openContactsMenu={openContactsMenu} variant={'hero'}/>
 
             {activeMenu &&
                 (<Menu sideMenu={activeMenu === 'side'}

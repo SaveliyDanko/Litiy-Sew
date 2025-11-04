@@ -13,7 +13,7 @@ export default function Header({openSideMenu, openContactsMenu, variant}) {
                          ${isSkillsHeader ? 'absolute text-white max-lg:hidden' : ''}
                          ${isAboutHeader ? 'absolute text-black max-lg:hidden' : ''}`}>
 
-            <div className={`flex flex-col justify-center ml-1 text-xl z-10 cursor-pointer font-bacasime
+            <div className={`flex flex-col justify-center ml-2 text-xl z-10 cursor-pointer font-bacasime
                              lg:ml-4 lg:text-4xl`}
                  onClick={openContactsMenu}>
                 <span>contacts</span>
@@ -25,7 +25,7 @@ export default function Header({openSideMenu, openContactsMenu, variant}) {
                 <span>LITIY</span>
             </NavLink>
 
-            <SvgMenu className={`w-10 h-10 mt-1.5 cursor-pointer
+            <SvgMenu className={`w-10 h-10 mt-1.5 mr-1 cursor-pointer
                                  lg:w-16 lg:h-16 lg:mt-0
                                  ${isSkillsHeader ? 'fill-white' : ''}
                                  ${isAboutHeader ? 'fill-black' : ''}`}

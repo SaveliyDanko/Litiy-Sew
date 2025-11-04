@@ -40,7 +40,7 @@ export const Menu = ({sideMenu, contactMenu, closeAll}) => {
                     {sideMenu && (
                         <div className="ml-[30px]">
                             <div
-                                className="text-[35px]"
+                                className="text-[35px] cursor-pointer"
                                 onClick={() => navigate("/model")}
                             >
                                 Моделинг:

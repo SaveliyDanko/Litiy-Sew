@@ -18,13 +18,13 @@ export default function DesignPage() {
         activeMenu,
     } = useMenuController();
 
-    const images = [
-        personalImage,
-        fashionImage,
-        setImage,
-        outwearImage,
-        blouseImage,
-        lingerieImage,
+    const containers = [
+        {image: personalImage, title: "ВСЕ РАБОТЫ", className: ''},
+        {image: fashionImage, title: "ПЛАТЬЯ", className: ''},
+        {image: setImage, title: "КОМПЛЕКТЫ", className: ''},
+        {image: outwearImage, title: "ВЕРХНЯЯ ОДЕЖДА", className: 'bg-position-[60%_40%]'},
+        {image: blouseImage, title: "БЛУЗЫ", className: 'bg-position-[60%_40%]'},
+        {image: lingerieImage, title: "НИЖНЕЕ БЕЛЬЕ", className: ''},
     ]
 
 
@@ -32,8 +32,8 @@ export default function DesignPage() {
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
             <Header
-                toggleSideMenu={openSideMenu}
-                toggleContactsMenu={openContactsMenu}/>
+                openSideMenu={openSideMenu}
+                openContactsMenu={openContactsMenu}/>
 
             {activeMenu &&
                 (<Menu sideMenu={activeMenu === 'side'}
@@ -41,10 +41,15 @@ export default function DesignPage() {
                        closeAll={closeAll}
                 />)}
 
-            {images.map((image, index) => (
-                <div key={index} className={`w-full h-[50vh] bg-cover`}
-                     style={{backgroundImage: `url(${image})`}}
-                ></div>
+            {containers.map((container, index) => (
+                <div key={index} className={`w-full h-[50vh] bg-cover relative
+                                             ${container.className}`}
+                     style={{backgroundImage: `url(${container.image})`}}
+                >
+                    <div className={`absolute bottom-0 mb-10 text-white w-full text-center font-buran text-[60px]`}>
+                        {container.title}
+                    </div>
+                </div>
             ))}
         </div>
     )

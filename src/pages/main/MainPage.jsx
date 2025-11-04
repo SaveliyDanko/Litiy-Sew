@@ -1,7 +1,7 @@
 import mainImage from "../../assets/main.jpg";
 
 export const MainPage = () => (
-    <div className={`w-full h-[28vh] relative mt-12 bg-contain
+    <div className={`w-full h-[45vh] relative mt-12 bg-cover bg-position-[50%_0%]
                      lg:h-screen lg:snap-start lg:bg-position-[0%_25%] lg:mt-0 lg:bg-cover`}
          style={{backgroundImage: `url(${mainImage})`}}
     >
