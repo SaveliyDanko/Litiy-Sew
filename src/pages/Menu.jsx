@@ -1,21 +1,9 @@
-import {useCallback, useEffect, useRef, useState} from "react";
 import SvgClose from "../components/SvgClose.jsx";
 import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
-export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
-    const menuRef = useRef(null);
-    const [isLocked, setLocked] = useState(false);
+export const Menu = ({sideMenu, contactMenu, closeAll}) => {
     const navigate = useNavigate();
-
-    const safeToggle = useCallback(
-        (value) => {
-            if (isLocked) return;
-            setLocked(true);
-            toggleMenu(value);
-            setTimeout(() => setLocked(false), 300);
-        },
-        [isLocked, toggleMenu]
-    );
 
     useEffect(() => {
         const scrollY = window.scrollY;
@@ -30,19 +18,13 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
             document.body.style.width = "";
             window.scrollTo(0, scrollY);
         };
-    }, [safeToggle]);
+    }, []);
 
     return (
         <div
             className="fixed inset-0 z-10 bg-black/30 backdrop-blur-sm"
-            onClick={(e) => {
-                if (!menuRef.current?.contains(e.target)) safeToggle(false);
-            }}
         >
             <div
-                ref={menuRef}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
                 className="fixed right-0 top-0 w-full h-[100vh] bg-white lg:w-[40%] lg:opacity-80 shadow-lg"
             >
                 <div className="w-full h-screen flex flex-col">
@@ -51,7 +33,7 @@ export const Menu = ({ toggleMenu, sideMenu, contactMenu }) => {
                     >
                         <SvgClose
                             className="w-10 h-10 fill-black mt-2 cursor-pointer lg:w-16 lg:h-16 lg:mr-4"
-                            toggleMenu={() => safeToggle(false)}
+                            toggleMenu={closeAll}
                         />
                     </div>
 

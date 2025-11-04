@@ -1,49 +1,42 @@
 import {HeroHeader} from "../HeroHeader.jsx";
-import {useState} from "react";
 import {Menu} from "../Menu.jsx";
 import personalImage from "../../assets/personal.jpg";
 import testImage from "../../assets/test.jpg";
 import fashionImage from "../../assets/fashion.jpg";
+import {useMenuController} from "../../useMenuController.js";
 
 export default function Model() {
-    const [sideMenu, setSideMenu] = useState(false)
-    const [contactMenu, setContactsMenu] = useState(false)
-    // const [menu, setMenu] = useState(false)
+    const {
+        // sideMenu,
+        // contactMenu,
+        openSideMenu,
+        openContactsMenu,
+        closeAll,
+        activeMenu
+    } = useMenuController();
 
-    // const toggleMenu = () => {
-    //     setMenu((prev) => !prev);
-    // }
-
-    const toggleSideMenu = () => {
-        setSideMenu((prev) => !prev);
-        // toggleMenu();
-    }
-
-    const toggleContactsMenu = () => {
-        setContactsMenu((prev) => !prev);
-        // toggleMenu();
-    }
+    const containers = [
+        {image: personalImage, className: ''},
+        {image: testImage, className: 'bg-position-[0%_100%]'},
+        {image: fashionImage, className: ''},
+    ]
 
     return (
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
-            <HeroHeader toggleSideMenu={toggleSideMenu} toggleContactsMenu={toggleContactsMenu}/>
-            {sideMenu && (<Menu toggleMenu={toggleSideMenu} sideMenu={sideMenu} contactMenu={contactMenu}/>)}
-            {contactMenu && (<Menu toggleMenu={toggleContactsMenu} sideMenu={sideMenu} contactMenu={contactMenu}/>)}
+            <HeroHeader toggleSideMenu={openSideMenu} toggleContactsMenu={openContactsMenu}/>
 
-            <div>
-                <div className={`w-full h-[50vh] bg-cover`}
-                     style={{backgroundImage: `url(${personalImage})`}}
-                ></div>
+            {activeMenu &&
+                (<Menu sideMenu={activeMenu === 'side'}
+                       contactMenu={activeMenu === 'contacts'}
+                       closeAll={closeAll}
+                />)}
 
-                <div className={`w-full h-[50vh] bg-cover bg-position-[0%_100%]`}
-                     style={{backgroundImage: `url(${testImage})`}}
+            {containers.map((container, index) => (
+                <div key={index} className={`w-full h-[50vh] bg-cover ${container.className}`}
+                     style={{backgroundImage: `url(${container.image})`}}
                 ></div>
-
-                <div className={`w-full h-[50vh] bg-cover`}
-                     style={{backgroundImage: `url(${fashionImage})`}}
-                ></div>
-            </div>
+            ))}
         </div>
     )
 }
