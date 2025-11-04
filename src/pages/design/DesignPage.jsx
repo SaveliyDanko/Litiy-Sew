@@ -1,4 +1,3 @@
-import {HeroHeader} from "../HeroHeader.jsx";
 import {Menu} from "../Menu.jsx";
 import personalImage from "../../assets/personal.jpg";
 import setImage from "../../assets/set.jpg";
@@ -7,6 +6,7 @@ import outwearImage from "../../assets/outwear.jpg";
 import lingerieImage from "../../assets/lingerie.jpg";
 import blouseImage from "../../assets/blouse.jpg";
 import {useMenuController} from "../../useMenuController.js";
+import Header from "../../components/Header.jsx";
 
 export default function DesignPage() {
     const {
@@ -31,7 +31,7 @@ export default function DesignPage() {
     return (
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
-            <HeroHeader
+            <Header
                 toggleSideMenu={openSideMenu}
                 toggleContactsMenu={openContactsMenu}/>
 

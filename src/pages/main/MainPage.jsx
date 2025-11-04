@@ -1,8 +1,8 @@
 import mainImage from "../../assets/main.jpg";
 
 export const MainPage = () => (
-    <div className={`w-full h-[30vh] relative mt-12 bg-contain
-                     lg:h-screen lg:snap-start lg:bg-position-[0%_25%] lg:mt-0`}
+    <div className={`w-full h-[28vh] relative mt-12 bg-contain
+                     lg:h-screen lg:snap-start lg:bg-position-[0%_25%] lg:mt-0 lg:bg-cover`}
          style={{backgroundImage: `url(${mainImage})`}}
     >
         <div className={`absolute bottom-0 w-full flex justify-center mb-5 

@@ -1,9 +1,9 @@
-import {HeroHeader} from "../HeroHeader.jsx";
 import {Menu} from "../Menu.jsx";
 import personalImage from "../../assets/personal.jpg";
 import testImage from "../../assets/test.jpg";
 import fashionImage from "../../assets/fashion.jpg";
 import {useMenuController} from "../../useMenuController.js";
+import Header from "../../components/Header.jsx";
 
 export default function Model() {
     const {
@@ -24,7 +24,7 @@ export default function Model() {
     return (
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
-            <HeroHeader toggleSideMenu={openSideMenu} toggleContactsMenu={openContactsMenu}/>
+            <Header openSideMenu={openSideMenu} openContactsMenu={openContactsMenu}/>
 
             {activeMenu &&
                 (<Menu sideMenu={activeMenu === 'side'}
@@ -32,11 +32,13 @@ export default function Model() {
                        closeAll={closeAll}
                 />)}
 
-            {containers.map((container, index) => (
-                <div key={index} className={`w-full h-[50vh] bg-cover ${container.className}`}
-                     style={{backgroundImage: `url(${container.image})`}}
-                ></div>
-            ))}
+            <div className={'lg:grid lg:grid-cols-3 lg:h-[calc(100vh-4rem)]'}>
+                {containers.map((container, index) => (
+                    <div key={index} className={`max-lg:w-full max-lg:h-[50vh] bg-cover ${container.className}`}
+                         style={{backgroundImage: `url(${container.image})`}}
+                    ></div>
+                ))}
+            </div>
         </div>
     )
 }

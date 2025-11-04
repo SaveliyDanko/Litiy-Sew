@@ -1,9 +1,9 @@
 import {MainPage} from "./main/MainPage.jsx";
 import {SkillsPage} from "./skills/SkillsPage.jsx";
 import {AboutPage} from "./about/AboutPage.jsx";
-import {HeroHeader} from "./HeroHeader.jsx";
 import {Menu} from "./Menu.jsx";
 import {useMenuController} from "../useMenuController.js";
+import Header from "../components/Header.jsx";
 
 export const HeroPage = () => {
     const {
@@ -18,7 +18,8 @@ export const HeroPage = () => {
     return (
         <div className={`lg:h-screen lg:overflow-y-scroll lg:snap-y lg:snap-mandatory
                          scroll-smooth relative`}>
-            <HeroHeader toggleSideMenu={openSideMenu} toggleContactsMenu={openContactsMenu}/>
+
+            <Header toggleSideMenu={openSideMenu} toggleContactsMenu={openContactsMenu} variant={'hero'}/>
 
             {activeMenu &&
                 (<Menu sideMenu={activeMenu === 'side'}
@@ -31,11 +32,15 @@ export const HeroPage = () => {
             <SkillsPage activeMenu={activeMenu}
                         sideMenu={sideMenu}
                         contactMenu={contactMenu}
-                        toggleSideMenu={openSideMenu}
-                        toggleContactsMenu={openContactsMenu}/>
+                        openSideMenu={openSideMenu}
+                        openContactsMenu={openContactsMenu}
+                        closeAll={closeAll}
+            />
 
-            <AboutPage toggleSideMenu={openSideMenu}
-                       toggleContactsMenu={openContactsMenu}/>
+            <AboutPage openSideMenu={openSideMenu}
+                       openContactsMenu={openContactsMenu}
+                       closeAll={closeAll}
+            />
         </div>
     )
 }

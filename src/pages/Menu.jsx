@@ -22,7 +22,7 @@ export const Menu = ({sideMenu, contactMenu, closeAll}) => {
 
     return (
         <div
-            className="fixed inset-0 z-10 bg-black/30 backdrop-blur-sm"
+            className="fixed inset-0 z-15 bg-black/30 backdrop-blur-sm"
         >
             <div
                 className="fixed right-0 top-0 w-full h-[100vh] bg-white lg:w-[40%] lg:opacity-80 shadow-lg"
