@@ -1,6 +1,7 @@
 import styles from './HeroSection.module.css';
 
 const HERO_IMAGE_URL = 'http://localhost:9000/litiy-sew-media/hero/hero.jpg';
+const COLLECTION_IMAGE_URL = 'http://localhost:9000/litiy-sew-media/hero/new_collection.jpg';
 
 export default function HeroSection() {
   return (
@@ -16,7 +17,7 @@ export default function HeroSection() {
         <h1 className={styles.title}>Litiy Sew</h1>
 
         <div className={styles.card}>
-          <div className={styles.cardImage} />
+          <img className={styles.cardImage} src={COLLECTION_IMAGE_URL} alt="Новая коллекция" />
           <a href="/collections" className={styles.btn}>НОВАЯ КОЛЛЕКЦИЯ</a>
         </div>
       </div>

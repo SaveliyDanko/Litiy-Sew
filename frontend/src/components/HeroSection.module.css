@@ -1,7 +1,7 @@
 .hero {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100svh - 90px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -31,25 +31,26 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 48px;
-  gap: 40px;
+  padding: clamp(40px, 8vh, 100px) clamp(20px, 4vw, 48px);
+  gap: clamp(24px, 4vh, 48px);
 }
 
 .title {
   font-family: 'Sansita One', sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-size: 250px;
+  font-size: clamp(3rem, 15vw, 250px);
   line-height: 100%;
   letter-spacing: 0;
   color: var(--color-black);
   text-align: center;
   user-select: none;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 
 .card {
@@ -59,9 +60,11 @@
 }
 
 .cardImage {
-  width: 180px;
-  height: 220px;
-  background: var(--color-white);
+  width: clamp(120px, 14vw, 200px);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  object-position: 0% 0%;
 }
 
 .btn {
@@ -69,14 +72,24 @@
   background: var(--color-black);
   color: var(--color-white);
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 0.8vw, 0.75rem);
   font-weight: 500;
   letter-spacing: 0.15em;
-  padding: 12px 28px;
+  padding: clamp(10px, 1.2vh, 14px) clamp(20px, 2vw, 32px);
   white-space: nowrap;
   transition: background 0.2s;
 }
 
 .btn:hover {
   background: #333;
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: clamp(2.5rem, 18vw, 5rem);
+  }
+
+  .cardImage {
+    width: 140px;
+  }
 }
