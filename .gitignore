@@ -2,13 +2,32 @@
 .idea/
 .vscode/
 *.iml
+*.iws
+*.ipr
 
 # OS
 .DS_Store
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
 
 # Environment
 .env
+*.local
+
+# Logs
+*.log
+logs/
 
 # Visual references
 frontend/references/
+
+# Frontend build
+frontend/dist/
+frontend/node_modules/
+
+# Backend build
+backend/build/
+backend/.gradle/
+backend/bin/
+backend/out/
