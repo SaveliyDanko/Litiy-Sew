@@ -44,3 +44,7 @@ cd frontend && npm install && npm run dev
 ```
 
 База данных: PostgreSQL, база `litiy_sew`, креды по умолчанию `postgres:postgres`.
+
+## Документация
+
+- [minio.md](minio.md) — запуск, доступ, загрузка файлов, API
