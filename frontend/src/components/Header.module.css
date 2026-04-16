@@ -1,22 +1,21 @@
 .header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 48px;
+  padding: 20px 48px;
+  background: var(--color-black);
   color: var(--color-white);
 }
 
 .logo {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-family: 'Sansita One', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 50px;
+  line-height: 100%;
+  letter-spacing: 0;
 }
 
 .nav {
