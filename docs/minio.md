@@ -46,52 +46,6 @@ litiy-sew-media/
 └── collections/    — обложки коллекций
 ```
 
-## Загрузка файлов через API (для фронтенда)
-
-Прямая загрузка файла на фронтенде без проксирования через бэкенд:
-
-```typescript
-// 1. Получить presigned URL у бэкенда
-const res = await fetch('/api/media/presign', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ filename: file.name, contentType: file.type }),
-});
-const { uploadUrl, publicUrl } = await res.json();
-
-// 2. Загрузить файл напрямую в MinIO
-await fetch(uploadUrl, {
-  method: 'PUT',
-  body: file,
-  headers: { 'Content-Type': file.type },
-});
-
-// 3. publicUrl сохранить в БД через бэкенд
-```
-
-### Эндпоинты бэкенда
-
-| Метод  | URL                  | Описание                                 |
-|--------|----------------------|------------------------------------------|
-| POST   | `/api/media/presign` | Получить presigned URL для загрузки      |
-| DELETE | `/api/media?key=...` | Удалить файл по ключу (путь в бакете)    |
-
-### Тело запроса `POST /api/media/presign`
-
-```json
-{ "filename": "photo.jpg", "contentType": "image/jpeg" }
-```
-
-### Ответ
-
-```json
-{
-  "uploadUrl": "http://localhost:9000/litiy-sew-media/uuid/photo.jpg?X-Amz-...",
-  "publicUrl": "http://localhost:9000/litiy-sew-media/uuid/photo.jpg",
-  "key": "uuid/photo.jpg"
-}
-```
-
 ## Смена кредов
 
 Создай `.env` в корне проекта (скопируй из `.env.example`):

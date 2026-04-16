@@ -9,3 +9,6 @@ Thumbs.db
 
 # Environment
 .env
+
+# Visual references
+frontend/references/
