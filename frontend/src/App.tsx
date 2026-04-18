@@ -1,6 +1,7 @@
 import AboutPage from './pages/AboutPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
+import CollectionPlaceholderPage from './pages/CollectionPlaceholderPage';
 import CollectionsPage from './pages/CollectionsPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
@@ -24,6 +25,10 @@ export default function App() {
 
   if (path.startsWith('/about')) {
     return <AboutPage />;
+  }
+
+  if (/^\/collections\/[^/]+/.test(path)) {
+    return <CollectionPlaceholderPage />;
   }
 
   if (path.startsWith('/collections')) {

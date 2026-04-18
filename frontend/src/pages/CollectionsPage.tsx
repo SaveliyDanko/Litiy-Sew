@@ -1,37 +1,11 @@
 import Header from '../components/Header';
+import {
+  FEATURED_COLLECTION,
+  SOLO_COLLECTIONS,
+  getCollectionHref,
+  getCollectionImageUrl,
+} from './collectionsData';
 import styles from './CollectionsPage.module.css';
-
-type CollectionCard = {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  tone: 'warm' | 'cool' | 'neutral';
-};
-
-const SOLO_COLLECTIONS: CollectionCard[] = [
-  {
-    id: 'queen-of-hearts',
-    title: 'Queen of Hearts',
-    subtitle: 'Театральный силуэт',
-    description: 'Объёмная форма, декоративность и игра с образом как самостоятельным высказыванием.',
-    tone: 'warm',
-  },
-  {
-    id: 'blue-reverie',
-    title: 'Blue Reverie',
-    subtitle: 'Воздух и пластика',
-    description: 'Лёгкая фактура, мягкий вертикальный ритм и деликатный акцент на линии плеч и шеи.',
-    tone: 'cool',
-  },
-  {
-    id: 'ivory-hush',
-    title: 'Ivory Hush',
-    subtitle: 'Тихая чувственность',
-    description: 'Минималистичная композиция, в которой ткань, посадка и поза работают как единый образ.',
-    tone: 'neutral',
-  },
-];
 
 export default function CollectionsPage() {
   return (
@@ -40,18 +14,24 @@ export default function CollectionsPage() {
 
       <main className={styles.page}>
         <section className={styles.featured}>
-          <div className={styles.featuredMedia} aria-hidden="true">
+          <a
+            href={getCollectionHref(FEATURED_COLLECTION.slug)}
+            className={styles.featuredMedia}
+            aria-label={`Открыть коллекцию ${FEATURED_COLLECTION.title}`}
+          >
+            <img
+              className={styles.featuredImage}
+              src={getCollectionImageUrl(FEATURED_COLLECTION.imagePath)}
+              alt={FEATURED_COLLECTION.title}
+            />
             <div className={styles.featuredGlow} />
-          </div>
+          </a>
 
           <div className={styles.featuredCopy}>
-            <p className={styles.featuredEyebrow}>Featured collection</p>
-            <h1 className={styles.featuredTitle}>The glow of love</h1>
-            <p className={styles.featuredSubtitle}>История о самом нежном дне</p>
-            <p className={styles.featuredDescription}>
-              Капсула о деликатности, свете и ощущении близости, где формы остаются мягкими,
-              а настроение собирается из деталей, фактуры и воздуха между линиями.
-            </p>
+            <p className={styles.featuredEyebrow}>{FEATURED_COLLECTION.eyebrow}</p>
+            <h1 className={styles.featuredTitle}>{FEATURED_COLLECTION.title}</h1>
+            <p className={styles.featuredSubtitle}>{FEATURED_COLLECTION.subtitle}</p>
+            <p className={styles.featuredDescription}>{FEATURED_COLLECTION.description}</p>
           </div>
         </section>
 
@@ -63,22 +43,34 @@ export default function CollectionsPage() {
 
           <div className={styles.soloGrid}>
             {SOLO_COLLECTIONS.map((collection, index) => (
-              <article
-                key={collection.id}
-                className={styles.card}
-                data-tone={collection.tone}
+              <a
+                key={collection.slug}
+                href={getCollectionHref(collection.slug)}
+                className={styles.cardLink}
+                aria-label={`Открыть коллекцию ${collection.title}`}
               >
-                <div className={styles.cardMedia} aria-hidden="true">
-                  <div className={styles.cardBadge}>Look {String(index + 1).padStart(2, '0')}</div>
-                  <div className={styles.cardAura} />
-                </div>
+                <article
+                  className={styles.card}
+                  data-tone={collection.tone}
+                >
+                  <div className={styles.cardMedia}>
+                    <div className={styles.cardBadge}>Look {String(index + 1).padStart(2, '0')}</div>
+                    <img
+                      className={styles.cardImage}
+                      src={getCollectionImageUrl(collection.imagePath)}
+                      alt={collection.title}
+                    />
+                    <div className={styles.cardOverlay} />
+                    <div className={styles.cardAura} />
+                  </div>
 
-                <div className={styles.cardBody}>
-                  <p className={styles.cardSubtitle}>{collection.subtitle}</p>
-                  <h3 className={styles.cardTitle}>{collection.title}</h3>
-                  <p className={styles.cardDescription}>{collection.description}</p>
-                </div>
-              </article>
+                  <div className={styles.cardBody}>
+                    <p className={styles.cardSubtitle}>{collection.subtitle}</p>
+                    <h3 className={styles.cardTitle}>{collection.title}</h3>
+                    <p className={styles.cardDescription}>{collection.description}</p>
+                  </div>
+                </article>
+              </a>
             ))}
           </div>
         </section>
