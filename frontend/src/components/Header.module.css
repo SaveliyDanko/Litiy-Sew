@@ -1,6 +1,6 @@
 .header {
   position: relative;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,7 +31,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
 .actions button,
@@ -52,6 +52,110 @@
   opacity: 1;
 }
 
+.menuButton {
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+.menuIcon {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 14px;
+}
+
+.menuIcon span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+  transition: transform 0.24s ease, opacity 0.2s ease, top 0.24s ease;
+}
+
+.menuIcon span:nth-child(1) {
+  top: 0;
+}
+
+.menuIcon span:nth-child(2) {
+  top: 6px;
+}
+
+.menuIcon span:nth-child(3) {
+  top: 12px;
+}
+
+.menuIconOpen span:nth-child(1) {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.menuIconOpen span:nth-child(2) {
+  opacity: 0;
+}
+
+.menuIconOpen span:nth-child(3) {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+.mobileMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 16px;
+  right: 16px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(17, 17, 17, 0.96);
+  box-shadow: 0 20px 36px rgba(17, 17, 17, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.mobileMenuOpen {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.mobileMenuLink {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.mobileMenuLink:hover {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  border: none;
+  background: rgba(17, 17, 17, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+}
+
+.backdropVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 @media (min-width: 640px) {
   .header {
     padding: 16px 32px;
@@ -67,6 +171,16 @@
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.12em;
+  }
+
+  .actions {
+    gap: 16px;
+  }
+
+  .menuButton,
+  .mobileMenu,
+  .backdrop {
+    display: none;
   }
 }
 
