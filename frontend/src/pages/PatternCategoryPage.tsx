@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
+import type { Product } from '../types/product';
 import styles from './PatternCategoryPage.module.css';
 
 const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
@@ -18,13 +19,6 @@ const CATEGORIES: Record<string, CategoryMeta> = {
   trousers: { slug: 'trousers', title: 'Брюки и шорты' },
   outerwear: { slug: 'outerwear', title: 'Верхняя одежда' },
   accessories: { slug: 'accessories', title: 'Аксессуары' },
-};
-
-type Product = {
-  id: string;
-  title: string;
-  price: number;
-  image: string;
 };
 
 const PRODUCTS_BY_CATEGORY: Record<string, Product[]> = {
@@ -152,8 +146,7 @@ export default function PatternCategoryPage() {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                title={product.title}
-                price={product.price}
+                product={product}
                 imageSrc={`${MEDIA_BASE_URL}/${product.image}`}
                 href={`/patterns/${category.slug}/${product.id}`}
               />

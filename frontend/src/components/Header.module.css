@@ -34,7 +34,8 @@
   gap: 16px;
 }
 
-.actions button {
+.actions button,
+.actions .iconLink {
   display: flex;
   align-items: center;
   padding: 4px;
@@ -46,7 +47,8 @@
   transition: opacity 0.2s;
 }
 
-.actions button:hover {
+.actions button:hover,
+.actions .iconLink:hover {
   opacity: 1;
 }
 

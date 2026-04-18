@@ -48,6 +48,15 @@
   opacity: 1;
 }
 
+.favoriteActive {
+  color: #ec4899;
+  opacity: 1;
+}
+
+.favoriteActive:hover {
+  color: #db2777;
+}
+
 .info {
   display: flex;
   flex-direction: column;
