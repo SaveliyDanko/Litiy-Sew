@@ -1,95 +1,178 @@
 .hero {
+  /* Правьте в первую очередь переменные ниже: они собраны как панель настроек Hero. */
+
+  /* Hero: секция и фон */
+  --hero-min-height: calc(100svh - 90px);
+  --hero-bg-color: var(--color-white);
   position: relative;
-  width: 100%;
-  min-height: calc(100svh - 90px);
+  min-height: var(--hero-min-height);
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-white);
+  background-color: var(--hero-bg-color);
+
+  /* Hero: положение и масштаб фонового изображения */
+  --hero-bg-offset-x: -30%; /* Смещение фона по горизонтали. */
+  --hero-bg-offset-y: 80%; /* Смещение фона по вертикали. */
+  --hero-bg-scale: 1.15; /* Масштаб фонового изображения. */
+  --hero-overlay-color: rgb(130 130 130 / 60%);
+
+  /* Hero: внутренние отступы контента */
+  --hero-content-padding-top: 24px;
+  --hero-content-padding-x: 20px;
+  --hero-content-padding-bottom: 40px;
+
+  /* Hero: заголовок */
+  --hero-title-size: 2.5rem;
+  --hero-title-margin-bottom: 0px;
+  --hero-title-letter-spacing: 0.02em;
+  --hero-title-color: var(--color-black);
+
+  /* Hero: карточка коллекции */
+  --card-offset-y: -12px; /* Смещение карточки относительно заголовка. Отрицательное значение поднимет её выше. */
+  --card-image-width: 180px; /* Основная ширина карточки. */
+  --card-button-padding-y: 12px; /* Высота черной кнопки-плашки. */
+  --card-button-padding-x: 20px; /* Горизонтальные поля кнопки-плашки. */
+  --card-button-font-size: 11px; /* Размер текста в кнопке-плашке. */
+  --card-button-letter-spacing: 0.15em;
+  --card-button-bg: var(--color-black);
+  --card-button-text-color: var(--color-white);
+  --card-button-hover-bg: #333333;
 }
 
+/* Hero: фон */
 .bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 0% 80%;
+  object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
   z-index: 0;
-  transform: scaleX(-1);
+  transform: scale(var(--hero-bg-scale)) scaleX(-1);
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.20);
   z-index: 1;
+  background: var(--hero-overlay-color);
 }
 
+/* Hero: контент */
 .content {
   position: relative;
-  z-index: 2;
+  z-index: 10;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(40px, 8vh, 100px) clamp(20px, 4vw, 48px);
-  gap: clamp(24px, 4vh, 48px);
+  padding: var(--hero-content-padding-top) var(--hero-content-padding-x) var(--hero-content-padding-bottom);
 }
 
 .title {
-  font-family: 'Sansita One', sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: clamp(3rem, 15vw, 250px);
-  line-height: 100%;
-  letter-spacing: 0;
-  color: var(--color-black);
+  margin: 0 0 var(--hero-title-margin-bottom);
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: var(--hero-title-size);
+  line-height: 1;
+  letter-spacing: var(--hero-title-letter-spacing);
+  color: var(--hero-title-color);
   text-align: center;
   user-select: none;
   word-break: keep-all;
   white-space: nowrap;
 }
 
+/* Hero: карточка */
 .card {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: fit-content;
+  margin: var(--card-offset-y) auto 0;
 }
 
 .cardImage {
-  width: clamp(120px, 14vw, 200px);
+  display: block;
+  /* Ширина изображения определяет общий размер всей карточки. */
+  width: var(--card-image-width);
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  display: block;
-  object-position: 0% 0%;
+  object-position: top;
 }
 
 .btn {
   display: block;
-  background: var(--color-black);
-  color: var(--color-white);
+  /* Кнопка тянется на всю ширину карточки, как на референсе. */
+  width: 100%;
+  padding: var(--card-button-padding-y) var(--card-button-padding-x);
+  background: var(--card-button-bg);
+  color: var(--card-button-text-color);
   font-family: var(--font-sans);
-  font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+  font-size: var(--card-button-font-size);
   font-weight: 500;
-  letter-spacing: 0.15em;
-  padding: clamp(10px, 1.2vh, 14px) clamp(20px, 2vw, 32px);
-  white-space: nowrap;
-  transition: background 0.2s;
+  letter-spacing: var(--card-button-letter-spacing);
+  text-align: center;
+  transition: background-color 0.2s;
 }
 
 .btn:hover {
-  background: #333;
+  background: var(--card-button-hover-bg);
 }
 
-@media (max-width: 480px) {
-  .title {
-    font-size: clamp(2.5rem, 18vw, 5rem);
+@media (min-width: 640px) {
+  .hero {
+    --hero-content-padding-top: 40px;
+    --hero-content-padding-x: 32px;
+    --hero-content-padding-bottom: 64px;
+    --hero-title-size: 4rem;
+    --hero-title-margin-bottom: 0px;
+    --card-offset-y: -18px;
+    --card-image-width: 210px;
+    --card-button-padding-y: 13px;
+    --card-button-padding-x: 22px;
+    --card-button-font-size: 11px;
   }
+}
 
-  .cardImage {
-    width: 140px;
+@media (min-width: 768px) {
+  .hero {
+    --hero-title-size: 5.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    --hero-content-padding-top: 260px;
+    --hero-content-padding-x: 48px;
+    --hero-content-padding-bottom: 96px;
+    --hero-title-size: 7rem;
+    --hero-title-margin-bottom: 0px;
+    --card-offset-y: -28px;
+    --card-image-width: 250px;
+    --card-button-padding-y: 15px;
+    --card-button-padding-x: 26px;
+    --card-button-font-size: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero {
+    --hero-title-size: 9rem;
+    --hero-title-margin-bottom: 0px;
+    --card-offset-y: -56px;
+    --card-image-width: 290px;
+    --card-button-padding-y: 17px;
+    --card-button-padding-x: 32px;
+    --card-button-font-size: 13px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .hero {
+    --hero-title-size: 18rem;
+    --card-image-width: 460px;
+    --card-button-padding-y: 18px;
+    --card-button-padding-x: 36px;
+    --card-button-font-size: 14px;
   }
 }

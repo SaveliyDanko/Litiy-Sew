@@ -14,11 +14,22 @@ export default function HeroSection() {
       <div className={styles.overlay} />
 
       <div className={styles.content}>
-        <h1 className={styles.title}>Litiy Sew</h1>
+        <h1 className={styles.title}>
+          Litiy Sew
+        </h1>
 
         <div className={styles.card}>
-          <img className={styles.cardImage} src={COLLECTION_IMAGE_URL} alt="Новая коллекция" />
-          <a href="/collections" className={styles.btn}>НОВАЯ КОЛЛЕКЦИЯ</a>
+          <img
+            className={styles.cardImage}
+            src={COLLECTION_IMAGE_URL}
+            alt="Новая коллекция"
+          />
+          <a
+            href="/collections"
+            className={styles.btn}
+          >
+            НОВАЯ КОЛЛЕКЦИЯ
+          </a>
         </div>
       </div>
     </section>
