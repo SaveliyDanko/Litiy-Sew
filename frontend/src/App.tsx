@@ -1,5 +1,7 @@
+import AboutPage from './pages/AboutPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
+import CollectionsPage from './pages/CollectionsPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
 import PatternCategoryPage from './pages/PatternCategoryPage';
@@ -18,6 +20,14 @@ export default function App() {
 
   if (path.startsWith('/favorites')) {
     return <FavoritesPage />;
+  }
+
+  if (path.startsWith('/about')) {
+    return <AboutPage />;
+  }
+
+  if (path.startsWith('/collections')) {
+    return <CollectionsPage />;
   }
 
   if (/^\/patterns\/[^/]+/.test(path)) {

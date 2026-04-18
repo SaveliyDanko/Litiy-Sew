@@ -1,0 +1,261 @@
+.page {
+  /* Панель настроек страницы «Коллекции». */
+  --collections-page-bg: #ffffff;
+  --collections-max-width: 1480px;
+  --collections-side-padding: 16px;
+  --collections-section-gap: 56px;
+  --collections-page-padding-bottom: 72px;
+
+  /* Featured */
+  --collections-featured-gap: 20px;
+  --collections-featured-media-height: 320px;
+  --collections-featured-media-radius: 28px;
+  --collections-featured-copy-width: 100%;
+  --collections-featured-title-size: 3rem;
+  --collections-featured-subtitle-size: 1rem;
+  --collections-featured-text-size: 1rem;
+
+  /* Solo grid */
+  --collections-grid-gap: 24px;
+  --collections-grid-columns: 1;
+  --collections-card-radius: 28px;
+  --collections-card-media-height: 360px;
+  --collections-card-padding: 16px;
+  --collections-card-title-size: 1.75rem;
+  --collections-card-text-size: 0.98rem;
+
+  min-height: calc(100vh - 64px);
+  padding-bottom: var(--collections-page-padding-bottom);
+  background: var(--collections-page-bg);
+}
+
+.featured,
+.solo {
+  width: min(100%, var(--collections-max-width));
+  margin: 0 auto;
+}
+
+.featured {
+  display: grid;
+  gap: var(--collections-featured-gap);
+  padding: 48px var(--collections-side-padding) 0;
+}
+
+.featuredMedia {
+  position: relative;
+  overflow: hidden;
+  min-height: var(--collections-featured-media-height);
+  border-radius: var(--collections-featured-media-radius);
+  background: linear-gradient(145deg, #bcb0b0 0%, #b5a7a7 48%, #cec4c4 100%);
+}
+
+.featuredMedia::before {
+  content: '';
+  position: absolute;
+  inset: auto 8% 16% auto;
+  width: min(24vw, 260px);
+  height: min(24vw, 260px);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 18%);
+  filter: blur(8px);
+}
+
+.featuredGlow {
+  position: absolute;
+  inset: 12% 10% auto auto;
+  width: min(18vw, 180px);
+  height: min(18vw, 180px);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  filter: blur(22px);
+}
+
+.featuredCopy {
+  display: grid;
+  align-content: end;
+  justify-items: start;
+  width: var(--collections-featured-copy-width);
+}
+
+.featuredEyebrow,
+.soloEyebrow,
+.cardSubtitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #756966;
+}
+
+.featuredTitle {
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: var(--collections-featured-title-size);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+
+.featuredSubtitle {
+  margin: 0 0 18px;
+  font-size: var(--collections-featured-subtitle-size);
+  line-height: 1.1;
+}
+
+.featuredDescription {
+  margin: 0;
+  max-width: 28rem;
+  font-size: var(--collections-featured-text-size);
+  line-height: 1.6;
+  color: rgb(17 17 17 / 74%);
+}
+
+.solo {
+  display: grid;
+  gap: 24px;
+  padding: var(--collections-section-gap) var(--collections-side-padding) 0;
+}
+
+.soloHeading {
+  display: grid;
+  gap: 10px;
+}
+
+.soloTitle {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.soloGrid {
+  display: grid;
+  grid-template-columns: repeat(var(--collections-grid-columns), minmax(0, 1fr));
+  gap: var(--collections-grid-gap);
+}
+
+.card {
+  display: grid;
+  gap: 16px;
+}
+
+.cardMedia {
+  position: relative;
+  overflow: hidden;
+  min-height: var(--collections-card-media-height);
+  border-radius: var(--collections-card-radius);
+}
+
+.card[data-tone='warm'] .cardMedia {
+  background: radial-gradient(circle at 28% 30%, #ff875d 0%, #d15e36 18%, #512318 52%, #28110e 100%);
+}
+
+.card[data-tone='cool'] .cardMedia {
+  background: radial-gradient(circle at 50% 18%, #f3f4f4 0%, #d8dce2 18%, #c0c8d5 40%, #eef1f7 100%);
+}
+
+.card[data-tone='neutral'] .cardMedia {
+  background: linear-gradient(160deg, #6c685f 0%, #8a8378 42%, #d8d0c6 100%);
+}
+
+.cardMedia::before {
+  content: '';
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 100%;
+  height: 44%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0%) 0%, rgb(17 17 17 / 10%) 100%);
+}
+
+.cardAura {
+  position: absolute;
+  inset: 18% auto auto 14%;
+  width: min(22vw, 180px);
+  height: min(22vw, 180px);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  filter: blur(12px);
+}
+
+.cardBadge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+  color: var(--color-white);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cardBody {
+  display: grid;
+  gap: 10px;
+  padding: 0 var(--collections-card-padding);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--collections-card-title-size);
+  line-height: 0.95;
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: var(--collections-card-text-size);
+  line-height: 1.6;
+  color: rgb(17 17 17 / 74%);
+}
+
+@media (min-width: 640px) {
+  .page {
+    --collections-side-padding: 24px;
+    --collections-section-gap: 72px;
+    --collections-page-padding-bottom: 88px;
+    --collections-featured-gap: 28px;
+    --collections-featured-media-height: 420px;
+    --collections-featured-title-size: 4.5rem;
+    --collections-featured-subtitle-size: 1.3rem;
+    --collections-grid-gap: 28px;
+    --collections-card-media-height: 420px;
+    --collections-card-padding: 8px;
+    --collections-card-title-size: 2rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .page {
+    --collections-side-padding: 40px;
+    --collections-featured-gap: 36px;
+    --collections-featured-media-height: 560px;
+    --collections-featured-copy-width: min(100%, 420px);
+    --collections-featured-title-size: 5.75rem;
+    --collections-grid-columns: 3;
+    --collections-card-media-height: 520px;
+    --collections-card-title-size: 2.2rem;
+  }
+
+  .featured {
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    align-items: end;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    --collections-side-padding: 56px;
+    --collections-section-gap: 88px;
+    --collections-featured-media-height: 600px;
+    --collections-featured-title-size: 6.6rem;
+    --collections-card-media-height: 610px;
+    --collections-card-title-size: 2.4rem;
+    --collections-grid-gap: 34px;
+  }
+}
