@@ -1,0 +1,77 @@
+.collection {
+  /* Панель настроек верхней секции с фото коллекции. */
+  --collection-height: 40svh;
+
+  position: relative;
+  width: 100%;
+  height: var(--collection-height);
+  overflow: hidden;
+  background: #d9d9d9;
+}
+
+.collectionImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.page {
+  /* Панель настроек страницы «Выкройки». */
+  --patterns-padding-top: 28px;
+  --patterns-padding-x: 16px;
+  --patterns-padding-bottom: 48px;
+  --patterns-grid-gap-x: 16px;
+  --patterns-grid-gap-y: 40px;
+  --patterns-grid-columns: 2;
+  --patterns-max-width: 1600px;
+
+  padding: var(--patterns-padding-top) var(--patterns-padding-x) var(--patterns-padding-bottom);
+  background: var(--color-white);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--patterns-grid-columns), minmax(0, 1fr));
+  gap: var(--patterns-grid-gap-y) var(--patterns-grid-gap-x);
+  max-width: var(--patterns-max-width);
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .page {
+    --patterns-padding-top: 36px;
+    --patterns-padding-x: 24px;
+    --patterns-padding-bottom: 64px;
+    --patterns-grid-gap-x: 20px;
+    --patterns-grid-gap-y: 48px;
+    --patterns-grid-columns: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    --patterns-padding-top: 48px;
+    --patterns-padding-x: 40px;
+    --patterns-padding-bottom: 80px;
+    --patterns-grid-gap-x: 28px;
+    --patterns-grid-gap-y: 56px;
+    --patterns-grid-columns: 4;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    --patterns-padding-x: 56px;
+    --patterns-grid-gap-x: 36px;
+    --patterns-grid-gap-y: 64px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .page {
+    --patterns-padding-x: 72px;
+    --patterns-grid-gap-x: 44px;
+  }
+}

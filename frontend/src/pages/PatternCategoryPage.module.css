@@ -1,0 +1,97 @@
+.page {
+  /* Панель настроек страницы категории выкроек. */
+  --cat-padding-top: 24px;
+  --cat-padding-x: 16px;
+  --cat-padding-bottom: 64px;
+  --cat-grid-gap-x: 16px;
+  --cat-grid-gap-y: 40px;
+  --cat-grid-columns: 2;
+  --cat-max-width: 1600px;
+  --cat-title-size: 1.75rem;
+
+  padding: var(--cat-padding-top) var(--cat-padding-x) var(--cat-padding-bottom);
+  background: var(--color-white);
+  max-width: var(--cat-max-width);
+  margin: 0 auto;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.breadcrumbs a {
+  color: #777;
+  transition: color 0.2s;
+}
+
+.breadcrumbs a:hover {
+  color: var(--color-black);
+}
+
+.sep {
+  color: #bbb;
+}
+
+.current {
+  color: var(--color-black);
+}
+
+.title {
+  margin: 0 0 24px;
+  font-family: var(--font-display);
+  font-size: var(--cat-title-size);
+  font-weight: 400;
+  color: var(--color-black);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cat-grid-columns), minmax(0, 1fr));
+  gap: var(--cat-grid-gap-y) var(--cat-grid-gap-x);
+}
+
+.empty {
+  font-size: 15px;
+  color: #666;
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--color-black);
+  text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+  .page {
+    --cat-padding-top: 32px;
+    --cat-padding-x: 24px;
+    --cat-grid-gap-x: 20px;
+    --cat-grid-gap-y: 44px;
+    --cat-grid-columns: 3;
+    --cat-title-size: 2.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    --cat-padding-top: 40px;
+    --cat-padding-x: 40px;
+    --cat-grid-gap-x: 28px;
+    --cat-grid-gap-y: 52px;
+    --cat-grid-columns: 4;
+    --cat-title-size: 2.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    --cat-padding-x: 56px;
+    --cat-grid-gap-x: 32px;
+  }
+}
