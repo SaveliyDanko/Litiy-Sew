@@ -1,4 +1,5 @@
 import { useState, type MouseEvent } from 'react';
+import { useCart } from '../hooks/useCart';
 import { useFavorites } from '../hooks/useFavorites';
 import type { Product } from '../types/product';
 import PatternParamsModal from './PatternParamsModal';
@@ -15,6 +16,7 @@ const RUB_FORMATTER = new Intl.NumberFormat('ru-RU');
 
 export default function ProductCard({ product, imageSrc, href, variant = 'default' }: Props) {
   const { isFavorite, toggle, remove } = useFavorites();
+  const { add } = useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const favorite = isFavorite(product.id);
 
@@ -29,7 +31,8 @@ export default function ProductCard({ product, imageSrc, href, variant = 'defaul
 
   const handleCartClick = () => setModalOpen(true);
 
-  const handleConfirm = () => {
+  const handleConfirm = (params: { height: string; size: string }) => {
+    add(product, params);
     setModalOpen(false);
   };
 
