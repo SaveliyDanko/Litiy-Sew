@@ -4,7 +4,7 @@ React SPA для интернет-магазина одежды.
 
 ## Стек
 
-- React 19, TypeScript 5.9 (strict), Vite 8, ESLint
+- React 19, TypeScript 6, Vite 8, Node 24
 
 ## Структура `src/`
 

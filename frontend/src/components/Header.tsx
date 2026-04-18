@@ -3,7 +3,12 @@ import styles from './Header.module.css';
 export default function Header() {
   return (
     <header className={styles.header}>
-      <a href="/" className={styles.logo}>Litiy</a>
+      <a
+        href="/"
+        className={styles.logo}
+      >
+        Litiy
+      </a>
 
       <nav className={styles.nav}>
         <a href="/about">ОБО МНЕ</a>

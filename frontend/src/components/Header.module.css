@@ -4,32 +4,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(14px, 2vh, 20px) clamp(20px, 4vw, 48px);
+  padding: 14px 20px;
   background: var(--color-black);
   color: var(--color-white);
 }
 
 .logo {
-  font-family: 'Sansita One', sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: clamp(28px, 3.5vw, 50px);
-  line-height: 100%;
-  letter-spacing: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1;
 }
 
 .nav {
-  display: flex;
-  gap: clamp(16px, 2.5vw, 36px);
-  font-size: clamp(0.65rem, 0.85vw, 0.8rem);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-}
-
-@media (max-width: 640px) {
-  .nav {
-    display: none;
-  }
+  display: none;
 }
 
 .nav a {
@@ -43,22 +30,65 @@
 
 .actions {
   display: flex;
-  gap: 16px;
   align-items: center;
+  gap: 16px;
 }
 
 .actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-white);
-  padding: 4px;
   display: flex;
   align-items: center;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-white);
+  cursor: pointer;
   opacity: 0.9;
   transition: opacity 0.2s;
 }
 
 .actions button:hover {
   opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .header {
+    padding: 16px 32px;
+  }
+
+  .logo {
+    font-size: 36px;
+  }
+
+  .nav {
+    display: flex;
+    gap: 24px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: 20px 48px;
+  }
+
+  .logo {
+    font-size: 44px;
+  }
+
+  .nav {
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .logo {
+    font-size: 50px;
+  }
+
+  .nav {
+    gap: 36px;
+    font-size: 12px;
+  }
 }

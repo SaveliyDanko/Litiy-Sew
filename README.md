@@ -6,50 +6,25 @@
 
 | Часть    | Стек                                          |
 |----------|-----------------------------------------------|
-| Frontend | React 19, TypeScript, Vite 8                  |
-| Backend  | Java 21, Spring Boot 3.5, Spring Data JPA     |
-| БД       | PostgreSQL                                    |
+| Frontend | React 19, TypeScript 6, Vite 8, Node 24       |
+| Backend  | Java 21, Spring Boot, Gradle                  |
+| БД       | PostgreSQL 17                                 |
 
 ## Структура проекта
-
 ```
 LitiySew/
 ├── frontend/   — React SPA
 ├── backend/    — Spring Boot REST API
 ```
 
-## Быстрый старт
+## Backend README:
 
-### Требования
+[backend/README.md](backend/README.md)
 
-- Node.js 20+
-- Java 21+
-- Gradle 8+ (wrapper включён)
-- PostgreSQL 15+
+## Frontend README:
 
-### База данных
+[frontend/README.md](frontend/README.md)
 
-```bash
-createdb litiy_sew
-```
+## Minio
 
-Креды по умолчанию в `backend/src/main/resources/application.yaml` — `postgres:postgres`.
-
-### Backend
-
-```bash
-cd backend
-./gradlew bootRun
-```
-
-Сервер запустится на http://localhost:8080
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Dev-сервер запустится на http://localhost:5173
+[minio.md](docs/minio.md)
