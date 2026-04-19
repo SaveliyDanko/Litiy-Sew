@@ -21,7 +21,7 @@ public class FavoriteService {
 
     @Transactional(readOnly = true)
     public List<FavoriteResponse> list(String username) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         return favoriteItemRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream()
                 .map(FavoriteResponse::from)
                 .toList();
@@ -29,7 +29,7 @@ public class FavoriteService {
 
     @Transactional
     public FavoriteResponse add(String username, FavoriteRequest request) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         FavoriteItem item = favoriteItemRepository
                 .findByUserIdAndProductId(user.getId(), request.productId())
                 .orElseGet(() -> FavoriteItem.builder()
@@ -45,7 +45,7 @@ public class FavoriteService {
 
     @Transactional
     public void remove(String username, String productId) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         favoriteItemRepository.deleteByUserIdAndProductId(user.getId(), productId);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -21,25 +22,27 @@ public class UserService implements org.springframework.security.core.userdetail
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String email) {
+        User user = userRepository.findByEmail(normalize(email))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPasswordHash(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 
     @Transactional
-    public User register(String username, String rawPassword) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username is already taken");
+    public User register(String email, String rawPassword) {
+        String normalized = normalize(email);
+        if (userRepository.existsByEmail(normalized)) {
+            throw new IllegalArgumentException("Email is already registered");
         }
         User user = User.builder()
-                .username(username)
+                .email(normalized)
                 .passwordHash(passwordEncoder.encode(rawPassword))
+                .emailVerified(false)
                 .role(Role.USER)
                 .createdAt(Instant.now())
                 .build();
@@ -47,8 +50,12 @@ public class UserService implements org.springframework.security.core.userdetail
     }
 
     @Transactional(readOnly = true)
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(normalize(email))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+    }
+
+    private String normalize(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 }

@@ -64,7 +64,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/login/verify",
+                                "/api/auth/verify-email",
+                                "/api/auth/resend-code"
+                        ).permitAll()
                         .requestMatchers("/api/media/**").permitAll()
                         .anyRequest().authenticated()
                 )

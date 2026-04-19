@@ -177,7 +177,7 @@
     gap: 16px;
   }
 
-  .menuButton,
+  .actions .menuButton,
   .mobileMenu,
   .backdrop {
     display: none;

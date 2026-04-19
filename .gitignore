@@ -31,3 +31,4 @@ backend/build/
 backend/.gradle/
 backend/bin/
 backend/out/
+backend/.env

@@ -154,6 +154,62 @@
   color: #666;
 }
 
+.hint {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.meta {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.info_ {
+  margin: 0;
+  padding: 10px 12px;
+  background: #eef7ee;
+  color: #2e7d32;
+  font-size: 13px;
+}
+
+.secondaryRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.linkButton {
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  color: var(--color-black);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.linkButton:hover:not(:disabled) {
+  opacity: 0.6;
+}
+
+.linkButton:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.tab:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
 @media (min-width: 640px) {
   .page {
     padding: 64px 24px;

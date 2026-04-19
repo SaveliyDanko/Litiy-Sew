@@ -22,7 +22,7 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public List<CartItemResponse> list(String username) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         return cartItemRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream()
                 .map(CartItemResponse::from)
                 .toList();
@@ -30,7 +30,7 @@ public class CartService {
 
     @Transactional
     public CartItemResponse add(String username, CartItemRequest request) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         Instant now = Instant.now();
         CartItem item = cartItemRepository
                 .findByUserIdAndProductIdAndHeightAndSize(
@@ -60,7 +60,7 @@ public class CartService {
 
     @Transactional
     public CartItemResponse updateQuantity(String username, Long itemId, CartItemUpdateRequest request) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         CartItem item = cartItemRepository.findByIdAndUserId(itemId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
         item.setQuantity(request.quantity());
@@ -70,7 +70,7 @@ public class CartService {
 
     @Transactional
     public void remove(String username, Long itemId) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         CartItem item = cartItemRepository.findByIdAndUserId(itemId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
         cartItemRepository.delete(item);
@@ -78,7 +78,7 @@ public class CartService {
 
     @Transactional
     public void clear(String username) {
-        User user = userService.getByUsername(username);
+        User user = userService.getByEmail(username);
         cartItemRepository.deleteByUserId(user.getId());
     }
 }

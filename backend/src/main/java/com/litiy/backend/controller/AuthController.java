@@ -1,9 +1,18 @@
 package com.litiy.backend.controller;
 
+import com.litiy.backend.exception.AuthCodeException;
+import com.litiy.backend.exception.AuthCodeException.Kind;
+import com.litiy.backend.model.dto.LoginChallengeResponse;
 import com.litiy.backend.model.dto.LoginRequest;
+import com.litiy.backend.model.dto.LoginVerifyRequest;
 import com.litiy.backend.model.dto.RegisterRequest;
+import com.litiy.backend.model.dto.RegisterResponse;
+import com.litiy.backend.model.dto.ResendCodeRequest;
 import com.litiy.backend.model.dto.UserResponse;
+import com.litiy.backend.model.dto.VerifyEmailRequest;
 import com.litiy.backend.model.entity.User;
+import com.litiy.backend.service.AuthChallengeService;
+import com.litiy.backend.service.AuthChallengeService.LoginChallenge;
 import com.litiy.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -24,36 +34,86 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
+    private final AuthChallengeService authChallengeService;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
-        User user = userService.register(request.username(), request.password());
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+        User user = userService.register(request.email(), request.password());
+        Duration ttl = authChallengeService.sendRegistrationCode(user.getEmail());
+        return ResponseEntity.ok(new RegisterResponse(
+                user.getId(),
+                user.getEmail(),
+                "email_verification_required",
+                ttl.toSeconds()
+        ));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<UserResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        User user = authChallengeService.verifyRegistration(request.email(), request.code());
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    @PostMapping("/resend-code")
+    public ResponseEntity<RegisterResponse> resendCode(@Valid @RequestBody ResendCodeRequest request) {
+        Duration ttl = authChallengeService.resendRegistrationCode(request.email());
+        return ResponseEntity.ok(new RegisterResponse(
+                null,
+                authChallengeService.normalize(request.email()),
+                "email_verification_required",
+                ttl.toSeconds()
+        ));
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request,
-                                              HttpServletRequest httpRequest,
-                                              HttpServletResponse httpResponse) {
+    public ResponseEntity<LoginChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(
-                request.username(), request.password());
-        Authentication authentication = authenticationManager.authenticate(authToken);
+                request.email(), request.password());
+        authenticationManager.authenticate(authToken);
+
+        User user = userService.getByEmail(request.email());
+        if (!user.isEmailVerified()) {
+            throw new AuthCodeException(Kind.EMAIL_NOT_VERIFIED, "Email не подтверждён");
+        }
+
+        LoginChallenge challenge = authChallengeService.startLoginChallenge(user.getEmail());
+        return ResponseEntity.ok(new LoginChallengeResponse(
+                challenge.challengeId(),
+                challenge.email(),
+                challenge.ttl().toSeconds()
+        ));
+    }
+
+    @PostMapping("/login/verify")
+    public ResponseEntity<UserResponse> loginVerify(@Valid @RequestBody LoginVerifyRequest request,
+                                                    HttpServletRequest httpRequest,
+                                                    HttpServletResponse httpResponse) {
+        String email = authChallengeService.verifyLoginChallenge(request.challengeId(), request.code());
+        User user = userService.getByEmail(email);
+
+        Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
+                user.getEmail(),
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-        User user = userService.getByUsername(authentication.getName());
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
@@ -69,7 +129,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(Authentication authentication) {
-        User user = userService.getByUsername(authentication.getName());
+        User user = userService.getByEmail(authentication.getName());
         return ResponseEntity.ok(UserResponse.from(user));
     }
 }

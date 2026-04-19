@@ -8,26 +8,69 @@
 
   /* Hero */
   --about-hero-height: calc(100svh - 64px);
-  --about-hero-image-position: 52% 52%;
-  --about-hero-image-scale: 1.12;
-  --about-hero-overlay: linear-gradient(90deg, rgb(17 17 17 / 72%) 0%, rgb(17 17 17 / 20%) 45%, rgb(17 17 17 / 12%) 100%);
-  --about-hero-content-width: 100%;
-  --about-hero-content-padding: 24px 20px 32px;
-  --about-hero-eyebrow-size: 11px;
-  --about-hero-eyebrow-spacing: 0.24em;
-  --about-hero-title-size: 4.25rem;
 
-  /* Story */
-  --about-story-gap: 24px;
-  --about-story-padding: 0;
+  /* Настройка hero-изображения:
+     1) `position-x/y` меняют точку кадрирования.
+     2) `scale` отвечает за приближение.
+     3) `offset-x/y` дают тонкую ручную подстройку после кадрирования. */
+  --about-hero-image-position-x: 100%;
+  --about-hero-image-position-y: 0%;
+  --about-hero-image-scale: 1;
+  --about-hero-image-offset-x: 0px;
+  --about-hero-image-offset-y: 0px;
+
+  --about-hero-overlay: linear-gradient(90deg, rgb(17 17 17 / 72%) 0%, rgb(17 17 17 / 20%) 45%, rgb(17 17 17 / 12%) 100%);
+
+  /* Настройка hero-надписи:
+     1) `content-padding` двигает блок внутри hero по краям.
+     2) `content-offset-x/y` дают точное смещение блока.
+     3) `content-width/max-width` ограничивают ширину блока.
+     4) `title-size` меняет размер надписи. */
+  --about-hero-content-width: 100%;
+  --about-hero-content-max-width: none;
+  --about-hero-content-padding: 24px 20px 40px;
+  --about-hero-content-offset-x: 0px;
+  --about-hero-content-offset-y: 0px;
+  --about-hero-content-text-align: left;
+  --about-hero-title-size: 4.25rem;
+  --about-hero-title-line-height: 0.95;
+  --about-hero-title-letter-spacing: 0.01em;
+
+  /* ===== Story — общие настройки секции =====
+     - `min-height`  — высота секции (по умолчанию во весь экран).
+     - `gap`         — расстояние между фото и текстом.
+     - `padding`     — внутренние отступы секции (вертикальный / горизонтальный).
+     - `max-width`   — максимальная ширина содержимого секции. */
+  --about-story-min-height: 100svh;
+  --about-story-gap: 40px;
+  --about-story-padding: 64px 20px;
+  --about-story-max-width: 1240px;
+
+  /* ===== Story — фотография =====
+     - `media-width/height`   — размер рамки с фото.
+     - `media-radius`         — скругление углов рамки.
+     - `image-position-x/y`   — точка кадрирования изображения внутри рамки.
+     - `image-scale`          — масштаб (приближение) изображения.
+     - `image-offset-x/y`     — тонкая ручная подстройка положения после кадрирования. */
+  --about-story-media-width: min(88vw, 440px);
+  --about-story-media-height: min(78vh, 580px);
   --about-story-media-radius: 28px;
-  --about-story-media-height: 420px;
-  --about-story-image-position: 16% 50%;
-  --about-story-image-scale: 1.42;
-  --about-story-lead-size: 13px;
-  --about-story-text-size: 1.25rem;
-  --about-story-text-line-height: 1.55;
-  --about-story-max-text-width: 34rem;
+  --about-story-image-position-x: 50%;
+  --about-story-image-position-y: 30%;
+  --about-story-image-scale: 1;
+  --about-story-image-offset-x: 0px;
+  --about-story-image-offset-y: 0px;
+
+  /* ===== Story — текстовый блок =====
+     - `copy-gap`         — расстояние между абзацами.
+     - `text-size`        — размер текста абзацев.
+     - `text-line-height` — межстрочный интервал.
+     - `text-color`       — цвет текста.
+       (Ширина текста не ограничена — блок занимает всё доступное пространство колонки.) */
+  --about-story-copy-gap: 20px;
+  --about-story-text-size: 1rem;
+  --about-story-text-line-height: 1.7;
+  --about-story-text-color: #2a2a2a;
 
   /* Portfolio */
   --about-portfolio-cards-gap: 16px;
@@ -40,7 +83,6 @@
   --about-portfolio-detail-padding: 16px;
   --about-portfolio-detail-radius: 30px;
   --about-portfolio-preview-radius: 22px;
-  --about-portfolio-preview-height: 280px;
   --about-section-eyebrow-size: 11px;
   --about-section-eyebrow-spacing: 0.22em;
   --about-section-title-size: 2.75rem;
@@ -50,7 +92,18 @@
   background: var(--about-page-bg);
 }
 
-.story,
+.story {
+  width: min(100%, var(--about-story-max-width));
+  margin: 0 auto;
+  min-height: var(--about-story-min-height);
+  padding: var(--about-story-padding);
+  display: grid;
+  gap: var(--about-story-gap);
+  justify-items: center;
+  align-items: center;
+  align-content: center;
+}
+
 .portfolio {
   width: min(100%, var(--about-max-width));
   margin: 0 auto;
@@ -72,8 +125,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--about-hero-image-position);
-  transform: scale(var(--about-hero-image-scale));
+  object-position: var(--about-hero-image-position-x) var(--about-hero-image-position-y);
+  transform: translate3d(var(--about-hero-image-offset-x), var(--about-hero-image-offset-y), 0)
+    scale(var(--about-hero-image-scale));
+  transform-origin: center;
 }
 
 .heroOverlay {
@@ -83,74 +138,63 @@
 }
 
 .heroContent {
+  /* Положение заголовка настраивается переменными `--about-hero-content-*` выше. */
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   width: var(--about-hero-content-width);
+  max-width: var(--about-hero-content-max-width);
   min-height: var(--about-hero-height);
   padding: var(--about-hero-content-padding);
-}
-
-.heroEyebrow {
-  margin: 0 0 14px;
-  font-size: var(--about-hero-eyebrow-size);
-  font-weight: 600;
-  letter-spacing: var(--about-hero-eyebrow-spacing);
-  text-transform: uppercase;
+  text-align: var(--about-hero-content-text-align);
+  transform: translate3d(var(--about-hero-content-offset-x), var(--about-hero-content-offset-y), 0);
 }
 
 .heroTitle {
+  /* Размер заголовка удобнее всего менять через `--about-hero-title-size`. */
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--about-hero-title-size);
-  line-height: 0.95;
-  letter-spacing: 0.01em;
-}
-
-.story {
-  display: grid;
-  gap: var(--about-story-gap);
-  padding: 40px var(--about-side-padding) 0;
+  line-height: var(--about-hero-title-line-height);
+  letter-spacing: var(--about-hero-title-letter-spacing);
 }
 
 .storyFigure {
+  /* Размер рамки настраивается переменными `--about-story-media-width/height/radius`. */
   position: relative;
+  flex-shrink: 0;
   overflow: hidden;
+  width: var(--about-story-media-width);
   height: var(--about-story-media-height);
   border-radius: var(--about-story-media-radius);
   background: #d8d2cd;
 }
 
 .storyImage {
+  /* Положение и масштаб фото настраиваются переменными `--about-story-image-*` выше. */
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--about-story-image-position);
-  transform: scale(var(--about-story-image-scale));
+  object-position: var(--about-story-image-position-x) var(--about-story-image-position-y);
+  transform: translate3d(var(--about-story-image-offset-x), var(--about-story-image-offset-y), 0)
+    scale(var(--about-story-image-scale));
+  transform-origin: center;
 }
 
 .storyCopy {
   display: grid;
-  gap: 24px;
+  gap: var(--about-story-copy-gap);
   align-content: start;
-  max-width: var(--about-story-max-text-width);
-}
-
-.storyLead {
-  margin: 0;
-  font-size: var(--about-story-lead-size);
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: #6f6457;
+  width: 100%;
 }
 
 .storyCopy p {
   margin: 0;
   font-size: var(--about-story-text-size);
   line-height: var(--about-story-text-line-height);
+  color: var(--about-story-text-color);
 }
 
 .portfolio {
@@ -196,7 +240,7 @@
   padding: var(--about-portfolio-card-padding);
   border: 1px solid rgb(17 17 17 / 10%);
   border-radius: var(--about-portfolio-card-radius);
-  background: rgb(255 255 255 / 72%);
+  background: #ffffff;
   color: var(--color-black);
   text-align: left;
   cursor: pointer;
@@ -216,26 +260,6 @@
 .portfolioCardActive {
   border-color: rgb(17 17 17 / 26%);
   box-shadow: 0 18px 32px rgb(17 17 17 / 12%);
-}
-
-.portfolioCard[data-tone='warm'] {
-  background: linear-gradient(180deg, #f2ddd2 0%, #fff8f1 100%);
-}
-
-.portfolioCard[data-tone='graphite'] {
-  background: linear-gradient(180deg, #d9dbde 0%, #f7f7f7 100%);
-}
-
-.portfolioCard[data-tone='sage'] {
-  background: linear-gradient(180deg, #dde5d6 0%, #f8faf6 100%);
-}
-
-.portfolioCard[data-tone='lilac'] {
-  background: linear-gradient(180deg, #e4d9f0 0%, #fbf8ff 100%);
-}
-
-.portfolioCard[data-tone='blue'] {
-  background: linear-gradient(180deg, #dbe7f8 0%, #f7fbff 100%);
 }
 
 .portfolioCardEyebrow {
@@ -260,6 +284,7 @@
 }
 
 .portfolioDetail {
+  grid-column: 1 / -1;
   display: grid;
   gap: var(--about-portfolio-detail-gap);
   padding: var(--about-portfolio-detail-padding);
@@ -269,84 +294,20 @@
 }
 
 .portfolioPreview {
+  /* A4-пропорции (1 : √2), портретная ориентация — ширина × 1.4142. */
   position: relative;
   overflow: hidden;
-  min-height: var(--about-portfolio-preview-height);
+  width: 100%;
+  aspect-ratio: 1 / 1.4142;
   border-radius: var(--about-portfolio-preview-radius);
-  padding: 18px;
-  color: #111111;
+  background: #d8d2cd;
 }
 
-.portfolioPreview::before {
-  content: '';
-  position: absolute;
-  inset: auto -8% -24% auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 26%);
-  filter: blur(4px);
-}
-
-.portfolioPreview[data-tone='warm'] {
-  background: linear-gradient(135deg, #efd5c7 0%, #f8ede2 54%, #f1d2bd 100%);
-}
-
-.portfolioPreview[data-tone='graphite'] {
-  background: linear-gradient(135deg, #cfd2d8 0%, #eff0f3 50%, #d8dde7 100%);
-}
-
-.portfolioPreview[data-tone='sage'] {
-  background: linear-gradient(135deg, #d3decb 0%, #eef5ea 52%, #d8e7cd 100%);
-}
-
-.portfolioPreview[data-tone='lilac'] {
-  background: linear-gradient(135deg, #dbd0e9 0%, #f3ecfa 50%, #e5daf3 100%);
-}
-
-.portfolioPreview[data-tone='blue'] {
-  background: linear-gradient(135deg, #d0def1 0%, #eef5fd 50%, #d9e7f8 100%);
-}
-
-.portfolioPreviewBadge {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: rgb(17 17 17 / 7%);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.portfolioPreviewBody {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: calc(var(--about-portfolio-preview-height) - 36px);
-}
-
-.portfolioPreviewNote {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgb(17 17 17 / 65%);
-}
-
-.portfolioPreviewLabel {
-  margin: 0;
-  font-size: clamp(2rem, 9vw, 4rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
+.portfolioPreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .portfolioDetailCopy {
@@ -389,36 +350,42 @@
     --about-section-gap: 72px;
     --about-side-padding: 24px;
     --about-hero-height: calc(100svh - 72px);
+    --about-hero-content-max-width: 680px;
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
-    --about-story-gap: 36px;
-    --about-story-media-height: 520px;
-    --about-story-lead-size: 12px;
-    --about-story-text-size: 1.6rem;
+    --about-story-gap: 56px;
+    --about-story-padding: 80px 32px;
+    --about-story-media-width: min(70vw, 520px);
+    --about-story-media-height: min(76vh, 640px);
+    --about-story-text-size: 1.05rem;
     --about-portfolio-cards-gap: 18px;
     --about-portfolio-card-min-height: 186px;
     --about-portfolio-card-padding: 24px;
     --about-portfolio-detail-padding: 22px;
-    --about-portfolio-preview-height: 340px;
     --about-section-title-size: 3.2rem;
   }
 }
 
 @media (min-width: 900px) {
   .page {
-    --about-story-gap: 48px;
-    --about-story-media-height: 560px;
-    --about-story-text-size: 1.45rem;
-    --about-story-image-position: 18% 50%;
+    --about-story-gap: 72px;
+    --about-story-media-width: min(48vw, 560px);
+    --about-story-media-height: min(80vh, 700px);
+    --about-story-text-size: 1.1rem;
   }
 
   .story {
-    grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
     align-items: center;
   }
 
   .portfolioCards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portfolioDetail {
+    order: 1;
   }
 }
 
@@ -427,16 +394,17 @@
     --about-side-padding: 40px;
     --about-hero-height: calc(100svh - 82px);
     --about-hero-content-width: 58%;
-    --about-hero-content-padding: 40px 40px 44px;
-    --about-hero-title-size: 7.5rem;
-    --about-story-media-height: 620px;
-    --about-story-text-size: 1.18rem;
+    --about-hero-content-max-width: 760px;
+    --about-hero-content-padding: 60px 100px 100px;
+    --about-hero-title-size: 10rem;
+    --about-story-media-width: min(46vw, 620px);
+    --about-story-media-height: min(82vh, 760px);
+    --about-story-text-size: 1.15rem;
     --about-portfolio-cards-gap: 20px;
     --about-portfolio-detail-gap: 28px;
     --about-portfolio-card-min-height: 210px;
     --about-portfolio-detail-padding: 28px;
     --about-portfolio-detail-radius: 34px;
-    --about-portfolio-preview-height: 400px;
     --about-section-title-size: 3.8rem;
   }
 
@@ -455,12 +423,12 @@
     --about-page-padding-bottom: 104px;
     --about-section-gap: 88px;
     --about-side-padding: 48px;
-    --about-hero-title-size: 8.75rem;
-    --about-story-gap: 56px;
-    --about-story-media-height: 650px;
-    --about-story-text-size: 1.28rem;
+    --about-hero-title-size: 10rem;
+    --about-story-gap: 96px;
+    --about-story-media-width: min(44vw, 700px);
+    --about-story-media-height: min(84vh, 820px);
+    --about-story-text-size: 1.2rem;
     --about-portfolio-card-min-height: 228px;
-    --about-portfolio-preview-height: 430px;
     --about-section-title-size: 4.2rem;
   }
 }
