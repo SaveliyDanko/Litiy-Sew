@@ -48,6 +48,12 @@ export type RegisterResponse = {
   expiresInSeconds: number;
 };
 
+export type UpdateProfileRequest = {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+};
+
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   let response: Response;
@@ -132,4 +138,11 @@ export function logout(): Promise<void> {
 
 export function me(): Promise<User> {
   return request<User>('/auth/me', { method: 'GET' });
+}
+
+export function updateProfile(profile: UpdateProfileRequest): Promise<User> {
+  return request<User>('/users/me/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(profile),
+  });
 }

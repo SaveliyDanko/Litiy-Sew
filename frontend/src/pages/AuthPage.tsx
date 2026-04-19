@@ -1,22 +1,44 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Header from '../components/Header';
 import { useAuth, emitAuthChanged } from '../hooks/useAuth';
+import ProfileCabinetPage from './ProfileCabinetPage';
+import ProfileMeasurementsPage from './ProfileMeasurementsPage';
+import ProfileOrdersPage from './ProfileOrdersPage';
+import ProfilePatternsPage from './ProfilePatternsPage';
+import ProfileReviewsPage from './ProfileReviewsPage';
 import {
   AuthError,
   login,
   register,
   resendCode,
+  updateProfile,
   verifyEmail,
 } from '../services/auth';
 import styles from './AuthPage.module.css';
+import {
+  BagIcon,
+  CameraIcon,
+  ChatIcon,
+  CloseIcon,
+  CODE_LENGTH,
+  GearIcon,
+  HangerIcon,
+  LifebuoyIcon,
+  LockIcon,
+  LogoutIcon,
+  RESEND_COOLDOWN_MS,
+  RulerIcon,
+  TelegramIcon,
+  UserIcon,
+  VkIcon,
+  WhatsAppIcon,
+  formatDuration,
+  type CodeContext,
+  type Mode,
+  type Step,
+} from './authPageData';
 
-type Mode = 'login' | 'register';
-type Step = 'credentials' | 'code';
-
-type CodeContext = {
-  email: string;
-  expiresInSeconds: number;
-};
+type ProfileView = 'cabinet' | 'orders' | 'patterns' | 'reviews' | 'measurements';
 
 export default function AuthPage() {
   const { user, status, logout } = useAuth();
@@ -47,12 +69,29 @@ export default function AuthPage() {
     email: '',
     phone: '',
   });
+  const [profileSubmitting, setProfileSubmitting] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileInfo, setProfileInfo] = useState<string | null>(null);
+  const [profileView, setProfileView] = useState<ProfileView>(() => getProfileView(window.location.pathname));
 
   useEffect(() => {
-    if (user?.email) {
-      setProfileForm((prev) => ({ ...prev, email: user.email }));
-    }
-  }, [user?.email]);
+    if (!user) return;
+    setProfileForm({
+      firstName: user.firstName ?? '',
+      lastName: user.lastName ?? '',
+      email: user.email,
+      phone: user.phoneNumber ?? '',
+    });
+  }, [user]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setProfileView(getProfileView(window.location.pathname));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     if (!photoMenuOpen) return;
@@ -103,12 +142,78 @@ export default function AuthPage() {
 
   const openSettings = () => {
     setPhotoMenuOpen(false);
+    setProfileError(null);
+    setProfileInfo(null);
     setSettingsOpen(true);
   };
 
-  const handleProfileSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const navigateToProfileView = (nextView: ProfileView) => {
+    const nextPath = getProfilePath(nextView);
+
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+    }
+
     setSettingsOpen(false);
+    setPhotoMenuOpen(false);
+    setProfileView(nextView);
+  };
+
+  const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!user) return;
+
+    setProfileError(null);
+    setProfileInfo(null);
+
+    const nextFirstName = normalizeProfileValue(profileForm.firstName);
+    const nextLastName = normalizeProfileValue(profileForm.lastName);
+    const nextPhoneNumber = normalizeProfileValue(profileForm.phone);
+    const currentFirstName = normalizeProfileValue(user.firstName ?? '');
+    const currentLastName = normalizeProfileValue(user.lastName ?? '');
+    const currentPhoneNumber = normalizeProfileValue(user.phoneNumber ?? '');
+
+    const isClearingProfileField =
+      (currentFirstName && !nextFirstName)
+      || (currentLastName && !nextLastName)
+      || (currentPhoneNumber && !nextPhoneNumber);
+
+    if (isClearingProfileField) {
+      setProfileError('Очистка полей пока не поддерживается. Укажите новое значение для сохранения.');
+      return;
+    }
+
+    const payload = {
+      ...(nextFirstName && nextFirstName !== currentFirstName ? { firstName: nextFirstName } : {}),
+      ...(nextLastName && nextLastName !== currentLastName ? { lastName: nextLastName } : {}),
+      ...(nextPhoneNumber && nextPhoneNumber !== currentPhoneNumber ? { phoneNumber: nextPhoneNumber } : {}),
+    };
+
+    if (Object.keys(payload).length === 0) {
+      setProfileInfo('Нет изменений для сохранения');
+      return;
+    }
+
+    setProfileSubmitting(true);
+    try {
+      const updatedUser = await updateProfile(payload);
+      setProfileForm({
+        firstName: updatedUser.firstName ?? '',
+        lastName: updatedUser.lastName ?? '',
+        email: updatedUser.email,
+        phone: updatedUser.phoneNumber ?? '',
+      });
+      setSettingsOpen(false);
+      emitAuthChanged();
+    } catch (err) {
+      if (err instanceof AuthError) {
+        setProfileError(err.message);
+      } else {
+        setProfileError('Не удалось сохранить данные');
+      }
+    } finally {
+      setProfileSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -201,7 +306,7 @@ export default function AuthPage() {
     try {
       const result = await resendCode(codeContext.email);
       setExpiresAt(Date.now() + result.expiresInSeconds * 1000);
-      setCooldownUntil(Date.now() + 60 * 1000);
+      setCooldownUntil(Date.now() + RESEND_COOLDOWN_MS);
       setInfo(`Код повторно отправлен на ${result.email}`);
       setCode('');
     } catch (err) {
@@ -244,6 +349,14 @@ export default function AuthPage() {
     setCooldownUntil(null);
     resetCommon();
   };
+
+  const updateProfileField =
+    (field: 'firstName' | 'lastName' | 'phone') =>
+      (value: string) => {
+        setProfileError(null);
+        setProfileInfo(null);
+        setProfileForm((current) => ({ ...current, [field]: value }));
+      };
 
   if (status === 'loading') {
     return (
@@ -323,22 +436,39 @@ export default function AuthPage() {
           <section className={styles.profileMain}>
             <nav className={styles.profileTabs} aria-label="Разделы кабинета">
               <div className={styles.profileTabsList}>
-                <button type="button" className={`${styles.profileTab} ${styles.profileTabActive}`}>
+                <button
+                  type="button"
+                  className={`${styles.profileTab} ${profileView === 'cabinet' ? styles.profileTabActive : ''}`}
+                  onClick={() => navigateToProfileView('cabinet')}
+                >
                   <UserIcon /> <span>Кабинет</span>
                 </button>
-                <button type="button" className={styles.profileTab}>
+                <button
+                  type="button"
+                  className={`${styles.profileTab} ${profileView === 'orders' ? styles.profileTabActive : ''}`}
+                  onClick={() => navigateToProfileView('orders')}
+                >
                   <BagIcon /> <span>Заказы</span>
                 </button>
-                <button type="button" className={styles.profileTab}>
+                <button
+                  type="button"
+                  className={`${styles.profileTab} ${profileView === 'patterns' ? styles.profileTabActive : ''}`}
+                  onClick={() => navigateToProfileView('patterns')}
+                >
                   <HangerIcon /> <span>Выкройки</span>
                 </button>
-                <button type="button" className={styles.profileTab}>
-                  <GiftIcon /> <span>Бонусы</span>
-                </button>
-                <button type="button" className={styles.profileTab}>
+                <button
+                  type="button"
+                  className={`${styles.profileTab} ${profileView === 'reviews' ? styles.profileTabActive : ''}`}
+                  onClick={() => navigateToProfileView('reviews')}
+                >
                   <ChatIcon /> <span>Отзывы</span>
                 </button>
-                <button type="button" className={styles.profileTab}>
+                <button
+                  type="button"
+                  className={`${styles.profileTab} ${profileView === 'measurements' ? styles.profileTabActive : ''}`}
+                  onClick={() => navigateToProfileView('measurements')}
+                >
                   <RulerIcon /> <span>Мерки</span>
                 </button>
               </div>
@@ -351,13 +481,17 @@ export default function AuthPage() {
               </button>
             </nav>
 
-            <div className={styles.profileGrid}>
-              <EmptyTile icon={<BagIcon />} title="Пока нет оформленных заказов" action="Перейти к покупкам" />
-              <EmptyTile icon={<HangerIcon />} title="Пока нет купленных выкроек" action="Перейти к покупкам" />
-              <EmptyTile icon={<GiftIcon />} title="Пока нет начисленных бонусов" action="Условия начисления" />
-              <EmptyTile icon={<ChatIcon />} title="Пока нет оставленных отзывов" action="Приобрели выкройку? Оставьте свой отзыв" />
-              <EmptyTile icon={<RulerIcon />} title="Пока нет мерок" action="Добавить мерку" />
-            </div>
+            {profileView === 'orders' ? (
+              <ProfileOrdersPage />
+            ) : profileView === 'patterns' ? (
+              <ProfilePatternsPage />
+            ) : profileView === 'reviews' ? (
+              <ProfileReviewsPage />
+            ) : profileView === 'measurements' ? (
+              <ProfileMeasurementsPage />
+            ) : (
+              <ProfileCabinetPage />
+            )}
           </section>
 
           {settingsOpen && (
@@ -386,7 +520,7 @@ export default function AuthPage() {
                       className={styles.modalInput}
                       type="text"
                       value={profileForm.firstName}
-                      onChange={(e) => setProfileForm((p) => ({ ...p, firstName: e.target.value }))}
+                      onChange={(e) => updateProfileField('firstName')(e.target.value)}
                       maxLength={100}
                     />
                   </label>
@@ -396,7 +530,7 @@ export default function AuthPage() {
                       className={styles.modalInput}
                       type="text"
                       value={profileForm.lastName}
-                      onChange={(e) => setProfileForm((p) => ({ ...p, lastName: e.target.value }))}
+                      onChange={(e) => updateProfileField('lastName')(e.target.value)}
                       maxLength={100}
                     />
                   </label>
@@ -406,7 +540,7 @@ export default function AuthPage() {
                       className={styles.modalInput}
                       type="email"
                       value={profileForm.email}
-                      onChange={(e) => setProfileForm((p) => ({ ...p, email: e.target.value }))}
+                      readOnly
                       maxLength={255}
                     />
                   </label>
@@ -416,12 +550,17 @@ export default function AuthPage() {
                       className={styles.modalInput}
                       type="tel"
                       value={profileForm.phone}
-                      onChange={(e) => setProfileForm((p) => ({ ...p, phone: e.target.value }))}
-                      maxLength={30}
+                      onChange={(e) => updateProfileField('phone')(e.target.value)}
+                      maxLength={32}
                     />
                   </label>
 
-                  <button type="submit" className={styles.modalSave}>Сохранить</button>
+                  {profileInfo && <p className={styles.info_}>{profileInfo}</p>}
+                  {profileError && <p className={styles.error}>{profileError}</p>}
+
+                  <button type="submit" className={styles.modalSave} disabled={profileSubmitting}>
+                    {profileSubmitting ? 'Сохранение...' : 'Сохранить'}
+                  </button>
 
                   <button type="button" className={styles.modalPassword}>
                     <LockIcon />
@@ -513,11 +652,11 @@ export default function AuthPage() {
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CODE_LENGTH))}
                   required
-                  minLength={6}
-                  maxLength={6}
-                  pattern="\d{6}"
+                  minLength={CODE_LENGTH}
+                  maxLength={CODE_LENGTH}
+                  pattern={`\\d{${CODE_LENGTH}}`}
                 />
                 {fieldErrors.code && <span className={styles.fieldError}>{fieldErrors.code}</span>}
               </label>
@@ -529,7 +668,7 @@ export default function AuthPage() {
               {info && <p className={styles.info_}>{info}</p>}
               {error && <p className={styles.error}>{error}</p>}
 
-              <button type="submit" className={styles.submit} disabled={submitting || code.length !== 6}>
+              <button type="submit" className={styles.submit} disabled={submitting || code.length !== CODE_LENGTH}>
                 {submitting ? 'Проверка...' : 'Подтвердить'}
               </button>
 
@@ -561,173 +700,30 @@ export default function AuthPage() {
   );
 }
 
-function formatDuration(totalSeconds: number): string {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
+function normalizeProfileValue(value: string): string | undefined {
+  const normalized = value.trim();
+  return normalized === '' ? undefined : normalized;
 }
 
-type EmptyTileProps = {
-  icon: ReactNode;
-  title: string;
-  action: string;
-};
-
-function EmptyTile({ icon, title, action }: EmptyTileProps) {
-  return (
-    <div className={styles.tile}>
-      <div className={styles.tileIcon}>{icon}</div>
-      <p className={styles.tileTitle}>{title}</p>
-      <button type="button" className={styles.tileAction}>
-        <span>{action}</span>
-        <ChevronRightIcon />
-      </button>
-    </div>
-  );
+function getProfileView(pathname: string): ProfileView {
+  if (pathname.startsWith('/profile/orders')) return 'orders';
+  if (pathname.startsWith('/profile/patterns')) return 'patterns';
+  if (pathname.startsWith('/profile/reviews')) return 'reviews';
+  if (pathname.startsWith('/profile/measurements')) return 'measurements';
+  return 'cabinet';
 }
 
-const ICON_SIZE = 22;
-
-function CameraIcon() {
-  return (
-    <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
-      <circle cx="12" cy="13" r="3.5" />
-    </svg>
-  );
-}
-
-function GearIcon() {
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.9l.1.1a1.7 1.7 0 0 0 1.8.3 1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
-    </svg>
-  );
-}
-
-function LifebuoyIcon() {
-  return (
-    <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="3.5" />
-      <path d="M4.9 4.9 9.5 9.5M14.5 14.5l4.6 4.6M4.9 19.1l4.6-4.6M14.5 9.5l4.6-4.6" />
-    </svg>
-  );
-}
-
-function WhatsAppIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 21l1.7-5.1A8 8 0 1 1 8.1 19.3L3 21Z" />
-      <path d="M9 10c.3 1 1 2 2 3s2 1.7 3 2l1.2-1.2a1 1 0 0 1 1-.2l2 .7a1 1 0 0 1 .7 1v1.7a1 1 0 0 1-1 1A9 9 0 0 1 8 9a1 1 0 0 1 1-1h1.7a1 1 0 0 1 1 .7l.7 2a1 1 0 0 1-.2 1L11 13" />
-    </svg>
-  );
-}
-
-function TelegramIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="m3 11 17-7-3 16-5-4-3 3v-4l8-7-10 6-4-3Z" />
-    </svg>
-  );
-}
-
-function VkIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 8h3c.5 3 1.8 5.5 3.5 6.5V8h3v4c1.3-.5 2.4-2 3-4h3c-.5 2.2-1.8 4.3-3.5 5.5 1.8 1 3.2 2.8 4 4.5h-3.3c-.7-1.5-2-2.8-3.2-3.2V18H9.5c-4-.5-6-5.3-6.5-10Z" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg width={ICON_SIZE - 4} height={ICON_SIZE - 4} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="10" r="3" />
-      <path d="M6 18c1.2-2 3.4-3 6-3s4.8 1 6 3" />
-    </svg>
-  );
-}
-
-function BagIcon() {
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 8h12l-1 12H7L6 8Z" />
-      <path d="M9 8a3 3 0 0 1 6 0" />
-    </svg>
-  );
-}
-
-function HangerIcon() {
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 10a2 2 0 1 1 2-2" />
-      <path d="M12 10 3 17a1 1 0 0 0 .6 1.8h16.8A1 1 0 0 0 21 17l-9-7Z" />
-    </svg>
-  );
-}
-
-function GiftIcon() {
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="4" y="9" width="16" height="4" rx="0.5" />
-      <path d="M5 13v7h14v-7M12 9v11" />
-      <path d="M12 9c-1.5-3-5-3-5-1s2 2 5 1Zm0 0c1.5-3 5-3 5-1s-2 2-5 1Z" />
-    </svg>
-  );
-}
-
-function ChatIcon() {
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 6h16v10H8l-4 4V6Z" />
-      <path d="M8 10h8M8 13h5" />
-    </svg>
-  );
-}
-
-function RulerIcon() {
-  return (
-    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="8" width="18" height="8" rx="1" />
-      <path d="M7 8v3M11 8v4M15 8v3M19 8v4" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4" />
-      <path d="M10 8l-4 4 4 4" />
-      <path d="M6 12h12" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="m9 6 6 6-6 6" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="5" y="11" width="14" height="9" rx="1" />
-      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-    </svg>
-  );
+function getProfilePath(view: ProfileView): string {
+  switch (view) {
+    case 'orders':
+      return '/profile/orders';
+    case 'patterns':
+      return '/profile/patterns';
+    case 'reviews':
+      return '/profile/reviews';
+    case 'measurements':
+      return '/profile/measurements';
+    default:
+      return '/profile';
+  }
 }

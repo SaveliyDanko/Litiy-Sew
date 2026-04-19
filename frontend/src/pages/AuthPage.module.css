@@ -465,6 +465,137 @@
   }
 }
 
+.ordersPage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ordersSearchBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #dddddd;
+  color: #757575;
+}
+
+.ordersSearchBar svg {
+  flex-shrink: 0;
+}
+
+.ordersSearchInput {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #474747;
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.ordersSearchInput::placeholder {
+  color: #7d7d7d;
+}
+
+.ordersSearchInput:focus {
+  outline: none;
+}
+
+.ordersFiltersBar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-white);
+}
+
+.ordersFilterButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #4b4b4b;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ordersFilterButton:hover {
+  color: #111;
+}
+
+.ordersFilterButton svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.ordersPanel {
+  min-height: 280px;
+  padding: 40px 24px;
+  background: #fbfbfb;
+  border: 1px solid #e3e3e3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ordersEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.ordersEmptyIcon {
+  color: #868686;
+}
+
+.ordersEmptyIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.ordersEmptyTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(24px, 3vw, 42px);
+  font-weight: 300;
+  line-height: 1.08;
+  color: #9a9a9a;
+}
+
+.ordersCatalogLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.ordersCatalogLink:hover {
+  color: #111;
+}
+
+@media (min-width: 960px) {
+  .ordersPage {
+    gap: 14px;
+  }
+
+  .ordersPanel {
+    min-height: 360px;
+  }
+}
+
 .tile {
   background: var(--color-white);
   min-height: 220px;
