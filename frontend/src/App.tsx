@@ -2,11 +2,13 @@ import Toaster from './components/Toaster';
 import AboutPage from './pages/AboutPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
+import CheckoutUnavailablePage from './pages/CheckoutUnavailablePage';
 import CollectionPlaceholderPage from './pages/CollectionPlaceholderPage';
 import CollectionsPage from './pages/CollectionsPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
 import PatternCategoryPage from './pages/PatternCategoryPage';
+import PatternDetailPage from './pages/PatternDetailPage';
 import PatternsPage from './pages/PatternsPage';
 
 function renderPage() {
@@ -14,6 +16,10 @@ function renderPage() {
 
   if (path.startsWith('/auth') || path.startsWith('/profile')) {
     return <AuthPage />;
+  }
+
+  if (path.startsWith('/checkout')) {
+    return <CheckoutUnavailablePage />;
   }
 
   if (path.startsWith('/cart')) {
@@ -34,6 +40,10 @@ function renderPage() {
 
   if (path.startsWith('/collections')) {
     return <CollectionsPage />;
+  }
+
+  if (/^\/patterns\/[^/]+\/[^/]+/.test(path)) {
+    return <PatternDetailPage />;
   }
 
   if (/^\/patterns\/[^/]+/.test(path)) {

@@ -1,5 +1,6 @@
 package com.litiy.backend.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -67,6 +68,14 @@ public class GlobalExceptionHandler {
             builder.header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()));
         }
         return builder.body(body);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "not_found",
+                "message", ex.getMessage() == null ? "Ресурс не найден" : ex.getMessage()
+        ));
     }
 
     @ExceptionHandler(MailDeliveryException.class)

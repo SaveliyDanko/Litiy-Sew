@@ -80,6 +80,13 @@ export function WhatsAppIcon() {
   ]);
 }
 
+export function MailIcon() {
+  return el(Svg, { width: 18, height: 18 }, [
+    el('rect', { key: 'r', x: 3, y: 5, width: 18, height: 14, rx: 1.5 }),
+    el('path', { key: 'p', d: 'm4 7 8 6 8-6' }),
+  ]);
+}
+
 export function TelegramIcon() {
   return el(Svg, { width: 18, height: 18 }, el('path', { d: 'm3 11 17-7-3 16-5-4-3 3v-4l8-7-10 6-4-3Z' }));
 }
@@ -166,6 +173,13 @@ export function CalendarIcon() {
   return el(Svg, { width: 18, height: 18 }, [
     el('rect', { key: 'r', x: 3, y: 5, width: 18, height: 16, rx: 1.5 }),
     el('path', { key: 'p1', d: 'M16 3v4M8 3v4M3 10h18' }),
+  ]);
+}
+
+export function PlusIcon() {
+  return el(Svg, { width: 22, height: 22, strokeWidth: 1.5 }, [
+    el('circle', { key: 'c', cx: 12, cy: 12, r: 9 }),
+    el('path', { key: 'p', d: 'M12 8v8M8 12h8' }),
   ]);
 }
 

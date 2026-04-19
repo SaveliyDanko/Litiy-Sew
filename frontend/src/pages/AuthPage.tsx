@@ -26,12 +26,12 @@ import {
   LifebuoyIcon,
   LockIcon,
   LogoutIcon,
+  MailIcon,
   RESEND_COOLDOWN_MS,
   RulerIcon,
   TelegramIcon,
   UserIcon,
   VkIcon,
-  WhatsAppIcon,
   formatDuration,
   type CodeContext,
   type Mode,
@@ -426,9 +426,9 @@ export default function AuthPage() {
                 обратиться в нашу службу поддержки
               </p>
               <div className={styles.helpSocials}>
-                <a href="#" className={styles.helpSocial} aria-label="WhatsApp"><WhatsAppIcon /></a>
                 <a href="#" className={styles.helpSocial} aria-label="Telegram"><TelegramIcon /></a>
                 <a href="#" className={styles.helpSocial} aria-label="VK"><VkIcon /></a>
+                <a href="mailto:support@litiysew.ru" className={styles.helpSocial} aria-label="E-mail"><MailIcon /></a>
               </div>
             </div>
           </aside>

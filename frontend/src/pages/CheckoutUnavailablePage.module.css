@@ -1,0 +1,75 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px;
+  background: var(--color-white);
+}
+
+.card {
+  padding: 48px 32px;
+  border: 1px solid #e5e5e5;
+  background: var(--color-white);
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.text {
+  margin: 0 0 32px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  font-size: 13px;
+  color: var(--color-black);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.backLink:hover {
+  border-bottom-color: var(--color-black);
+}
+
+.primaryLink {
+  padding: 12px 24px;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.primaryLink:hover {
+  background: #333;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 64px 48px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+}

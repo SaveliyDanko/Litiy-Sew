@@ -49,12 +49,12 @@ export const SOLO_COLLECTIONS: CollectionEntry[] = [
     detailIntro:
       'Образ строится на контрасте драматичной декоративности и чёткой, почти сценической собранности силуэта.',
     detailFocus: 'Главный акцент — корсетная линия и выразительный объём',
-    detailHeroImagePath: 'collections/details/queen-of-hearts-hero-placeholder.jpg',
+    detailHeroImagePath: 'collections/details/look-1/queen-of-hearts-hero-placeholder.jpg',
     detailGalleryImagePaths: [
-      'collections/details/queen-of-hearts-look-1-placeholder.jpg',
-      'collections/details/queen-of-hearts-look-2-placeholder.jpg',
-      'collections/details/queen-of-hearts-look-2-placeholder.jpg',
-      'collections/details/queen-of-hearts-look-2-placeholder.jpg',
+      'collections/details/look-1/queen-of-hearts-look-1-placeholder.jpg',
+      'collections/details/look-1/queen-of-hearts-look-2-placeholder.jpg',
+      'collections/details/look-1/queen-of-hearts-look-3-placeholder.jpg',
+      'collections/details/look-1/queen-of-hearts-look-4-placeholder.jpg',
     ],
   },
   {
@@ -72,8 +72,8 @@ export const SOLO_COLLECTIONS: CollectionEntry[] = [
     detailGalleryImagePaths: [
       'collections/details/blue-reverie-look-1-placeholder.jpg',
       'collections/details/blue-reverie-look-2-placeholder.jpg',
-      'collections/details/blue-reverie-look-2-placeholder.jpg',
-      'collections/details/blue-reverie-look-2-placeholder.jpg',
+      'collections/details/blue-reverie-look-3-placeholder.jpg',
+      'collections/details/blue-reverie-look-4-placeholder.jpg',
     ],
   },
   {
