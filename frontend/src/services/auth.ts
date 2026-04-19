@@ -48,11 +48,6 @@ export type RegisterResponse = {
   expiresInSeconds: number;
 };
 
-export type LoginChallengeResponse = {
-  challengeId: string;
-  email: string;
-  expiresInSeconds: number;
-};
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
   let response: Response;
@@ -124,17 +119,10 @@ export function resendCode(email: string): Promise<RegisterResponse> {
   });
 }
 
-export function login(email: string, password: string): Promise<LoginChallengeResponse> {
-  return request<LoginChallengeResponse>('/auth/login', {
+export function login(email: string, password: string): Promise<User> {
+  return request<User>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
-  });
-}
-
-export function loginVerify(challengeId: string, code: string): Promise<User> {
-  return request<User>('/auth/login/verify', {
-    method: 'POST',
-    body: JSON.stringify({ challengeId, code }),
   });
 }
 

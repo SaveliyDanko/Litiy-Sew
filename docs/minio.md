@@ -7,7 +7,7 @@ MinIO — self-hosted S3-совместимый object storage. Использу
 ## Запуск
 
 ```bash
-docker compose up -d
+docker compose up -d minio minio-init
 ```
 
 При первом запуске сервис `minio-init` автоматически:

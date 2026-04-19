@@ -1,8 +1,10 @@
 import { useState, type MouseEvent } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { useFavorites } from '../hooks/useFavorites';
 import type { Product } from '../types/product';
 import PatternParamsModal from './PatternParamsModal';
+import { showToast } from './toast';
 import styles from './ProductCard.module.css';
 
 type Props = {
@@ -15,21 +17,35 @@ type Props = {
 const RUB_FORMATTER = new Intl.NumberFormat('ru-RU');
 
 export default function ProductCard({ product, imageSrc, href, variant = 'default' }: Props) {
+  const { status } = useAuth();
   const { isFavorite, toggle, remove } = useFavorites();
   const { add } = useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const favorite = isFavorite(product.id);
 
+  const requireAuth = (): boolean => {
+    if (status === 'authenticated') return true;
+    showToast('Войдите, чтобы добавлять товары в корзину и избранное', {
+      label: 'Войти',
+      href: '/auth',
+    });
+    return false;
+  };
+
   const handleFavoriteClick = (e: MouseEvent) => {
     e.preventDefault();
     if (variant === 'favorites') {
       remove(product.id);
-    } else {
-      toggle(product);
+      return;
     }
+    if (!requireAuth()) return;
+    toggle(product);
   };
 
-  const handleCartClick = () => setModalOpen(true);
+  const handleCartClick = () => {
+    if (!requireAuth()) return;
+    setModalOpen(true);
+  };
 
   const handleConfirm = (params: { height: string; size: string }) => {
     add(product, params);

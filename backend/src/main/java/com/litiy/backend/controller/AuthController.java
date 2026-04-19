@@ -2,9 +2,7 @@ package com.litiy.backend.controller;
 
 import com.litiy.backend.exception.AuthCodeException;
 import com.litiy.backend.exception.AuthCodeException.Kind;
-import com.litiy.backend.model.dto.LoginChallengeResponse;
 import com.litiy.backend.model.dto.LoginRequest;
-import com.litiy.backend.model.dto.LoginVerifyRequest;
 import com.litiy.backend.model.dto.RegisterRequest;
 import com.litiy.backend.model.dto.RegisterResponse;
 import com.litiy.backend.model.dto.ResendCodeRequest;
@@ -12,7 +10,6 @@ import com.litiy.backend.model.dto.UserResponse;
 import com.litiy.backend.model.dto.VerifyEmailRequest;
 import com.litiy.backend.model.entity.User;
 import com.litiy.backend.service.AuthChallengeService;
-import com.litiy.backend.service.AuthChallengeService.LoginChallenge;
 import com.litiy.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,9 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -78,7 +74,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request,
+                                              HttpServletRequest httpRequest,
+                                              HttpServletResponse httpResponse) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 request.email(), request.password());
         authenticationManager.authenticate(authToken);
@@ -88,25 +86,11 @@ public class AuthController {
             throw new AuthCodeException(Kind.EMAIL_NOT_VERIFIED, "Email не подтверждён");
         }
 
-        LoginChallenge challenge = authChallengeService.startLoginChallenge(user.getEmail());
-        return ResponseEntity.ok(new LoginChallengeResponse(
-                challenge.challengeId(),
-                challenge.email(),
-                challenge.ttl().toSeconds()
-        ));
-    }
-
-    @PostMapping("/login/verify")
-    public ResponseEntity<UserResponse> loginVerify(@Valid @RequestBody LoginVerifyRequest request,
-                                                    HttpServletRequest httpRequest,
-                                                    HttpServletResponse httpResponse) {
-        String email = authChallengeService.verifyLoginChallenge(request.challengeId(), request.code());
-        User user = userService.getByEmail(email);
-
+        UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
         Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
-                user.getEmail(),
+                userDetails,
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                userDetails.getAuthorities()
         );
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();

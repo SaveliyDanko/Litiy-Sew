@@ -68,4 +68,12 @@ public class GlobalExceptionHandler {
         }
         return builder.body(body);
     }
+
+    @ExceptionHandler(MailDeliveryException.class)
+    public ResponseEntity<Map<String, Object>> handleMailDelivery(MailDeliveryException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                "error", "mail_unavailable",
+                "message", ex.getMessage()
+        ));
+    }
 }

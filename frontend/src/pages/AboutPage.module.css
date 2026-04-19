@@ -41,10 +41,10 @@
      - `gap`         — расстояние между фото и текстом.
      - `padding`     — внутренние отступы секции (вертикальный / горизонтальный).
      - `max-width`   — максимальная ширина содержимого секции. */
-  --about-story-min-height: 100svh;
+  --about-story-min-height: 80svh;
   --about-story-gap: 40px;
-  --about-story-padding: 64px 20px;
-  --about-story-max-width: 1240px;
+  --about-story-padding: 40px 20px;
+  --about-story-max-width: 1440px;
 
   /* ===== Story — фотография =====
      - `media-width/height`   — размер рамки с фото.
@@ -188,6 +188,8 @@
   gap: var(--about-story-copy-gap);
   align-content: start;
   width: 100%;
+  max-width: none;
+  justify-self: stretch;
 }
 
 .storyCopy p {
@@ -195,6 +197,9 @@
   font-size: var(--about-story-text-size);
   line-height: var(--about-story-text-line-height);
   color: var(--about-story-text-color);
+  max-width: none;
+  text-align: justify;
+  text-align-last: left;
 }
 
 .portfolio {
@@ -354,7 +359,7 @@
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
     --about-story-gap: 56px;
-    --about-story-padding: 80px 32px;
+    --about-story-padding: 40px 32px;
     --about-story-media-width: min(70vw, 520px);
     --about-story-media-height: min(76vh, 640px);
     --about-story-text-size: 1.05rem;
@@ -427,7 +432,7 @@
     --about-story-gap: 96px;
     --about-story-media-width: min(44vw, 700px);
     --about-story-media-height: min(84vh, 820px);
-    --about-story-text-size: 1.2rem;
+    --about-story-text-size: 1.8rem;
     --about-portfolio-card-min-height: 228px;
     --about-section-title-size: 4.2rem;
   }

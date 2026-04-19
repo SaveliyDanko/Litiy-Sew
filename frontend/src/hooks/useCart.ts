@@ -1,71 +1,77 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Product } from '../types/product';
+import {
+  addCart,
+  clearCart,
+  listCart,
+  removeCart,
+  updateCartQuantity,
+} from '../services/cart';
 import type { CartItem } from '../types/cart';
+import type { Product } from '../types/product';
 
-const STORAGE_KEY = 'litiy.cart';
 const EVENT_NAME = 'litiy:cart-changed';
-
-function readStorage(): CartItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeStorage(items: CartItem[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new CustomEvent(EVENT_NAME));
-}
-
-function makeLineId(productId: string, height: string, size: string): string {
-  return `${productId}|${height}|${size}`;
-}
+const AUTH_EVENT = 'litiy:auth-changed';
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>(() => readStorage());
+  const [items, setItems] = useState<CartItem[]>([]);
+
+  const reload = useCallback(async () => {
+    try {
+      setItems(await listCart());
+    } catch {
+      setItems([]);
+    }
+  }, []);
 
   useEffect(() => {
-    const sync = () => setItems(readStorage());
+    const sync = () => {
+      void reload();
+    };
+    sync();
     window.addEventListener(EVENT_NAME, sync);
-    window.addEventListener('storage', sync);
+    window.addEventListener(AUTH_EVENT, sync);
     return () => {
       window.removeEventListener(EVENT_NAME, sync);
-      window.removeEventListener('storage', sync);
+      window.removeEventListener(AUTH_EVENT, sync);
     };
-  }, []);
+  }, [reload]);
 
-  const add = useCallback((product: Product, params: { height: string; size: string }, quantity = 1) => {
-    const current = readStorage();
-    const lineId = makeLineId(product.id, params.height, params.size);
-    const existing = current.find((i) => i.lineId === lineId);
-    const next: CartItem[] = existing
-      ? current.map((i) => (i.lineId === lineId ? { ...i, quantity: i.quantity + quantity } : i))
-      : [...current, { ...product, ...params, lineId, quantity }];
-    writeStorage(next);
-  }, []);
+  const emit = () => window.dispatchEvent(new CustomEvent(EVENT_NAME));
 
-  const setQuantity = useCallback((lineId: string, quantity: number) => {
+  const add = useCallback(
+    async (product: Product, params: { height: string; size: string }, quantity = 1) => {
+      await addCart(product, params, quantity);
+      emit();
+    },
+    [],
+  );
+
+  const setQuantity = useCallback(async (lineId: string, quantity: number) => {
     const clamped = Math.max(1, Math.floor(quantity));
-    const next = readStorage().map((i) => (i.lineId === lineId ? { ...i, quantity: clamped } : i));
-    writeStorage(next);
-  }, []);
+    const target = items.find((i) => i.lineId === lineId);
+    if (!target) return;
+    await updateCartQuantity(target.itemId, clamped);
+    emit();
+  }, [items]);
 
-  const remove = useCallback((lineId: string) => {
-    const next = readStorage().filter((i) => i.lineId !== lineId);
-    writeStorage(next);
-  }, []);
+  const remove = useCallback(async (lineId: string) => {
+    const target = items.find((i) => i.lineId === lineId);
+    if (!target) return;
+    await removeCart(target.itemId);
+    emit();
+  }, [items]);
 
-  const removeMany = useCallback((lineIds: string[]) => {
+  const removeMany = useCallback(async (lineIds: string[]) => {
     const ids = new Set(lineIds);
-    const next = readStorage().filter((i) => !ids.has(i.lineId));
-    writeStorage(next);
-  }, []);
+    const targets = items.filter((i) => ids.has(i.lineId));
+    await Promise.all(targets.map((i) => removeCart(i.itemId)));
+    emit();
+  }, [items]);
 
-  const clear = useCallback(() => writeStorage([]), []);
+  const clear = useCallback(async () => {
+    await clearCart();
+    emit();
+  }, []);
 
   return { items, add, setQuantity, remove, removeMany, clear };
 }

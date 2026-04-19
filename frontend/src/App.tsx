@@ -1,3 +1,4 @@
+import Toaster from './components/Toaster';
 import AboutPage from './pages/AboutPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
@@ -8,7 +9,7 @@ import HomePage from './pages/HomePage';
 import PatternCategoryPage from './pages/PatternCategoryPage';
 import PatternsPage from './pages/PatternsPage';
 
-export default function App() {
+function renderPage() {
   const path = window.location.pathname;
 
   if (path.startsWith('/auth') || path.startsWith('/profile')) {
@@ -44,4 +45,13 @@ export default function App() {
   }
 
   return <HomePage />;
+}
+
+export default function App() {
+  return (
+    <>
+      {renderPage()}
+      <Toaster />
+    </>
+  );
 }

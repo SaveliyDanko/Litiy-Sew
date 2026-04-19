@@ -3,9 +3,9 @@ spring:
     name: LitiySew
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/litiy_sew
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:litiy_sew}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,7 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   data:
     redis:
@@ -53,6 +52,7 @@ app:
     from: ${MAIL_FROM:${MAIL_USERNAME:}}
     verification-subject: "Код подтверждения LitiySew"
     login-subject: "Код для входа в LitiySew"
+    console-fallback-enabled: ${APP_MAIL_CONSOLE_FALLBACK_ENABLED:false}
   auth:
     code:
       length: 6
