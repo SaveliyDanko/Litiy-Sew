@@ -241,18 +241,53 @@
 }
 
 .profileAside {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: contents;
+}
+
+.photoCard {
+  order: 1;
+}
+
+.profileMain {
+  order: 2;
+}
+
+.helpCard {
+  order: 3;
+}
+
+@media (min-width: 960px) {
+  .profileAside {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .photoCard,
+  .profileMain,
+  .helpCard {
+    order: initial;
+  }
 }
 
 .photoCard {
   position: relative;
-  aspect-ratio: 1 / 1.1;
-  background: var(--color-white);
+  background: transparent;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 0;
+}
+
+@media (min-width: 960px) {
+  .photoCard {
+    aspect-ratio: 1 / 1.1;
+    background: var(--color-white);
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
 }
 
 .fileInput {
@@ -291,13 +326,13 @@
 }
 
 .photoButton {
-  width: 100%;
-  height: 100%;
+  width: 96px;
+  height: 96px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
   padding: 0;
   border: none;
   background-color: transparent;
@@ -305,33 +340,81 @@
   background-position: center;
   color: #2b2b2b;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: opacity 0.15s;
+  flex-shrink: 0;
 }
 
 .photoButton:hover {
   opacity: 0.7;
 }
 
-.photoSettings {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: #1b1b1b;
-  color: var(--color-white);
-  cursor: pointer;
-  transition: background-color 0.15s;
+@media (min-width: 960px) {
+  .photoButton {
+    width: 100%;
+    height: 100%;
+    gap: 10px;
+    font-size: 14px;
+  }
 }
 
-.photoSettings:hover {
-  background: #333;
+.photoActionsMobile {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  margin-top: 36px;
+}
+
+.photoActionMobile {
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid #d9d9d9;
+  background: transparent;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: #2b2b2b;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.photoActionMobile:hover {
+  color: #000;
+}
+
+@media (min-width: 960px) {
+  .photoActionsMobile {
+    display: none;
+  }
+}
+
+.photoSettings {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .photoSettings {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: #1b1b1b;
+    color: var(--color-white);
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .photoSettings:hover {
+    background: #333;
+  }
 }
 
 .helpCard {
@@ -393,20 +476,61 @@
   min-width: 0;
 }
 
+.profileBack {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #2b2b2b;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.profileBack:hover {
+  color: #000;
+}
+
+.profileBack svg {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 960px) {
+  .profileBack {
+    display: none;
+  }
+}
+
 .profileTabs {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
-  background: var(--color-white);
-  padding: 0 20px;
+  background: transparent;
+  padding: 0 4px;
   overflow-x: auto;
 }
 
 .profileTabsList {
-  display: flex;
+  display: none;
   align-items: stretch;
   gap: 4px;
+}
+
+@media (min-width: 960px) {
+  .profileTabs {
+    justify-content: space-between;
+    background: var(--color-white);
+    padding: 0 20px;
+  }
+
+  .profileTabsList {
+    display: flex;
+  }
 }
 
 .profileTab {
@@ -435,7 +559,7 @@
 }
 
 .profileLogout {
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: 8px;
   padding: 18px 10px;
@@ -453,15 +577,49 @@
   color: #000;
 }
 
+@media (min-width: 960px) {
+  .profileLogout {
+    display: inline-flex;
+  }
+}
+
+.profileLogoutMobile {
+  order: 0;
+  align-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #2b2b2b;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.profileLogoutMobile:hover {
+  color: #000;
+}
+
+@media (min-width: 960px) {
+  .profileLogoutMobile {
+    display: none;
+  }
+}
+
 .profileGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 @media (min-width: 720px) {
   .profileGrid {
     grid-template-columns: 1fr 1fr;
+    gap: 20px;
   }
 }
 
@@ -598,8 +756,8 @@
 
 .tile {
   background: var(--color-white);
-  min-height: 220px;
-  padding: 32px 24px;
+  min-height: 180px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -607,6 +765,21 @@
   gap: 14px;
   text-align: center;
   color: #b5b5b5;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+button.tile:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 720px) {
+  .tile {
+    min-height: 220px;
+    padding: 32px 24px;
+  }
 }
 
 .tileIcon {
