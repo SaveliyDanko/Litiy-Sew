@@ -14,9 +14,7 @@ const patternsLinks = [
 ];
 
 const contactLinks = [
-  { href: 'https://instagram.com', label: 'Instagram*', external: true },
   { href: 'https://t.me', label: 'Telegram', external: true },
-  { href: 'https://wa.me', label: 'WhatsApp', external: true },
   { href: 'mailto:patterns@litiysew.com', label: 'patterns@litiysew.com' },
   { href: 'https://vk.com', label: 'VK', external: true },
   { href: 'https://boosty.to', label: 'Мы на Boosty', external: true },
@@ -101,9 +99,6 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-          <p className={styles.disclaimer}>
-            *Деятельность компании Meta Inc. и её продуктов Instagram, Facebook и др. признана в России экстремистской и запрещена.
-          </p>
         </div>
       </div>
     </footer>

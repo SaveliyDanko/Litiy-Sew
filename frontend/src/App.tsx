@@ -1,5 +1,8 @@
 import Toaster from './components/Toaster';
 import AboutPage from './pages/AboutPage';
+import PrivacyPage from './pages/PrivacyPage';
+import OfferPage from './pages/OfferPage';
+import TermsPage from './pages/TermsPage';
 import AuthPage from './pages/AuthPage';
 import CartPage from './pages/CartPage';
 import CheckoutUnavailablePage from './pages/CheckoutUnavailablePage';
@@ -32,6 +35,18 @@ function renderPage() {
 
   if (path.startsWith('/about')) {
     return <AboutPage />;
+  }
+
+  if (path === '/legal/privacy') {
+    return <PrivacyPage />;
+  }
+
+  if (path === '/legal/terms') {
+    return <TermsPage />;
+  }
+
+  if (path === '/legal/offer') {
+    return <OfferPage />;
   }
 
   if (/^\/collections\/[^/]+/.test(path)) {
