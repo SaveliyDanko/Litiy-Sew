@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import styles from './CheckoutUnavailablePage.module.css';
 
@@ -17,6 +18,8 @@ export default function CheckoutUnavailablePage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
   );
 }

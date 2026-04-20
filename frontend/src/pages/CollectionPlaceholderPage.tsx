@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import {
   getCollectionBySlug,
@@ -23,6 +24,8 @@ export default function CollectionPlaceholderPage() {
             <a href="/collections" className={styles.backLink}>Вернуться к коллекциям</a>
           </section>
         </main>
+
+        <Footer />
       </>
     );
   }
@@ -62,6 +65,8 @@ export default function CollectionPlaceholderPage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
@@ -266,6 +267,8 @@ export default function CartPage() {
           </div>
         )}
       </main>
+
+      <Footer />
     </>
   );
 }

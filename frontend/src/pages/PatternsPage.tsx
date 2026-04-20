@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import PatternCard from '../components/PatternCard';
 import styles from './PatternsPage.module.css';
@@ -45,6 +46,8 @@ export default function PatternsPage() {
           ))}
         </div>
       </main>
+
+      <Footer />
     </>
   );
 }

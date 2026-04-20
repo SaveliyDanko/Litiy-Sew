@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import { CATEGORIES, MEDIA_BASE_URL, PRODUCTS_BY_CATEGORY } from './patternsData';
@@ -20,6 +21,8 @@ export default function PatternCategoryPage() {
           <h1 className={styles.title}>Категория не найдена</h1>
           <a className={styles.backLink} href="/patterns">← К списку категорий</a>
         </main>
+
+        <Footer />
       </>
     );
   }
@@ -53,6 +56,8 @@ export default function PatternCategoryPage() {
           </div>
         )}
       </main>
+
+      <Footer />
     </>
   );
 }

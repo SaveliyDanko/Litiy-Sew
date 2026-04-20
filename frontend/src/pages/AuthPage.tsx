@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { useAuth, emitAuthChanged } from '../hooks/useAuth';
 import ProfileCabinetPage from './ProfileCabinetPage';
@@ -19,6 +20,7 @@ import {
   BagIcon,
   CameraIcon,
   ChatIcon,
+  ChevronRightIcon,
   CloseIcon,
   CODE_LENGTH,
   GearIcon,
@@ -30,7 +32,6 @@ import {
   RESEND_COOLDOWN_MS,
   RulerIcon,
   TelegramIcon,
-  UserIcon,
   VkIcon,
   formatDuration,
   type CodeContext,
@@ -58,11 +59,9 @@ export default function AuthPage() {
   const [now, setNow] = useState(() => Date.now());
   const tickRef = useRef<number | null>(null);
 
-  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const photoCardRef = useRef<HTMLDivElement | null>(null);
   const [profileForm, setProfileForm] = useState({
     firstName: '',
     lastName: '',
@@ -94,25 +93,6 @@ export default function AuthPage() {
   }, []);
 
   useEffect(() => {
-    if (!photoMenuOpen) return;
-    const onClick = (event: MouseEvent) => {
-      if (!photoCardRef.current) return;
-      if (!photoCardRef.current.contains(event.target as Node)) {
-        setPhotoMenuOpen(false);
-      }
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPhotoMenuOpen(false);
-    };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [photoMenuOpen]);
-
-  useEffect(() => {
     if (!settingsOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSettingsOpen(false);
@@ -128,7 +108,6 @@ export default function AuthPage() {
   }, [photoUrl]);
 
   const handlePickFile = () => {
-    setPhotoMenuOpen(false);
     fileInputRef.current?.click();
   };
 
@@ -141,7 +120,6 @@ export default function AuthPage() {
   };
 
   const openSettings = () => {
-    setPhotoMenuOpen(false);
     setProfileError(null);
     setProfileInfo(null);
     setSettingsOpen(true);
@@ -155,7 +133,6 @@ export default function AuthPage() {
     }
 
     setSettingsOpen(false);
-    setPhotoMenuOpen(false);
     setProfileView(nextView);
   };
 
@@ -365,6 +342,8 @@ export default function AuthPage() {
         <main className={styles.page}>
           <p className={styles.loading}>Загрузка...</p>
         </main>
+
+        <Footer />
       </>
     );
   }
@@ -374,8 +353,15 @@ export default function AuthPage() {
       <>
         <Header />
         <main className={styles.profilePage}>
+          <button
+            type="button"
+            className={styles.profileLogoutMobile}
+            onClick={() => { void logout(); }}
+          >
+            <span>Выйти</span> <LogoutIcon />
+          </button>
           <aside className={styles.profileAside}>
-            <div className={styles.photoCard} ref={photoCardRef}>
+            <div className={styles.photoCard}>
               <button
                 type="button"
                 className={styles.photoButton}
@@ -396,26 +382,19 @@ export default function AuthPage() {
                 className={styles.fileInput}
                 onChange={handleFileChange}
               />
+              <div className={styles.photoActionsMobile}>
+                <button type="button" className={styles.photoActionMobile} onClick={openSettings}>
+                  Настройки аккаунта
+                </button>
+              </div>
               <button
                 type="button"
                 className={styles.photoSettings}
                 aria-label="Настройки профиля"
-                aria-haspopup="menu"
-                aria-expanded={photoMenuOpen}
-                onClick={() => setPhotoMenuOpen((open) => !open)}
+                onClick={openSettings}
               >
                 <GearIcon />
               </button>
-              {photoMenuOpen && (
-                <div className={styles.photoMenu} role="menu">
-                  <button type="button" className={styles.photoMenuItem} role="menuitem" onClick={openSettings}>
-                    Настройки аккаунта
-                  </button>
-                  <button type="button" className={styles.photoMenuItem} role="menuitem" onClick={handlePickFile}>
-                    Изменить фото
-                  </button>
-                </div>
-              )}
             </div>
 
             <div className={styles.helpCard}>
@@ -434,15 +413,18 @@ export default function AuthPage() {
           </aside>
 
           <section className={styles.profileMain}>
+            {profileView !== 'cabinet' && (
+              <button
+                type="button"
+                className={styles.profileBack}
+                onClick={() => navigateToProfileView('cabinet')}
+              >
+                <ChevronRightIcon />
+                <span>Вернуться в профиль</span>
+              </button>
+            )}
             <nav className={styles.profileTabs} aria-label="Разделы кабинета">
               <div className={styles.profileTabsList}>
-                <button
-                  type="button"
-                  className={`${styles.profileTab} ${profileView === 'cabinet' ? styles.profileTabActive : ''}`}
-                  onClick={() => navigateToProfileView('cabinet')}
-                >
-                  <UserIcon /> <span>Кабинет</span>
-                </button>
                 <button
                   type="button"
                   className={`${styles.profileTab} ${profileView === 'orders' ? styles.profileTabActive : ''}`}
@@ -490,7 +472,7 @@ export default function AuthPage() {
             ) : profileView === 'measurements' ? (
               <ProfileMeasurementsPage />
             ) : (
-              <ProfileCabinetPage />
+              <ProfileCabinetPage onNavigate={navigateToProfileView} />
             )}
           </section>
 
@@ -562,6 +544,11 @@ export default function AuthPage() {
                     {profileSubmitting ? 'Сохранение...' : 'Сохранить'}
                   </button>
 
+                  <button type="button" className={styles.modalPassword} onClick={handlePickFile}>
+                    <CameraIcon />
+                    <span>Изменить фото</span>
+                  </button>
+
                   <button type="button" className={styles.modalPassword}>
                     <LockIcon />
                     <span>Изменить пароль</span>
@@ -571,6 +558,8 @@ export default function AuthPage() {
             </div>
           )}
         </main>
+
+        <Footer />
       </>
     );
   }
@@ -696,6 +685,8 @@ export default function AuthPage() {
           )}
         </div>
       </main>
+
+      <Footer />
     </>
   );
 }

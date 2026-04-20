@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { ABOUT_PAGE_DATA, PORTFOLIO_ITEMS } from './aboutData';
 import styles from './AboutPage.module.css';
@@ -102,6 +103,8 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
   );
 }

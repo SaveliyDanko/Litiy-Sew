@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import { useFavorites } from '../hooks/useFavorites';
@@ -32,6 +33,8 @@ export default function FavoritesPage() {
           </div>
         )}
       </main>
+
+      <Footer />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, type MouseEvent } from 'react';
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { showToast } from '../components/toast';
 import { useAuth } from '../hooks/useAuth';
@@ -111,6 +112,8 @@ export default function PatternDetailPage() {
           <h1 className={styles.title}>Выкройка не найдена</h1>
           <a className={styles.backLink} href="/patterns">← К списку категорий</a>
         </main>
+
+        <Footer />
       </>
     );
   }
@@ -526,6 +529,8 @@ export default function PatternDetailPage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
   );
 }

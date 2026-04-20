@@ -1,3 +1,4 @@
+import Footer from '../components/Footer';
 import Header from '../components/Header';
 import {
   FEATURED_COLLECTION,
@@ -75,6 +76,8 @@ export default function CollectionsPage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
   );
 }
