@@ -56,27 +56,6 @@
   object-fit: cover;
 }
 
-.featuredMedia::before {
-  content: '';
-  position: absolute;
-  inset: auto 8% 16% auto;
-  width: min(24vw, 260px);
-  height: min(24vw, 260px);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 18%);
-  filter: blur(8px);
-}
-
-.featuredGlow {
-  position: absolute;
-  inset: 12% 10% auto auto;
-  width: min(18vw, 180px);
-  height: min(18vw, 180px);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
-  filter: blur(22px);
-}
-
 .featuredCopy {
   display: grid;
   align-content: end;
@@ -188,16 +167,6 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgb(17 17 17 / 0%) 35%, rgb(17 17 17 / 12%) 100%);
-}
-
-.cardAura {
-  position: absolute;
-  inset: 18% auto auto 14%;
-  width: min(22vw, 180px);
-  height: min(22vw, 180px);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
-  filter: blur(12px);
 }
 
 .cardBadge {

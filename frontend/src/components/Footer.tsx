@@ -1,3 +1,4 @@
+import { SHOP_ENABLED } from '../utils/featureFlags';
 import styles from './Footer.module.css';
 
 const helpLinks = [
@@ -27,6 +28,10 @@ const legalLinks = [
 ];
 
 export default function Footer() {
+  if (!SHOP_ENABLED) {
+    return null;
+  }
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>

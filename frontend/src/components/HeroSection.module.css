@@ -2,40 +2,32 @@
   /* Правьте в первую очередь переменные ниже: они собраны как панель настроек Hero. */
 
   /* Hero: секция и фон */
-  --hero-min-height: calc(100svh - 90px);
+  --hero-min-height: 100svh;
   --hero-bg-color: var(--color-white);
   position: relative;
   min-height: var(--hero-min-height);
   overflow: hidden;
   background-color: var(--hero-bg-color);
 
-  /* Hero: положение и масштаб фонового изображения */
-  --hero-bg-offset-x: -30%; /* Смещение фона по горизонтали. */
-  --hero-bg-offset-y: 80%; /* Смещение фона по вертикали. */
-  --hero-bg-scale: 1.15; /* Масштаб фонового изображения. */
-  --hero-overlay-color: rgb(130 130 130 / 60%);
+  /* Hero: положение и масштаб фонового изображения (мобилка) */
+  --hero-bg-offset-x: 50%;
+  --hero-bg-offset-y: 50%;
+  --hero-bg-scale: 1;
+  --hero-bg-scale-x: 1; /* -1 → зеркалит фон. */
+  --hero-overlay-color: rgb(130 130 130 / 0%);
 
   /* Hero: внутренние отступы контента */
-  --hero-content-padding-top: 24px;
+  --hero-content-padding-top: 32px;
   --hero-content-padding-x: 20px;
   --hero-content-padding-bottom: 40px;
 
   /* Hero: заголовок */
-  --hero-title-size: 2.5rem;
+  --hero-title-size: 5rem;
   --hero-title-margin-bottom: 0px;
-  --hero-title-letter-spacing: 0.02em;
+  --hero-title-letter-spacing: 0.01em;
   --hero-title-color: var(--color-black);
-
-  /* Hero: карточка коллекции */
-  --card-offset-y: -12px; /* Смещение карточки относительно заголовка. Отрицательное значение поднимет её выше. */
-  --card-image-width: 180px; /* Основная ширина карточки. */
-  --card-button-padding-y: 12px; /* Высота черной кнопки-плашки. */
-  --card-button-padding-x: 20px; /* Горизонтальные поля кнопки-плашки. */
-  --card-button-font-size: 11px; /* Размер текста в кнопке-плашке. */
-  --card-button-letter-spacing: 0.15em;
-  --card-button-bg: var(--color-black);
-  --card-button-text-color: var(--color-white);
-  --card-button-hover-bg: #333333;
+  --hero-title-align: flex-start; /* flex-start → мобильная лесенка, center → по центру (ПК). */
+  --hero-title-text-align: left;
 }
 
 /* Hero: фон */
@@ -47,7 +39,7 @@
   object-fit: cover;
   object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
   z-index: 0;
-  transform: scale(var(--hero-bg-scale)) scaleX(-1);
+  transform: scale(var(--hero-bg-scale)) scaleX(var(--hero-bg-scale-x));
 }
 
 .overlay {
@@ -69,32 +61,65 @@
   margin: 0 0 var(--hero-title-margin-bottom);
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--hero-title-align);
   font-family: var(--font-display);
   font-size: var(--hero-title-size);
-  line-height: 1;
+  line-height: 0.95;
   letter-spacing: var(--hero-title-letter-spacing);
   color: var(--hero-title-color);
-  text-align: center;
+  text-align: var(--hero-title-text-align);
   user-select: none;
-  word-break: keep-all;
-  white-space: nowrap;
 }
 
-/* Hero: карточка */
+/* Мобильный вариант — «Litiy» / «Sew» в две строки с лесенкой. */
+.titleMobile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.titleLine {
+  display: block;
+}
+
+.titleLine + .titleLine {
+  padding-left: 1.2em;
+}
+
+/* Десктопный вариант — «Litiy Sew» одной строкой по центру. */
+.titleDesktop {
+  display: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Hero: карточка коллекции (скрыта на мобилке, показывается с 640px). */
 .card {
+  display: none;
   position: relative;
   z-index: 1;
-  display: flex;
   flex-direction: column;
   align-items: center;
   width: fit-content;
-  margin: var(--card-offset-y) auto 0;
+  margin: var(--card-offset-y, -18px) auto 0;
 }
 
 .cardImage {
   display: block;
-  /* Ширина изображения определяет общий размер всей карточки. */
-  width: var(--card-image-width);
+  width: var(--card-image-width, 210px);
   aspect-ratio: 4 / 5;
   object-fit: cover;
   object-position: top;
@@ -102,35 +127,68 @@
 
 .btn {
   display: block;
-  /* Кнопка тянется на всю ширину карточки, как на референсе. */
   width: 100%;
-  padding: var(--card-button-padding-y) var(--card-button-padding-x);
-  background: var(--card-button-bg);
-  color: var(--card-button-text-color);
+  padding: var(--card-button-padding-y, 13px) var(--card-button-padding-x, 22px);
+  background: var(--card-button-bg, var(--color-black));
+  color: var(--card-button-text-color, var(--color-white));
   font-family: var(--font-sans);
-  font-size: var(--card-button-font-size);
+  font-size: var(--card-button-font-size, 11px);
   font-weight: 500;
-  letter-spacing: var(--card-button-letter-spacing);
+  letter-spacing: var(--card-button-letter-spacing, 0.15em);
   text-align: center;
   transition: background-color 0.2s;
 }
 
 .btn:hover {
-  background: var(--card-button-hover-bg);
+  background: var(--card-button-hover-bg, #333);
 }
 
 @media (min-width: 640px) {
   .hero {
+    /* На ПК возвращаем зеркальный фон с оверлеем и центрированный заголовок. */
+    --hero-min-height: calc(100svh - 90px);
+    --hero-bg-offset-x: -30%;
+    --hero-bg-offset-y: 80%;
+    --hero-bg-scale: 1.15;
+    --hero-bg-scale-x: -1;
+    --hero-overlay-color: rgb(130 130 130 / 60%);
+
     --hero-content-padding-top: 40px;
     --hero-content-padding-x: 32px;
     --hero-content-padding-bottom: 64px;
+
     --hero-title-size: 4rem;
-    --hero-title-margin-bottom: 0px;
+    --hero-title-letter-spacing: 0.02em;
+    --hero-title-align: center;
+    --hero-title-text-align: center;
+
     --card-offset-y: -18px;
     --card-image-width: 210px;
     --card-button-padding-y: 13px;
     --card-button-padding-x: 22px;
     --card-button-font-size: 11px;
+    --card-button-letter-spacing: 0.15em;
+    --card-button-bg: var(--color-black);
+    --card-button-text-color: var(--color-white);
+    --card-button-hover-bg: #333;
+  }
+
+  .title {
+    line-height: 1;
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+
+  .titleMobile {
+    display: none;
+  }
+
+  .titleDesktop {
+    display: block;
+  }
+
+  .card {
+    display: flex;
   }
 }
 
@@ -146,7 +204,6 @@
     --hero-content-padding-x: 48px;
     --hero-content-padding-bottom: 96px;
     --hero-title-size: 7rem;
-    --hero-title-margin-bottom: 0px;
     --card-offset-y: -28px;
     --card-image-width: 250px;
     --card-button-padding-y: 15px;
@@ -158,7 +215,6 @@
 @media (min-width: 1280px) {
   .hero {
     --hero-title-size: 9rem;
-    --hero-title-margin-bottom: 0px;
     --card-offset-y: -56px;
     --card-image-width: 290px;
     --card-button-padding-y: 17px;
@@ -302,6 +358,27 @@
   min-height: var(--featured-media-height);
   border-radius: var(--featured-media-radius);
   background: linear-gradient(145deg, #bcb0b0 0%, #b5a7a7 48%, #cec4c4 100%);
+}
+
+/* Портфолио-режим: секция растягивается на всю высоту вьюпорта, раскладка не меняется. */
+.featuredFullscreen {
+  min-height: 100svh;
+}
+
+.featuredFullscreen .featuredMedia {
+  min-height: 0;
+  height: 100%;
+}
+
+.featuredFullscreen .featuredMedia::before,
+.featuredFullscreen .featuredGlow {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .featuredFullscreen {
+    align-items: stretch;
+  }
 }
 
 .featuredImage {

@@ -10,27 +10,60 @@ import CollectionPlaceholderPage from './pages/CollectionPlaceholderPage';
 import CollectionsPage from './pages/CollectionsPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
+import NotFoundPage from './pages/NotFoundPage';
 import PatternCategoryPage from './pages/PatternCategoryPage';
 import PatternDetailPage from './pages/PatternDetailPage';
 import PatternsPage from './pages/PatternsPage';
+import { SHOP_ENABLED } from './utils/featureFlags';
 
 function renderPage() {
   const path = window.location.pathname;
 
-  if (path.startsWith('/auth') || path.startsWith('/profile')) {
-    return <AuthPage />;
+  if (SHOP_ENABLED) {
+    if (path.startsWith('/auth') || path.startsWith('/profile')) {
+      return <AuthPage />;
+    }
+
+    if (path.startsWith('/checkout')) {
+      return <CheckoutUnavailablePage />;
+    }
+
+    if (path.startsWith('/cart')) {
+      return <CartPage />;
+    }
+
+    if (path.startsWith('/favorites')) {
+      return <FavoritesPage />;
+    }
+
+    if (/^\/patterns\/[^/]+\/[^/]+/.test(path)) {
+      return <PatternDetailPage />;
+    }
+
+    if (/^\/patterns\/[^/]+/.test(path)) {
+      return <PatternCategoryPage />;
+    }
+
+    if (path.startsWith('/patterns')) {
+      return <PatternsPage />;
+    }
+  } else if (
+    path.startsWith('/auth') ||
+    path.startsWith('/profile') ||
+    path.startsWith('/checkout') ||
+    path.startsWith('/cart') ||
+    path.startsWith('/favorites') ||
+    path.startsWith('/patterns')
+  ) {
+    return <NotFoundPage />;
   }
 
-  if (path.startsWith('/checkout')) {
-    return <CheckoutUnavailablePage />;
+  if (/^\/collections\/[^/]+/.test(path)) {
+    return <CollectionPlaceholderPage />;
   }
 
-  if (path.startsWith('/cart')) {
-    return <CartPage />;
-  }
-
-  if (path.startsWith('/favorites')) {
-    return <FavoritesPage />;
+  if (path.startsWith('/collections')) {
+    return <CollectionsPage />;
   }
 
   if (path.startsWith('/about')) {
@@ -49,27 +82,11 @@ function renderPage() {
     return <OfferPage />;
   }
 
-  if (/^\/collections\/[^/]+/.test(path)) {
-    return <CollectionPlaceholderPage />;
+  if (path === '/' || path === '') {
+    return <HomePage />;
   }
 
-  if (path.startsWith('/collections')) {
-    return <CollectionsPage />;
-  }
-
-  if (/^\/patterns\/[^/]+\/[^/]+/.test(path)) {
-    return <PatternDetailPage />;
-  }
-
-  if (/^\/patterns\/[^/]+/.test(path)) {
-    return <PatternCategoryPage />;
-  }
-
-  if (path.startsWith('/patterns')) {
-    return <PatternsPage />;
-  }
-
-  return <HomePage />;
+  return <NotFoundPage />;
 }
 
 export default function App() {

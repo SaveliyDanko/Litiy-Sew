@@ -25,7 +25,6 @@ export default function CollectionsPage() {
               src={getCollectionImageUrl(FEATURED_COLLECTION.imagePath)}
               alt={FEATURED_COLLECTION.title}
             />
-            <div className={styles.featuredGlow} />
           </a>
 
           <div className={styles.featuredCopy}>
@@ -62,7 +61,6 @@ export default function CollectionsPage() {
                       alt={collection.title}
                     />
                     <div className={styles.cardOverlay} />
-                    <div className={styles.cardAura} />
                   </div>
 
                   <div className={styles.cardBody}>
