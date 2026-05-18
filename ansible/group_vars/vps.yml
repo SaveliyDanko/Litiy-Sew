@@ -3,8 +3,8 @@ app_dir: /opt/litiy-sew
 app_user: litiy-sew
 
 # --- Домен и SSL ---
-domain: example.com           # замените на ваш домен
-certbot_email: you@example.com
+domain: litiy.site
+certbot_email: dankosaveliy.m@gmail.com
 
 # --- Порты (внутренние, за nginx) ---
 backend_port: 8080
