@@ -7,10 +7,38 @@
       - python3-certbot-nginx
     state: present
 
-- name: Удалить дефолтный конфиг Nginx
+# ── Проверка существующих сайтов ─────────────────────────────────────────────
+
+- name: Найти активные сайты в sites-enabled (кроме default)
+  find:
+    paths: /etc/nginx/sites-enabled
+    excludes: default
+    file_type: any
+  register: existing_sites
+
+- name: Проверить не занят ли server_name нашим доменом другим конфигом
+  shell: >
+    grep -rl "server_name.*{{ domain }}" /etc/nginx/sites-enabled/ 2>/dev/null || true
+  register: domain_conflict
+  changed_when: false
+
+- name: Прервать если домен уже занят другим конфигом
+  fail:
+    msg: >
+      Домен {{ domain }} уже объявлен в конфиге: {{ domain_conflict.stdout }}.
+      Удалите или переименуйте его вручную, затем запустите плейбук снова.
+  when: domain_conflict.stdout != "" and "litiy-sew" not in domain_conflict.stdout
+
+# ── Удалить default только если нет других сайтов ────────────────────────────
+
+- name: Удалить дефолтный конфиг Nginx (только если нет других сайтов)
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
+  when: existing_sites.matched == 0
+  notify: Reload nginx
+
+# ── Развернуть конфиг нашего сайта ───────────────────────────────────────────
 
 - name: Развернуть конфиг Nginx (HTTP — первый запуск)
   template:
@@ -19,20 +47,29 @@
     owner: root
     group: root
     mode: "0644"
-  notify: Reload nginx
 
 - name: Включить сайт в Nginx
   file:
     src: /etc/nginx/sites-available/litiy-sew
     dest: /etc/nginx/sites-enabled/litiy-sew
     state: link
-  notify: Reload nginx
+
+- name: Проверить корректность конфига Nginx перед применением
+  command: nginx -t
+  changed_when: false
 
 - name: Убедиться что Nginx запущен
   service:
     name: nginx
     state: started
     enabled: yes
+
+- name: Перезагрузить Nginx с новым конфигом
+  service:
+    name: nginx
+    state: reloaded
+
+# ── SSL через Certbot ─────────────────────────────────────────────────────────
 
 - name: Получить SSL сертификат через Certbot
   command: >
@@ -50,7 +87,17 @@
     owner: root
     group: root
     mode: "0644"
-  notify: Reload nginx
+
+- name: Проверить корректность конфига Nginx (SSL)
+  command: nginx -t
+  changed_when: false
+
+- name: Перезагрузить Nginx с SSL конфигом
+  service:
+    name: nginx
+    state: reloaded
+
+# ── Автообновление сертификата ────────────────────────────────────────────────
 
 - name: Настроить автообновление сертификатов (cron)
   cron:
