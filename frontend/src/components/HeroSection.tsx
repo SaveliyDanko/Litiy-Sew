@@ -4,36 +4,52 @@ import {
   getCollectionHref,
 } from '../pages/collectionsData';
 import { MEDIA_BASE_URL, PRODUCTS_BY_CATEGORY } from '../pages/patternsData';
-import { fetchSiteImage } from '../services/siteImages';
+import { fetchCollectionsMeta, type CollectionMeta } from '../services/admin';
+import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import ProductCard from './ProductCard';
 import styles from './HeroSection.module.css';
 
 const NEW_ARRIVALS = PRODUCTS_BY_CATEGORY.all.slice(0, 4);
 
-type HeroData = { imageUrl: string; positionX: number; positionY: number } | null;
+type HeroData = { imageUrl: string; positionX: number; positionY: number; positionXMobile: number; positionYMobile: number } | null;
 
 async function fetchHeroBanner(): Promise<HeroData> {
   const res = await fetch('/api/hero');
   if (res.status === 204 || !res.ok) return null;
-  const data = await res.json() as { imageUrl: string; positionX?: number; positionY?: number };
-  return { imageUrl: data.imageUrl, positionX: data.positionX ?? 50, positionY: data.positionY ?? 50 };
+  const data = await res.json() as { imageUrl: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number };
+  return {
+    imageUrl: data.imageUrl,
+    positionX: data.positionX ?? 50,
+    positionY: data.positionY ?? 50,
+    positionXMobile: data.positionXMobile ?? 50,
+    positionYMobile: data.positionYMobile ?? 50,
+  };
 }
 
 export default function HeroSection() {
   const [hero, setHero] = useState<HeroData>(null);
-  const [featuredImgUrl, setFeaturedImgUrl] = useState<string | null>(null);
-  const [featuredImgStyle, setFeaturedImgStyle] = useState<React.CSSProperties>({});
+  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
+  const [featuredMeta, setFeaturedMeta] = useState<CollectionMeta | null>(null);
 
   useEffect(() => {
     fetchHeroBanner().then(setHero);
-    fetchSiteImage(FEATURED_COLLECTION.cardSlotKey).then((si) => {
-      if (si) {
-        setFeaturedImgUrl(si.imageUrl);
-        setFeaturedImgStyle({ objectPosition: `${si.positionX}% ${si.positionY}%` });
-      }
-    }).catch(() => {});
+    fetchAllSiteImages()
+      .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
+      .catch(() => {});
+    fetchCollectionsMeta()
+      .then((map) => setFeaturedMeta(map[FEATURED_COLLECTION.slug] ?? null))
+      .catch(() => {});
   }, []);
+
+  function imgUrl(slotKey: string) {
+    return siteImages.get(slotKey)?.imageUrl ?? null;
+  }
+
+  function imgStyle(slotKey: string): React.CSSProperties {
+    const si = siteImages.get(slotKey);
+    return si ? { objectPosition: `${si.positionX}% ${si.positionY}%` } : {};
+  }
 
   return (
     <>
@@ -42,6 +58,8 @@ export default function HeroSection() {
         style={hero ? ({
           '--hero-bg-offset-x': `${hero.positionX}%`,
           '--hero-bg-offset-y': `${hero.positionY}%`,
+          '--hero-bg-offset-x-mobile': `${hero.positionXMobile}%`,
+          '--hero-bg-offset-y-mobile': `${hero.positionYMobile}%`,
         } as React.CSSProperties) : undefined}
       >
         {hero && (
@@ -64,6 +82,14 @@ export default function HeroSection() {
           </h1>
 
           <div className={styles.card}>
+            {imgUrl('home-card-image') && (
+              <img
+                className={styles.cardImage}
+                src={imgUrl('home-card-image')!}
+                alt="Новая коллекция"
+                style={imgStyle('home-card-image')}
+              />
+            )}
             <a href="/collections" className={styles.btn}>
               НОВАЯ КОЛЛЕКЦИЯ
             </a>
@@ -110,20 +136,20 @@ export default function HeroSection() {
           className={styles.featuredMedia}
           aria-label={`Открыть коллекцию ${FEATURED_COLLECTION.title}`}
         >
-          {featuredImgUrl && (
+          {imgUrl(FEATURED_COLLECTION.cardSlotKey) && (
             <img
               className={styles.featuredImage}
-              src={featuredImgUrl}
+              src={imgUrl(FEATURED_COLLECTION.cardSlotKey)!}
               alt={FEATURED_COLLECTION.title}
-              style={featuredImgStyle}
+              style={imgStyle(FEATURED_COLLECTION.cardSlotKey)}
             />
           )}
           <div className={styles.featuredGlow} />
         </a>
 
         <div className={styles.featuredCopy}>
-          <h2 className={styles.featuredTitle}>{FEATURED_COLLECTION.title}</h2>
-          <p className={styles.featuredSubtitle}>{FEATURED_COLLECTION.subtitle}</p>
+          <h2 className={styles.featuredTitle}>{featuredMeta?.title ?? FEATURED_COLLECTION.title}</h2>
+          <p className={styles.featuredSubtitle}>{featuredMeta?.subtitle ?? FEATURED_COLLECTION.subtitle}</p>
         </div>
       </section>
     </>

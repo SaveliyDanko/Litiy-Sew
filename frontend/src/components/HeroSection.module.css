@@ -9,9 +9,11 @@
   overflow: hidden;
   background-color: var(--hero-bg-color);
 
-  /* Hero: положение и масштаб фонового изображения (мобилка) */
+  /* Hero: положение фонового изображения */
   --hero-bg-offset-x: 50%;
   --hero-bg-offset-y: 50%;
+  --hero-bg-offset-x-mobile: 50%;
+  --hero-bg-offset-y-mobile: 50%;
   --hero-bg-scale: 1;
   --hero-bg-scale-x: 1; /* -1 → зеркалит фон. */
   --hero-overlay-color: rgb(130 130 130 / 0%);
@@ -30,16 +32,22 @@
   --hero-title-text-align: left;
 }
 
-/* Hero: фон */
+/* Hero: фон — мобилка использует mobile-переменные, десктоп — основные */
 .bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
+  object-position: var(--hero-bg-offset-x-mobile) var(--hero-bg-offset-y-mobile);
   z-index: 0;
   transform: scale(var(--hero-bg-scale)) scaleX(var(--hero-bg-scale-x));
+}
+
+@media (min-width: 640px) {
+  .bg {
+    object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
+  }
 }
 
 .overlay {
@@ -145,10 +153,7 @@
 
 @media (min-width: 640px) {
   .hero {
-    /* На ПК возвращаем зеркальный фон с оверлеем и центрированный заголовок. */
     --hero-min-height: calc(100svh - 90px);
-    --hero-bg-offset-x: -30%;
-    --hero-bg-offset-y: 80%;
     --hero-bg-scale: 1.15;
     --hero-bg-scale-x: -1;
     --hero-overlay-color: rgb(130 130 130 / 60%);

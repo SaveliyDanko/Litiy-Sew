@@ -78,7 +78,7 @@ public class SecurityConfig {
                                 "/api/auth/resend-code"
                         ).permitAll()
                         .requestMatchers("/api/media/**").permitAll()
-                        .requestMatchers("/api/products/**", "/api/patterns/**", "/api/portfolio/**", "/api/hero/**", "/api/site-images/**").permitAll()
+                        .requestMatchers("/api/products/**", "/api/patterns/**", "/api/portfolio/**", "/api/hero/**", "/api/site-images/**", "/api/collections/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

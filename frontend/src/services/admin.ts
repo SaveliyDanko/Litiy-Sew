@@ -57,6 +57,8 @@ export type AdminHeroBanner = {
   imageKey: string;
   positionX: number;
   positionY: number;
+  positionXMobile: number;
+  positionYMobile: number;
   createdAt: string;
 };
 
@@ -169,19 +171,19 @@ export async function getHero(): Promise<AdminHeroBanner | null> {
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHero(data: { imageUrl: string; imageKey: string; positionX?: number; positionY?: number }): Promise<AdminHeroBanner> {
+export async function replaceHero(data: { imageUrl: string; imageKey: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number }): Promise<AdminHeroBanner> {
   return request<AdminHeroBanner>('/admin/hero', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export async function updateHeroPosition(positionX: number, positionY: number): Promise<AdminHeroBanner | null> {
+export async function updateHeroPosition(positionX: number, positionY: number, positionXMobile: number, positionYMobile: number): Promise<AdminHeroBanner | null> {
   const res = await fetch('/api/admin/hero/position', {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ positionX, positionY }),
+    body: JSON.stringify({ positionX, positionY, positionXMobile, positionYMobile }),
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -190,6 +192,28 @@ export async function updateHeroPosition(positionX: number, positionY: number): 
 
 export async function deleteHero(): Promise<void> {
   return request<void>('/admin/hero', { method: 'DELETE' });
+}
+
+// --- Collection Meta ---
+
+export type CollectionMeta = {
+  id: number;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+};
+
+export async function fetchCollectionsMeta(): Promise<Record<string, CollectionMeta>> {
+  const res = await fetch('/api/collections/meta');
+  if (!res.ok) return {};
+  return res.json() as Promise<Record<string, CollectionMeta>>;
+}
+
+export async function saveCollectionMeta(slug: string, data: { title: string; subtitle?: string }): Promise<CollectionMeta> {
+  return request<CollectionMeta>(`/admin/collections/${slug}/meta`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
 }
 
 // --- Credentials ---

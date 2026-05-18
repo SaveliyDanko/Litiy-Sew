@@ -1,0 +1,122 @@
+export type DynamicCollectionPhoto = {
+  id: number;
+  collectionId: number;
+  photoType: 'CARD' | 'HERO' | 'GALLERY';
+  imageUrl: string;
+  imageKey: string;
+  positionX: number;
+  positionY: number;
+  sortOrder: number;
+  createdAt: string;
+};
+
+export type DynamicCollection = {
+  id: number;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  eyebrow: string | null;
+  description: string | null;
+  detailIntro: string | null;
+  detailFocus: string | null;
+  tone: 'warm' | 'cool' | 'neutral';
+  sortOrder: number;
+  featured: boolean;
+  createdAt: string;
+  photos: DynamicCollectionPhoto[];
+};
+
+export type CreateCollectionData = {
+  slug: string;
+  title: string;
+  subtitle?: string;
+  eyebrow?: string;
+  description?: string;
+  detailIntro?: string;
+  detailFocus?: string;
+  tone?: 'warm' | 'cool' | 'neutral';
+  sortOrder?: number;
+  featured?: boolean;
+};
+
+export type UpdateCollectionData = CreateCollectionData;
+
+export type AddPhotoData = {
+  imageUrl: string;
+  imageKey: string;
+  photoType: 'CARD' | 'HERO' | 'GALLERY';
+  positionX?: number;
+  positionY?: number;
+  sortOrder?: number;
+};
+
+const API = '/api';
+
+async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
+  });
+  if (res.status === 204) return undefined as T;
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+// ── Public ────────────────────────────────────────────────────────────────────
+
+export async function fetchCollections(): Promise<DynamicCollection[]> {
+  const res = await fetch(`${API}/collections`);
+  if (!res.ok) return [];
+  return res.json() as Promise<DynamicCollection[]>;
+}
+
+export async function fetchCollection(slug: string): Promise<DynamicCollection | null> {
+  const res = await fetch(`${API}/collections/${slug}`);
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  return res.json() as Promise<DynamicCollection>;
+}
+
+// ── Admin: collections ────────────────────────────────────────────────────────
+
+export async function createCollection(data: CreateCollectionData): Promise<DynamicCollection> {
+  return adminRequest<DynamicCollection>('/admin/collections', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateCollection(id: number, data: UpdateCollectionData): Promise<DynamicCollection> {
+  return adminRequest<DynamicCollection>(`/admin/collections/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteCollection(id: number): Promise<void> {
+  return adminRequest<void>(`/admin/collections/${id}`, { method: 'DELETE' });
+}
+
+// ── Admin: photos ─────────────────────────────────────────────────────────────
+
+export async function addCollectionPhoto(collectionId: number, data: AddPhotoData): Promise<DynamicCollectionPhoto> {
+  return adminRequest<DynamicCollectionPhoto>(`/admin/collections/${collectionId}/photos`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateCollectionPhotoPosition(photoId: number, positionX: number, positionY: number): Promise<DynamicCollectionPhoto> {
+  return adminRequest<DynamicCollectionPhoto>(`/admin/collections/photos/${photoId}/position`, {
+    method: 'PATCH',
+    body: JSON.stringify({ positionX, positionY }),
+  });
+}
+
+export async function deleteCollectionPhoto(photoId: number): Promise<void> {
+  return adminRequest<void>(`/admin/collections/photos/${photoId}`, { method: 'DELETE' });
+}

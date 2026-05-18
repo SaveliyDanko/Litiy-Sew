@@ -15,17 +15,24 @@ import lombok.Setter;
 import java.time.Instant;
 
 @Entity
-@Table(name = "hero_banners")
+@Table(name = "dynamic_collection_photos")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HeroBanner {
+public class DynamicCollectionPhoto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private Long collectionId;
+
+    /** CARD | HERO | GALLERY */
+    @Column(nullable = false, length = 16)
+    private String photoType;
 
     @Column(nullable = false, length = 512)
     private String imageUrl;
@@ -43,12 +50,9 @@ public class HeroBanner {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer positionXMobile = 50;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer positionYMobile = 50;
+    private Integer sortOrder = 0;
 
     @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 }

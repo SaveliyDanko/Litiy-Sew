@@ -6,5 +6,7 @@ public record HeroBannerRequest(
         @NotBlank String imageUrl,
         @NotBlank String imageKey,
         Integer positionX,
-        Integer positionY
+        Integer positionY,
+        Integer positionXMobile,
+        Integer positionYMobile
 ) {}

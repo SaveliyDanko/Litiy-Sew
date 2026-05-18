@@ -19,23 +19,37 @@ import {
   updateHeroPosition,
   deletePortfolioPhoto,
   deleteProduct,
+  fetchCollectionsMeta,
   getHero,
   listPatterns,
   listPortfolio,
   listProducts,
   reorderPortfolioPhoto,
   replaceHero,
+  saveCollectionMeta,
   updateAdminCredentials,
   uploadFile,
   type AdminHeroBanner,
   type AdminPatternItem,
   type AdminPortfolioPhoto,
   type AdminProduct,
+  type CollectionMeta,
 } from '../services/admin';
-import { ALL_COLLECTIONS } from './collectionsData';
+import {
+  addCollectionPhoto,
+  createCollection,
+  deleteCollection,
+  deleteCollectionPhoto,
+  fetchCollections,
+  updateCollection,
+  updateCollectionPhotoPosition,
+  type DynamicCollection,
+  type DynamicCollectionPhoto,
+} from '../services/collections';
+import { ALL_COLLECTIONS, FEATURED_COLLECTION } from './collectionsData';
 import styles from './AdminPage.module.css';
 
-type Tab = 'products' | 'patterns' | 'portfolio' | 'hero' | 'about' | 'collections' | 'settings';
+type Tab = 'products' | 'patterns' | 'portfolio' | 'hero' | 'home' | 'about' | 'collections' | 'settings';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -462,9 +476,12 @@ function HeroSection() {
   const [current, setCurrent] = useState<AdminHeroBanner | null | undefined>(undefined);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [posX, setPosX] = useState(50);
   const [posY, setPosY] = useState(50);
+  const [posXM, setPosXM] = useState(50);
+  const [posYM, setPosYM] = useState(50);
   const [saving, setSaving] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -475,6 +492,8 @@ function HeroSection() {
         if (hero) {
           setPosX(hero.positionX ?? 50);
           setPosY(hero.positionY ?? 50);
+          setPosXM(hero.positionXMobile ?? 50);
+          setPosYM(hero.positionYMobile ?? 50);
         }
       })
       .catch(() => setCurrent(null));
@@ -483,17 +502,24 @@ function HeroSection() {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setPreview(file ? URL.createObjectURL(file) : null);
+    setFileName(file ? file.name : null);
   }
 
-  function handlePositionChange(axis: 'x' | 'y', val: number) {
-    if (axis === 'x') setPosX(val); else setPosY(val);
+  function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym', val: number) {
+    if (field === 'x') setPosX(val);
+    else if (field === 'y') setPosY(val);
+    else if (field === 'xm') setPosXM(val);
+    else setPosYM(val);
+
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
-        const newX = axis === 'x' ? val : posX;
-        const newY = axis === 'y' ? val : posY;
-        await updateHeroPosition(newX, newY);
+        const nx = field === 'x' ? val : posX;
+        const ny = field === 'y' ? val : posY;
+        const nxm = field === 'xm' ? val : posXM;
+        const nym = field === 'ym' ? val : posYM;
+        await updateHeroPosition(nx, ny, nxm, nym);
       } catch {
         showToast('Ошибка сохранения позиции');
       } finally {
@@ -509,9 +535,14 @@ function HeroSection() {
     setUploading(true);
     try {
       const { publicUrl, key } = await uploadFile(file);
-      const created = await replaceHero({ imageUrl: publicUrl, imageKey: key, positionX: posX, positionY: posY });
+      const created = await replaceHero({
+        imageUrl: publicUrl, imageKey: key,
+        positionX: posX, positionY: posY,
+        positionXMobile: posXM, positionYMobile: posYM,
+      });
       setCurrent(created);
       setPreview(null);
+      setFileName(null);
       if (fileRef.current) fileRef.current.value = '';
       showToast('Баннер обновлён');
     } catch (err) {
@@ -541,55 +572,88 @@ function HeroSection() {
         <p className={styles.hint}>Загрузка…</p>
       ) : (
         <div className={styles.heroEditor}>
-          {/* Live preview */}
-          <div className={styles.heroPreviewWrap}>
-            {displayUrl ? (
-              <img
-                src={displayUrl}
-                alt="Предпросмотр баннера"
-                className={styles.heroPreviewImg}
-                style={{ objectPosition: `${posX}% ${posY}%` }}
-              />
-            ) : (
-              <div className={styles.heroPreviewEmpty}>Баннер не установлен</div>
-            )}
+
+          {/* Previews */}
+          <div className={styles.heroPreviews}>
+            <div className={styles.heroPreviewGroup}>
+              <p className={styles.heroPreviewLabel}>Десктоп</p>
+              <div className={styles.heroPreviewWrap}>
+                {displayUrl ? (
+                  <img src={displayUrl} alt="Десктоп" className={styles.heroPreviewImg}
+                    style={{ objectPosition: `${posX}% ${posY}%` }} />
+                ) : (
+                  <div className={styles.heroPreviewEmpty}>Не установлен</div>
+                )}
+              </div>
+            </div>
+            <div className={styles.heroPreviewGroup}>
+              <p className={styles.heroPreviewLabel}>Мобильный</p>
+              <div className={styles.heroPreviewMobileWrap}>
+                {displayUrl ? (
+                  <img src={displayUrl} alt="Мобильный" className={styles.heroPreviewImg}
+                    style={{ objectPosition: `${posXM}% ${posYM}%` }} />
+                ) : (
+                  <div className={styles.heroPreviewEmpty}>Не установлен</div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Position sliders — only when banner exists */}
           {current && (
-            <div className={styles.heroPositionBlock}>
-              <p className={styles.heroPositionLabel}>
-                Положение фото {saving && <span className={styles.heroSaving}>сохраняется…</span>}
-              </p>
-              <label className={styles.sliderField}>
-                <span className={styles.sliderName}>Горизонталь</span>
-                <input
-                  type="range" min={0} max={100} value={posX}
-                  className={styles.slider}
-                  onChange={(e) => handlePositionChange('x', Number(e.target.value))}
-                />
-                <span className={styles.sliderValue}>{posX}%</span>
-              </label>
-              <label className={styles.sliderField}>
-                <span className={styles.sliderName}>Вертикаль</span>
-                <input
-                  type="range" min={0} max={100} value={posY}
-                  className={styles.slider}
-                  onChange={(e) => handlePositionChange('y', Number(e.target.value))}
-                />
-                <span className={styles.sliderValue}>{posY}%</span>
-              </label>
+            <div className={styles.heroPositionBlocks}>
+              <div className={styles.heroPositionBlock}>
+                <p className={styles.heroPositionLabel}>
+                  Кадрировка — Десктоп {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                </p>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Горизонталь</span>
+                  <input type="range" min={0} max={100} value={posX} className={styles.slider}
+                    onChange={(e) => handlePositionChange('x', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posX}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Вертикаль</span>
+                  <input type="range" min={0} max={100} value={posY} className={styles.slider}
+                    onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posY}%</span>
+                </label>
+              </div>
+
+              <div className={styles.heroPositionBlock}>
+                <p className={styles.heroPositionLabel}>
+                  Кадрировка — Мобильный {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                </p>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Горизонталь</span>
+                  <input type="range" min={0} max={100} value={posXM} className={styles.slider}
+                    onChange={(e) => handlePositionChange('xm', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posXM}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Вертикаль</span>
+                  <input type="range" min={0} max={100} value={posYM} className={styles.slider}
+                    onChange={(e) => handlePositionChange('ym', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posYM}%</span>
+                </label>
+              </div>
             </div>
           )}
 
           {/* Upload form */}
           <form className={styles.form} onSubmit={handleSubmit}>
-            <label className={styles.field}>
+            <div className={styles.field}>
               <span className={styles.label}>{current ? 'Новый баннер (заменит текущий)' : 'Загрузить баннер'}</span>
-              <input ref={fileRef} type="file" accept="image/*" className={styles.input} onChange={handleFileChange} />
-            </label>
+              <div className={styles.fileInputRow}>
+                <label className={styles.fileBtn}>
+                  Загрузить
+                  <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden} onChange={handleFileChange} />
+                </label>
+                <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
+              </div>
+            </div>
             <button className={styles.submit} type="submit" disabled={uploading}>
-              {uploading ? 'Загрузка…' : current ? 'Заменить' : 'Загрузить'}
+              {uploading ? 'Загрузка…' : current ? 'Заменить баннер' : 'Загрузить баннер'}
             </button>
           </form>
 
@@ -620,6 +684,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
 }) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [posX, setPosX] = useState(data?.positionX ?? 50);
   const [posY, setPosY] = useState(data?.positionY ?? 50);
   const [saving, setSaving] = useState(false);
@@ -633,6 +698,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setPreview(file ? URL.createObjectURL(file) : null);
+    setFileName(file ? file.name : null);
   }
 
   function handlePositionChange(axis: 'x' | 'y', val: number) {
@@ -739,16 +805,80 @@ function SiteImageSlot({ config, data, onUpdate }: {
 
       {/* Upload form */}
       <form className={styles.slotForm} onSubmit={handleSubmit}>
-        <label className={styles.field}>
+        <div className={styles.field}>
           <span className={styles.label}>{data ? 'Заменить фото' : 'Загрузить фото'}</span>
-          <input ref={fileRef} type="file" accept="image/*" className={styles.input}
-            onChange={handleFileChange} />
-        </label>
+          <div className={styles.fileInputRow}>
+            <label className={styles.fileBtn}>
+              Загрузить
+              <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden}
+                onChange={handleFileChange} />
+            </label>
+            <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
+          </div>
+        </div>
         {preview && <img src={preview} alt="Предпросмотр" className={previewClass} />}
         <button className={styles.submit} type="submit" disabled={uploading}>
           {uploading ? 'Загрузка…' : data ? 'Заменить' : 'Загрузить'}
         </button>
       </form>
+    </div>
+  );
+}
+
+// ─── Home ─────────────────────────────────────────────────────────────────────
+
+const HOME_SLOTS: SlotConfig[] = [
+  {
+    key: 'home-card-image',
+    label: 'Карточка «Новая коллекция»',
+    hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
+    portrait: true,
+  },
+  {
+    key: FEATURED_COLLECTION.cardSlotKey,
+    label: `Секция «${FEATURED_COLLECTION.title}»`,
+    hint: 'Большое фото коллекции в нижней секции главной страницы и на странице /collections',
+  },
+];
+
+function HomeSection() {
+  const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllSiteImages()
+      .then((list) => {
+        const map = new Map(list.map((img) => [img.slotKey, img]));
+        setImages(map);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  function handleUpdate(slotKey: string, img: SiteImage | null) {
+    setImages((prev) => {
+      const next = new Map(prev);
+      if (img) next.set(slotKey, img); else next.delete(slotKey);
+      return next;
+    });
+  }
+
+  if (loading) return <p className={styles.hint}>Загрузка…</p>;
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.formHeader}>
+        <h2 className={styles.sectionTitle}>Главная страница</h2>
+        <p className={styles.formHint}>Фотографии, которые отображаются на главной странице сайта</p>
+      </div>
+      {HOME_SLOTS.map((cfg) => (
+        <SiteImageSlot
+          key={cfg.key}
+          config={cfg}
+          data={images.get(cfg.key) ?? null}
+          onUpdate={(img) => handleUpdate(cfg.key, img)}
+        />
+      ))}
     </div>
   );
 }
@@ -831,21 +961,604 @@ function AboutSection() {
 
 // ─── Collections ─────────────────────────────────────────────────────────────
 
+// ── Static collection card (site_images-based) ────────────────────────────
+
+function StaticCollectionCard({
+  collection,
+  images,
+  meta,
+  onImageUpdate,
+  onMetaUpdate,
+}: {
+  collection: typeof ALL_COLLECTIONS[number];
+  images: Map<string, SiteImage>;
+  meta: CollectionMeta | null;
+  onImageUpdate: (slotKey: string, img: SiteImage | null) => void;
+  onMetaUpdate: (m: CollectionMeta) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState(meta?.title ?? collection.title);
+  const [subtitle, setSubtitle] = useState(meta?.subtitle ?? collection.subtitle);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setTitle(meta?.title ?? collection.title);
+    setSubtitle(meta?.subtitle ?? collection.subtitle);
+  }, [meta, collection.title, collection.subtitle]);
+
+  async function handleSaveMeta(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) { showToast('Название не может быть пустым'); return; }
+    setSaving(true);
+    try {
+      const updated = await saveCollectionMeta(collection.slug, { title: title.trim(), subtitle: subtitle.trim() || undefined });
+      onMetaUpdate(updated);
+      showToast('Сохранено');
+    } catch {
+      showToast('Ошибка сохранения');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const cardImg = images.get(collection.cardSlotKey);
+  const hasPhotos = [
+    collection.cardSlotKey,
+    collection.detailHeroSlotKey,
+    ...collection.detailGallerySlotKeys,
+  ].some((k) => images.has(k));
+
+  const displayTitle = meta?.title ?? collection.title;
+  const displaySubtitle = meta?.subtitle ?? collection.subtitle;
+
+  return (
+    <div className={styles.collectionCard}>
+      <button
+        type="button"
+        className={styles.collectionCardHeader}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <div className={styles.collectionCardThumb}>
+          {cardImg ? (
+            <img src={cardImg.imageUrl} alt={displayTitle}
+              style={{ objectPosition: `${cardImg.positionX}% ${cardImg.positionY}%` }} />
+          ) : (
+            <div className={styles.collectionCardThumbEmpty} />
+          )}
+        </div>
+        <div className={styles.collectionCardInfo}>
+          <p className={styles.collectionCardTitle}>{displayTitle}</p>
+          {displaySubtitle && <p className={styles.collectionCardSubtitle}>{displaySubtitle}</p>}
+          <p className={styles.collectionCardSlug}>/collections/{collection.slug}</p>
+        </div>
+        <div className={styles.collectionCardMeta}>
+          {hasPhotos && <span className={styles.collectionCardBadge}>фото загружены</span>}
+          <span className={`${styles.collectionCardChevron} ${open ? styles.collectionCardChevronOpen : ''}`}>›</span>
+        </div>
+      </button>
+
+      {open && (
+        <div className={styles.collectionCardBody}>
+          <div className={styles.collectionSubGroup}>
+            <p className={styles.collectionSubGroupTitle}>Название и подзаголовок</p>
+            <form className={styles.collectionMetaForm} onSubmit={handleSaveMeta}>
+              <label className={styles.field}>
+                <span className={styles.label}>Название</span>
+                <input className={styles.input} value={title}
+                  onChange={(e) => setTitle(e.target.value)} placeholder={collection.title} />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Подзаголовок</span>
+                <input className={styles.input} value={subtitle}
+                  onChange={(e) => setSubtitle(e.target.value)} placeholder={collection.subtitle} />
+              </label>
+              <button className={styles.submit} type="submit" disabled={saving}>
+                {saving ? 'Сохранение…' : 'Сохранить'}
+              </button>
+            </form>
+          </div>
+
+          <div className={styles.collectionSubGroup}>
+            <p className={styles.collectionSubGroupTitle}>Карточка в каталоге /collections</p>
+            <SiteImageSlot
+              config={{ key: collection.cardSlotKey, label: 'Фото карточки', hint: 'Показывается в общем списке коллекций' }}
+              data={images.get(collection.cardSlotKey) ?? null}
+              onUpdate={(img) => onImageUpdate(collection.cardSlotKey, img)}
+            />
+          </div>
+
+          <div className={styles.collectionSubGroup}>
+            <p className={styles.collectionSubGroupTitle}>Страница коллекции /collections/{collection.slug}</p>
+            <div className={styles.slotGrid}>
+              <SiteImageSlot
+                config={{ key: collection.detailHeroSlotKey, label: 'Hero — главное фото', hint: 'Большое фото вверху страницы' }}
+                data={images.get(collection.detailHeroSlotKey) ?? null}
+                onUpdate={(img) => onImageUpdate(collection.detailHeroSlotKey, img)}
+              />
+              {collection.detailGallerySlotKeys.map((slotKey, i) => (
+                <SiteImageSlot
+                  key={slotKey}
+                  config={{ key: slotKey, label: `Галерея — образ ${i + 1}`, hint: `${i + 1}-е фото в галерее` }}
+                  data={images.get(slotKey) ?? null}
+                  onUpdate={(img) => onImageUpdate(slotKey, img)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Dynamic collection photo row ──────────────────────────────────────────
+
+function DynPhotoRow({
+  photo,
+  onDelete,
+  onUpdate,
+}: {
+  photo: DynamicCollectionPhoto;
+  onDelete: (id: number) => void;
+  onUpdate: (p: DynamicCollectionPhoto) => void;
+}) {
+  const [posX, setPosX] = useState(photo.positionX);
+  const [posY, setPosY] = useState(photo.positionY);
+  const [saving, setSaving] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handlePos(axis: 'x' | 'y', val: number) {
+    if (axis === 'x') setPosX(val); else setPosY(val);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        const nx = axis === 'x' ? val : posX;
+        const ny = axis === 'y' ? val : posY;
+        const updated = await updateCollectionPhotoPosition(photo.id, nx, ny);
+        onUpdate(updated);
+      } catch {
+        showToast('Ошибка сохранения позиции');
+      } finally {
+        setSaving(false);
+      }
+    }, 600);
+  }
+
+  async function handleDelete() {
+    if (!confirm('Удалить фото?')) return;
+    await deleteCollectionPhoto(photo.id);
+    onDelete(photo.id);
+    showToast('Удалено');
+  }
+
+  const typeLabel = photo.photoType === 'CARD' ? 'Карточка' : photo.photoType === 'HERO' ? 'Hero' : 'Галерея';
+
+  return (
+    <div className={styles.dynPhotoRow}>
+      <div className={styles.dynPhotoThumb}>
+        <img src={photo.imageUrl} alt={typeLabel}
+          style={{ objectPosition: `${posX}% ${posY}%` }} />
+      </div>
+      <div className={styles.dynPhotoMeta}>
+        <span className={styles.dynPhotoType}>{typeLabel}</span>
+        {saving && <span className={styles.dynPhotoSaving}>сохраняется…</span>}
+        <div className={styles.dynPhotoSliders}>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Гориз.</span>
+            <input type="range" min={0} max={100} value={posX} className={styles.slider}
+              onChange={(e) => handlePos('x', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posX}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Верт.</span>
+            <input type="range" min={0} max={100} value={posY} className={styles.slider}
+              onChange={(e) => handlePos('y', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posY}%</span>
+          </label>
+        </div>
+      </div>
+      <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить фото">×</button>
+    </div>
+  );
+}
+
+// ── Dynamic collection card ───────────────────────────────────────────────
+
+const MAX_PHOTOS = 30;
+
+function DynCollectionCard({
+  collection,
+  onChange,
+  onDelete,
+}: {
+  collection: DynamicCollection;
+  onChange: (c: DynamicCollection) => void;
+  onDelete: (id: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState(collection.title);
+  const [subtitle, setSubtitle] = useState(collection.subtitle ?? '');
+  const [eyebrow, setEyebrow] = useState(collection.eyebrow ?? '');
+  const [description, setDescription] = useState(collection.description ?? '');
+  const [detailIntro, setDetailIntro] = useState(collection.detailIntro ?? '');
+  const [detailFocus, setDetailFocus] = useState(collection.detailFocus ?? '');
+  const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
+  const [featured, setFeatured] = useState(collection.featured);
+  const [saving, setSaving] = useState(false);
+
+  const [addingPhoto, setAddingPhoto] = useState(false);
+  const [photoType, setPhotoType] = useState<'CARD' | 'HERO' | 'GALLERY'>('GALLERY');
+  const [uploading, setUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setTitle(collection.title);
+    setSubtitle(collection.subtitle ?? '');
+    setEyebrow(collection.eyebrow ?? '');
+    setDescription(collection.description ?? '');
+    setDetailIntro(collection.detailIntro ?? '');
+    setDetailFocus(collection.detailFocus ?? '');
+    setTone(collection.tone ?? 'neutral');
+    setFeatured(collection.featured);
+  }, [collection]);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) { showToast('Название не может быть пустым'); return; }
+    setSaving(true);
+    try {
+      const updated = await updateCollection(collection.id, {
+        slug: collection.slug,
+        title: title.trim(),
+        subtitle: subtitle.trim() || undefined,
+        eyebrow: eyebrow.trim() || undefined,
+        description: description.trim() || undefined,
+        detailIntro: detailIntro.trim() || undefined,
+        detailFocus: detailFocus.trim() || undefined,
+        tone,
+        sortOrder: collection.sortOrder,
+        featured,
+      });
+      onChange(updated);
+      showToast('Сохранено');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка сохранения');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteCollection() {
+    if (!confirm(`Удалить коллекцию «${collection.title}» и все её фото?`)) return;
+    try {
+      await deleteCollection(collection.id);
+      onDelete(collection.id);
+      showToast('Коллекция удалена');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка');
+    }
+  }
+
+  async function handleAddPhoto(e: React.FormEvent) {
+    e.preventDefault();
+    const file = fileRef.current?.files?.[0];
+    if (!file) { showToast('Выберите фото'); return; }
+    if (collection.photos.length >= MAX_PHOTOS) {
+      showToast(`Лимит: максимум ${MAX_PHOTOS} фото на коллекцию`);
+      return;
+    }
+    setUploading(true);
+    try {
+      const { publicUrl, key } = await uploadFile(file);
+      const galleryPhotos = collection.photos.filter((p) => p.photoType === 'GALLERY');
+      const maxOrder = galleryPhotos.length > 0 ? Math.max(...galleryPhotos.map((p) => p.sortOrder)) : -1;
+      const photo = await addCollectionPhoto(collection.id, {
+        imageUrl: publicUrl,
+        imageKey: key,
+        photoType,
+        sortOrder: photoType === 'GALLERY' ? maxOrder + 1 : 0,
+      });
+      onChange({ ...collection, photos: [...collection.photos, photo] });
+      setAddingPhoto(false);
+      setFileName(null);
+      if (fileRef.current) fileRef.current.value = '';
+      showToast('Фото добавлено');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка загрузки');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handlePhotoUpdate(updated: DynamicCollectionPhoto) {
+    onChange({ ...collection, photos: collection.photos.map((p) => p.id === updated.id ? updated : p) });
+  }
+
+  function handlePhotoDelete(photoId: number) {
+    onChange({ ...collection, photos: collection.photos.filter((p) => p.id !== photoId) });
+  }
+
+  const cardPhoto = collection.photos.find((p) => p.photoType === 'CARD');
+
+  return (
+    <div className={styles.collectionCard}>
+      <button
+        type="button"
+        className={styles.collectionCardHeader}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <div className={styles.collectionCardThumb}>
+          {cardPhoto ? (
+            <img src={cardPhoto.imageUrl} alt={collection.title}
+              style={{ objectPosition: `${cardPhoto.positionX}% ${cardPhoto.positionY}%` }} />
+          ) : (
+            <div className={styles.collectionCardThumbEmpty} />
+          )}
+        </div>
+        <div className={styles.collectionCardInfo}>
+          <p className={styles.collectionCardTitle}>{collection.title}</p>
+          {collection.subtitle && <p className={styles.collectionCardSubtitle}>{collection.subtitle}</p>}
+          <p className={styles.collectionCardSlug}>/collections/{collection.slug}</p>
+        </div>
+        <div className={styles.collectionCardMeta}>
+          {collection.photos.length > 0 && (
+            <span className={styles.collectionDynBadge}>{collection.photos.length} фото</span>
+          )}
+          {collection.featured && <span className={styles.collectionCardBadge}>featured</span>}
+          <span className={`${styles.collectionCardChevron} ${open ? styles.collectionCardChevronOpen : ''}`}>›</span>
+        </div>
+      </button>
+
+      {open && (
+        <div className={styles.collectionCardBody}>
+
+          {/* Edit info */}
+          <div className={styles.collectionSubGroup}>
+            <div className={styles.collectionSectionHeader}>
+              <p className={styles.collectionSubGroupTitle}>Информация о коллекции</p>
+              <button className={styles.deleteBannerBtn} onClick={handleDeleteCollection}>Удалить коллекцию</button>
+            </div>
+            <form className={styles.collectionMetaForm} onSubmit={handleSave}>
+              <div className={styles.createCollectionGrid}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Название</span>
+                  <input className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Подзаголовок</span>
+                  <input className={styles.input} value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Eyebrow</span>
+                  <input className={styles.input} value={eyebrow} onChange={(e) => setEyebrow(e.target.value)} placeholder="Featured collection" />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Тон</span>
+                  <select className={styles.input} value={tone} onChange={(e) => setTone(e.target.value as 'warm' | 'cool' | 'neutral')}>
+                    <option value="neutral">Neutral</option>
+                    <option value="warm">Warm</option>
+                    <option value="cool">Cool</option>
+                  </select>
+                </label>
+              </div>
+              <label className={styles.field}>
+                <span className={styles.label}>Описание (для карточки в каталоге)</span>
+                <textarea className={styles.input} rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Вступление (для страницы коллекции)</span>
+                <textarea className={styles.input} rows={2} value={detailIntro} onChange={(e) => setDetailIntro(e.target.value)} />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Акцент (для страницы коллекции)</span>
+                <input className={styles.input} value={detailFocus} onChange={(e) => setDetailFocus(e.target.value)} />
+              </label>
+              <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+                <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>Показывать как featured (главная)</span>
+              </label>
+              <button className={styles.submit} type="submit" disabled={saving}>
+                {saving ? 'Сохранение…' : 'Сохранить'}
+              </button>
+            </form>
+          </div>
+
+          {/* Photos */}
+          <div className={styles.collectionSubGroup}>
+            <div className={styles.collectionSectionHeader}>
+              <p className={styles.collectionSubGroupTitle}>
+                Фотографии ({collection.photos.length} / {MAX_PHOTOS})
+              </p>
+              {collection.photos.length < MAX_PHOTOS && (
+                <button
+                  type="button"
+                  className={styles.submit}
+                  style={{ padding: '0.35rem 0.9rem', fontSize: '0.8rem' }}
+                  onClick={() => setAddingPhoto((v) => !v)}
+                >
+                  {addingPhoto ? 'Отмена' : '+ Добавить фото'}
+                </button>
+              )}
+            </div>
+
+            {addingPhoto && (
+              <form className={styles.dynPhotoAddForm} onSubmit={handleAddPhoto}>
+                <div>
+                  <p className={styles.label} style={{ marginBottom: '0.4rem' }}>Тип фото</p>
+                  <div className={styles.dynPhotoTypeRow}>
+                    {(['CARD', 'HERO', 'GALLERY'] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`${styles.dynPhotoTypePill} ${photoType === t ? styles.dynPhotoTypePillActive : ''}`}
+                        onClick={() => setPhotoType(t)}
+                      >
+                        {t === 'CARD' ? 'Карточка' : t === 'HERO' ? 'Hero' : 'Галерея'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.fileInputRow}>
+                  <label className={styles.fileBtn}>
+                    Загрузить
+                    <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden}
+                      onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)} />
+                  </label>
+                  <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
+                </div>
+                <button className={styles.submit} type="submit" disabled={uploading}>
+                  {uploading ? 'Загрузка…' : 'Добавить'}
+                </button>
+              </form>
+            )}
+
+            {collection.photos.length === 0 ? (
+              <p className={styles.hint}>Фото пока нет</p>
+            ) : (
+              <div className={styles.dynPhotoList}>
+                {collection.photos.map((photo) => (
+                  <DynPhotoRow
+                    key={photo.id}
+                    photo={photo}
+                    onDelete={handlePhotoDelete}
+                    onUpdate={handlePhotoUpdate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Create collection form ────────────────────────────────────────────────
+
+const MAX_COLLECTIONS = 25;
+
+function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection) => void }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral' as 'warm' | 'cool' | 'neutral',
+  });
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.slug.trim() || !form.title.trim()) { showToast('Slug и название обязательны'); return; }
+    if (!/^[a-z0-9-]+$/.test(form.slug)) { showToast('Slug: только строчные буквы, цифры и дефис'); return; }
+    setSaving(true);
+    try {
+      const created = await createCollection({
+        slug: form.slug.trim(),
+        title: form.title.trim(),
+        subtitle: form.subtitle.trim() || undefined,
+        eyebrow: form.eyebrow.trim() || undefined,
+        description: form.description.trim() || undefined,
+        tone: form.tone,
+      });
+      onCreated(created);
+      setForm({ slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral' });
+      setOpen(false);
+      showToast('Коллекция создана');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка создания');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className={styles.submit}
+        style={{ alignSelf: 'flex-start' }}
+        onClick={() => setOpen(true)}
+      >
+        + Новая коллекция
+      </button>
+    );
+  }
+
+  return (
+    <form className={styles.createCollectionForm} onSubmit={handleSubmit}>
+      <div className={styles.formHeader}>
+        <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Создать коллекцию</h3>
+        <p className={styles.formHint}>Slug — уникальный ключ (напр. my-new-look), используется в URL /collections/my-new-look</p>
+      </div>
+      <div className={styles.createCollectionGrid}>
+        <label className={styles.field}>
+          <span className={styles.label}>Slug (URL)</span>
+          <input className={styles.input} value={form.slug}
+            onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
+            placeholder="my-new-look" />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>Название</span>
+          <input className={styles.input} value={form.title}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="My New Look" />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>Подзаголовок</span>
+          <input className={styles.input} value={form.subtitle}
+            onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))} />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>Eyebrow</span>
+          <input className={styles.input} value={form.eyebrow}
+            onChange={(e) => setForm((f) => ({ ...f, eyebrow: e.target.value }))} placeholder="Look 04" />
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>Тон</span>
+          <select className={styles.input} value={form.tone}
+            onChange={(e) => setForm((f) => ({ ...f, tone: e.target.value as 'warm' | 'cool' | 'neutral' }))}>
+            <option value="neutral">Neutral</option>
+            <option value="warm">Warm</option>
+            <option value="cool">Cool</option>
+          </select>
+        </label>
+      </div>
+      <label className={styles.field}>
+        <span className={styles.label}>Описание</span>
+        <textarea className={styles.input} rows={2} value={form.description}
+          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+      </label>
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <button className={styles.submit} type="submit" disabled={saving}>
+          {saving ? 'Создание…' : 'Создать'}
+        </button>
+        <button type="button" className={styles.deleteBannerBtn} onClick={() => setOpen(false)}>Отмена</button>
+      </div>
+    </form>
+  );
+}
+
+// ── CollectionsSection ────────────────────────────────────────────────────
+
 function CollectionsSection() {
   const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
+  const [metas, setMetas] = useState<Map<string, CollectionMeta>>(new Map());
+  const [dynamicCollections, setDynamicCollections] = useState<DynamicCollection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAllSiteImages()
-      .then((list) => {
-        const map = new Map(list.map((img) => [img.slotKey, img]));
-        setImages(map);
+    Promise.all([fetchAllSiteImages(), fetchCollectionsMeta(), fetchCollections()])
+      .then(([imgs, metaMap, dyns]) => {
+        setImages(new Map(imgs.map((img) => [img.slotKey, img])));
+        setMetas(new Map(Object.entries(metaMap)));
+        setDynamicCollections(dyns);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  function handleUpdate(slotKey: string, img: SiteImage | null) {
+  function handleImageUpdate(slotKey: string, img: SiteImage | null) {
     setImages((prev) => {
       const next = new Map(prev);
       if (img) next.set(slotKey, img); else next.delete(slotKey);
@@ -853,42 +1566,84 @@ function CollectionsSection() {
     });
   }
 
+  function handleMetaUpdate(slug: string, m: CollectionMeta) {
+    setMetas((prev) => new Map(prev).set(slug, m));
+  }
+
+  function handleDynChange(updated: DynamicCollection) {
+    setDynamicCollections((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+  }
+
+  function handleDynDelete(id: number) {
+    setDynamicCollections((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function handleDynCreated(c: DynamicCollection) {
+    setDynamicCollections((prev) => [...prev, c]);
+  }
+
   if (loading) return <p className={styles.hint}>Загрузка…</p>;
 
-  const allCollections = ALL_COLLECTIONS;
+  const dynamicSlugs = new Set(dynamicCollections.map((c) => c.slug));
+  // Static collections that aren't overridden by a dynamic one
+  const staticOnly = ALL_COLLECTIONS.filter((c) => !dynamicSlugs.has(c.slug));
+  const canCreate = dynamicCollections.length < MAX_COLLECTIONS;
 
   return (
     <div className={styles.section}>
       <div className={styles.formHeader}>
         <h2 className={styles.sectionTitle}>Коллекции</h2>
-        <p className={styles.formHint}>Фотографии для страниц /collections и отдельных коллекций</p>
+        <p className={styles.formHint}>
+          Управление коллекциями на страницах /collections и /collections/slug.
+          Лимит: {dynamicCollections.length} / {MAX_COLLECTIONS} динамических коллекций.
+        </p>
       </div>
 
-      {allCollections.map((collection) => (
-        <div key={collection.slug} className={styles.slotGroup}>
-          <p className={styles.slotGroupTitle}>{collection.title}</p>
-          <div className={styles.slotGrid}>
-            <SiteImageSlot
-              config={{ key: collection.cardSlotKey, label: 'Карточка в каталоге', hint: `Фото на странице /collections` }}
-              data={images.get(collection.cardSlotKey) ?? null}
-              onUpdate={(img) => handleUpdate(collection.cardSlotKey, img)}
-            />
-            <SiteImageSlot
-              config={{ key: collection.detailHeroSlotKey, label: 'Hero детальной страницы', hint: `Большое фото вверху /${collection.slug}` }}
-              data={images.get(collection.detailHeroSlotKey) ?? null}
-              onUpdate={(img) => handleUpdate(collection.detailHeroSlotKey, img)}
-            />
-            {collection.detailGallerySlotKeys.map((slotKey, i) => (
-              <SiteImageSlot
-                key={slotKey}
-                config={{ key: slotKey, label: `Галерея — образ ${i + 1}`, hint: `Фото ${i + 1} в галерее ${collection.title}` }}
-                data={images.get(slotKey) ?? null}
-                onUpdate={(img) => handleUpdate(slotKey, img)}
+      {/* Dynamic collections */}
+      {dynamicCollections.length > 0 && (
+        <div>
+          <div className={styles.collectionSectionHeader} style={{ marginBottom: '0.75rem' }}>
+            <p className={styles.collectionSectionTitle}>Динамические коллекции</p>
+          </div>
+          <div className={styles.collectionsList}>
+            {dynamicCollections.map((c) => (
+              <DynCollectionCard
+                key={c.id}
+                collection={c}
+                onChange={handleDynChange}
+                onDelete={handleDynDelete}
               />
             ))}
           </div>
         </div>
-      ))}
+      )}
+
+      {/* Create form */}
+      {canCreate && <CreateCollectionForm onCreated={handleDynCreated} />}
+      {!canCreate && (
+        <p className={styles.hint}>Достигнут лимит {MAX_COLLECTIONS} коллекций.</p>
+      )}
+
+      {/* Static collections */}
+      {staticOnly.length > 0 && (
+        <div>
+          <div className={styles.collectionSectionHeader} style={{ marginBottom: '0.75rem' }}>
+            <p className={styles.collectionSectionTitle}>Встроенные коллекции (slot-keys)</p>
+          </div>
+          <div className={styles.collectionsList}>
+            {staticOnly.map((collection) => (
+              <StaticCollectionCard
+                key={collection.slug}
+                collection={collection}
+                images={images}
+                meta={metas.get(collection.slug) ?? null}
+                onImageUpdate={handleImageUpdate}
+                onMetaUpdate={(m) => handleMetaUpdate(collection.slug, m)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1062,6 +1817,7 @@ export default function AdminPage() {
     ] : []),
     { key: 'portfolio', label: 'Портфолио' },
     { key: 'hero', label: 'Баннер' },
+    { key: 'home', label: 'Главная' },
     { key: 'about', label: 'О мастере' },
     { key: 'collections', label: 'Коллекции' },
     { key: 'settings', label: 'Настройки' },
@@ -1094,6 +1850,7 @@ export default function AdminPage() {
         {tab === 'patterns' && <PatternsSection />}
         {tab === 'portfolio' && <PortfolioSection />}
         {tab === 'hero' && <HeroSection />}
+        {tab === 'home' && <HomeSection />}
         {tab === 'about' && <AboutSection />}
         {tab === 'collections' && <CollectionsSection />}
         {tab === 'settings' && <SettingsSection />}

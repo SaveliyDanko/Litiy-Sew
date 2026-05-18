@@ -1,6 +1,8 @@
 package com.litiy.backend.controller;
 
 import com.litiy.backend.model.dto.AdminCredentialsRequest;
+import com.litiy.backend.model.dto.CollectionMetaRequest;
+import com.litiy.backend.model.dto.CollectionMetaResponse;
 import com.litiy.backend.model.dto.HeroBannerRequest;
 import com.litiy.backend.model.dto.HeroBannerResponse;
 import com.litiy.backend.model.dto.PatternItemRequest;
@@ -9,6 +11,7 @@ import com.litiy.backend.model.dto.PortfolioPhotoRequest;
 import com.litiy.backend.model.dto.PortfolioPhotoResponse;
 import com.litiy.backend.model.dto.ProductRequest;
 import com.litiy.backend.model.dto.ProductResponse;
+import com.litiy.backend.service.CollectionMetaService;
 import com.litiy.backend.service.HeroBannerAdminService;
 import com.litiy.backend.service.PatternAdminService;
 import com.litiy.backend.service.PortfolioAdminService;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +46,7 @@ public class AdminController {
     private final PatternAdminService patternAdminService;
     private final PortfolioAdminService portfolioAdminService;
     private final HeroBannerAdminService heroBannerAdminService;
+    private final CollectionMetaService collectionMetaService;
     private final UserService userService;
 
     // --- Credentials ---
@@ -133,7 +138,9 @@ public class AdminController {
     public ResponseEntity<HeroBannerResponse> updateHeroPosition(@RequestBody Map<String, Integer> body) {
         return heroBannerAdminService.updatePosition(
                 body.getOrDefault("positionX", 50),
-                body.getOrDefault("positionY", 50)
+                body.getOrDefault("positionY", 50),
+                body.getOrDefault("positionXMobile", 50),
+                body.getOrDefault("positionYMobile", 50)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
@@ -141,5 +148,14 @@ public class AdminController {
     public ResponseEntity<Void> deleteHero() {
         heroBannerAdminService.deleteCurrent();
         return ResponseEntity.noContent().build();
+    }
+
+    // --- Collection Meta ---
+
+    @PutMapping("/collections/{slug}/meta")
+    public ResponseEntity<CollectionMetaResponse> upsertCollectionMeta(
+            @PathVariable String slug,
+            @Valid @RequestBody CollectionMetaRequest req) {
+        return ResponseEntity.ok(collectionMetaService.upsert(slug, req));
     }
 }

@@ -10,6 +10,8 @@ public record HeroBannerResponse(
         String imageKey,
         int positionX,
         int positionY,
+        int positionXMobile,
+        int positionYMobile,
         Instant createdAt
 ) {
     public static HeroBannerResponse from(HeroBanner b) {
@@ -19,6 +21,8 @@ public record HeroBannerResponse(
                 b.getImageKey(),
                 b.getPositionX() != null ? b.getPositionX() : 50,
                 b.getPositionY() != null ? b.getPositionY() : 50,
+                b.getPositionXMobile() != null ? b.getPositionXMobile() : 50,
+                b.getPositionYMobile() != null ? b.getPositionYMobile() : 50,
                 b.getCreatedAt()
         );
     }

@@ -15,40 +15,53 @@ import lombok.Setter;
 import java.time.Instant;
 
 @Entity
-@Table(name = "hero_banners")
+@Table(name = "dynamic_collections")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HeroBanner {
+public class DynamicCollection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 512)
-    private String imageUrl;
+    @Column(nullable = false, unique = true, length = 128)
+    private String slug;
 
-    @Column(nullable = false, length = 512)
-    private String imageKey;
+    @Column(nullable = false, length = 256)
+    private String title;
+
+    @Column(length = 512)
+    private String subtitle;
+
+    @Column(length = 256)
+    private String eyebrow;
+
+    @Column(length = 1024)
+    private String description;
+
+    @Column(length = 1024)
+    private String detailIntro;
+
+    @Column(length = 1024)
+    private String detailFocus;
+
+    /** 'warm' | 'cool' | 'neutral' */
+    @Column(length = 16)
+    @Builder.Default
+    private String tone = "neutral";
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer positionX = 50;
+    private Integer sortOrder = 0;
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer positionY = 50;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer positionXMobile = 50;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer positionYMobile = 50;
+    private Boolean featured = false;
 
     @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 }

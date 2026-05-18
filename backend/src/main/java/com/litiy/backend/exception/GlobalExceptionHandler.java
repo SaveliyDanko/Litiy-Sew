@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -70,11 +71,19 @@ public class GlobalExceptionHandler {
         return builder.body(body);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex) {
+    @ExceptionHandler({EntityNotFoundException.class, NoSuchElementException.class})
+    public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "not_found",
                 "message", ex.getMessage() == null ? "Ресурс не найден" : ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleLimitExceeded(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of(
+                "error", "limit_exceeded",
+                "message", ex.getMessage()
         ));
     }
 
