@@ -1,4 +1,4 @@
-# Скопируйте в group_vars/vault.yml и зашифруйте: ansible-vault encrypt group_vars/vault.yml
+# Скопируйте в group_vars/vps/vault.yml и зашифруйте: ansible-vault encrypt group_vars/vps/vault.yml
 postgres_password: "CHANGE_ME"
 redis_password: ""
 minio_access_key: "CHANGE_ME"
