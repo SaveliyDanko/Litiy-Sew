@@ -1,0 +1,55 @@
+---
+- name: Обновить apt кэш
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Установить базовые пакеты
+  apt:
+    name:
+      - curl
+      - git
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - python3-pip
+      - ufw
+    state: present
+
+- name: Создать системного пользователя приложения
+  user:
+    name: "{{ app_user }}"
+    system: yes
+    shell: /bin/bash
+    home: "{{ app_dir }}"
+    create_home: yes
+
+- name: Создать директорию приложения
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Настроить UFW — разрешить SSH
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Настроить UFW — разрешить HTTP
+  ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+
+- name: Настроить UFW — разрешить HTTPS
+  ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+
+- name: Включить UFW
+  ufw:
+    state: enabled
+    policy: deny

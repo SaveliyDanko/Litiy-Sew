@@ -1,0 +1,32 @@
+# --- Общие пути ---
+app_dir: /opt/litiy-sew
+app_user: litiy-sew
+
+# --- Домен и SSL ---
+domain: example.com           # замените на ваш домен
+certbot_email: you@example.com
+
+# --- Порты (внутренние, за nginx) ---
+backend_port: 8080
+postgres_port: 5433
+redis_port: 6379
+minio_api_port: 9000
+minio_console_port: 9001
+
+# --- Frontend ---
+vite_shop_enabled: "false"
+
+# --- PostgreSQL ---
+postgres_user: postgres
+postgres_db: litiy_sew
+# postgres_password — в ansible/vault.yml (зашифровано)
+
+# --- MinIO ---
+minio_bucket: litiy-sew-media
+# minio_access_key, minio_secret_key — в vault.yml
+
+# --- Mail ---
+mail_host: smtp.gmail.com
+mail_port: 587
+app_mail_console_fallback_enabled: "false"
+# mail_username, mail_password, mail_from — в vault.yml

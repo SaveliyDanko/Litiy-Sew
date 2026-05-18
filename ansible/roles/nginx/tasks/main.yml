@@ -1,0 +1,61 @@
+---
+- name: Установить Nginx и Certbot
+  apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Удалить дефолтный конфиг Nginx
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Развернуть конфиг Nginx (HTTP — первый запуск)
+  template:
+    src: nginx-http.conf.j2
+    dest: /etc/nginx/sites-available/litiy-sew
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Включить сайт в Nginx
+  file:
+    src: /etc/nginx/sites-available/litiy-sew
+    dest: /etc/nginx/sites-enabled/litiy-sew
+    state: link
+  notify: Reload nginx
+
+- name: Убедиться что Nginx запущен
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Получить SSL сертификат через Certbot
+  command: >
+    certbot --nginx -d {{ domain }}
+    --non-interactive --agree-tos
+    --email {{ certbot_email }}
+    --redirect
+  args:
+    creates: /etc/letsencrypt/live/{{ domain }}/fullchain.pem
+
+- name: Развернуть конфиг Nginx с SSL
+  template:
+    src: nginx-ssl.conf.j2
+    dest: /etc/nginx/sites-available/litiy-sew
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Настроить автообновление сертификатов (cron)
+  cron:
+    name: certbot renew
+    job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
+    minute: "0"
+    hour: "3"
+    weekday: "1"

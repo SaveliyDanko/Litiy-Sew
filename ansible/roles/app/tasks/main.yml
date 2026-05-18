@@ -1,0 +1,86 @@
+---
+# ── 1. Синхронизация исходников ──────────────────────────────────────────────
+
+- name: Синхронизировать backend на VPS
+  synchronize:
+    src: "{{ playbook_dir }}/../backend/"
+    dest: "{{ app_dir }}/backend/"
+    delete: yes
+    rsync_opts:
+      - "--exclude=build/"
+      - "--exclude=.gradle/"
+      - "--exclude=*.class"
+
+- name: Синхронизировать frontend на VPS
+  synchronize:
+    src: "{{ playbook_dir }}/../frontend/"
+    dest: "{{ app_dir }}/frontend/"
+    delete: yes
+    rsync_opts:
+      - "--exclude=node_modules/"
+      - "--exclude=dist/"
+
+- name: Синхронизировать docker-compose.prod.yml
+  copy:
+    src: "{{ playbook_dir }}/../docker-compose.prod.yml"
+    dest: "{{ app_dir }}/docker-compose.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+
+# ── 2. Production .env ────────────────────────────────────────────────────────
+
+- name: Развернуть .env из шаблона
+  template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0600"
+
+# ── 3. Права на директорию ───────────────────────────────────────────────────
+
+- name: Установить владельца app_dir
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    recurse: yes
+
+# ── 4. Сборка frontend ────────────────────────────────────────────────────────
+
+- name: Установить Node.js (если отсутствует)
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+
+- name: Установить зависимости frontend
+  community.general.npm:
+    path: "{{ app_dir }}/frontend"
+    ci: yes
+  become_user: "{{ app_user }}"
+
+- name: Собрать frontend
+  command: npm run build
+  args:
+    chdir: "{{ app_dir }}/frontend"
+  environment:
+    VITE_SHOP_ENABLED: "{{ vite_shop_enabled }}"
+  become_user: "{{ app_user }}"
+  notify: Reload nginx
+
+# ── 5. Запуск сервисов через Docker Compose ───────────────────────────────────
+
+- name: Запустить (или пересобрать) backend через docker compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}"
+    files:
+      - docker-compose.yml
+    state: present
+    build: always
+    pull: missing
+  become_user: "{{ app_user }}"
+  notify: Reload nginx

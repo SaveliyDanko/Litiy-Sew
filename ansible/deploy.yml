@@ -1,0 +1,59 @@
+---
+# Быстрый re-deploy без повторного provision (docker + nginx не трогается)
+- name: Re-deploy LitiySew
+  hosts: vps
+  become: yes
+  vars_files:
+    - group_vars/vps.yml
+    - vault.yml
+
+  tasks:
+    - name: Синхронизировать backend
+      synchronize:
+        src: "{{ playbook_dir }}/../backend/"
+        dest: "{{ app_dir }}/backend/"
+        delete: yes
+        rsync_opts:
+          - "--exclude=build/"
+          - "--exclude=.gradle/"
+          - "--exclude=*.class"
+
+    - name: Синхронизировать frontend
+      synchronize:
+        src: "{{ playbook_dir }}/../frontend/"
+        dest: "{{ app_dir }}/frontend/"
+        delete: yes
+        rsync_opts:
+          - "--exclude=node_modules/"
+          - "--exclude=dist/"
+
+    - name: Обновить .env
+      template:
+        src: roles/app/templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0600"
+
+    - name: Собрать frontend
+      command: npm run build
+      args:
+        chdir: "{{ app_dir }}/frontend"
+      environment:
+        VITE_SHOP_ENABLED: "{{ vite_shop_enabled }}"
+      become_user: "{{ app_user }}"
+
+    - name: Пересобрать и перезапустить backend
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        files:
+          - docker-compose.yml
+        state: present
+        build: always
+        pull: missing
+      become_user: "{{ app_user }}"
+
+    - name: Перезагрузить Nginx
+      service:
+        name: nginx
+        state: reloaded
