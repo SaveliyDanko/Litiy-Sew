@@ -1,63 +1,42 @@
 package com.litiy.backend.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class MediaService {
 
-    private final S3Client s3Client;
-    private final S3Presigner s3Presigner;
+    @Value("${app.media.upload-dir}")
+    private String uploadDir;
 
-    @Value("${minio.bucket}")
-    private String bucket;
+    @Value("${app.media.public-url}")
+    private String publicUrl;
 
-    @Value("${minio.endpoint}")
-    private String endpoint;
-
-    /**
-     * Генерирует presigned URL для загрузки файла напрямую в MinIO.
-     * Возвращает uploadUrl (для PUT-запроса) и publicUrl (для отображения).
-     */
-    public Map<String, String> generatePresignedUploadUrl(String originalFilename, String contentType) {
+    public Map<String, String> uploadFile(MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
         String key = UUID.randomUUID() + "/" + originalFilename;
 
-        PutObjectRequest putRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .contentType(contentType)
-                .build();
+        Path target = Paths.get(uploadDir).resolve(key);
+        Files.createDirectories(target.getParent());
+        file.transferTo(target);
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15))
-                .putObjectRequest(putRequest)
-                .build();
-
-        String uploadUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
-        String publicUrl = endpoint + "/" + bucket + "/" + key;
-
-        return Map.of(
-                "uploadUrl", uploadUrl,
-                "publicUrl", publicUrl,
-                "key", key
-        );
+        return Map.of("publicUrl", publicUrl + "/" + key, "key", key);
     }
 
     public void deleteFile(String key) {
-        s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .build());
+        try {
+            Path target = Paths.get(uploadDir).resolve(key);
+            Files.deleteIfExists(target);
+            Files.deleteIfExists(target.getParent());
+        } catch (IOException ignored) {
+        }
     }
 }

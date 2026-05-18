@@ -48,6 +48,14 @@
     group: "{{ app_user }}"
     recurse: yes
 
+- name: Создать папку uploads
+  file:
+    path: "{{ uploads_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
 # ── 4. Сборка frontend ────────────────────────────────────────────────────────
 
 - name: Установить Node.js (если отсутствует)
@@ -84,3 +92,38 @@
     pull: missing
   become_user: "{{ app_user }}"
   notify: Reload nginx
+
+# ── 6. Admin-пользователь ─────────────────────────────────────────────────────
+
+- name: Установить python3-bcrypt
+  apt:
+    name: python3-bcrypt
+    state: present
+
+- name: Создать или обновить admin-пользователя через Python
+  shell: |
+    python3 - << 'PYEOF'
+    import bcrypt, os, subprocess
+    email = os.environ['ADMIN_EMAIL']
+    pw    = os.environ['ADMIN_PW'].encode()
+    h     = bcrypt.hashpw(pw, bcrypt.gensalt(12)).decode()
+    sql   = (
+        "INSERT INTO users (email, password_hash, email_verified, role, created_at) "
+        f"VALUES ('{email}', '{h}', true, 'ADMIN', NOW()) "
+        "ON CONFLICT (email) DO UPDATE "
+        "SET password_hash = EXCLUDED.password_hash, "
+        "    role = 'ADMIN', email_verified = true;"
+    )
+    subprocess.run(
+        ["docker", "compose", "-f", "{{ app_dir }}/docker-compose.yml",
+         "exec", "-T", "postgres", "psql", "-U", "{{ postgres_user }}", "-d", "{{ postgres_db }}"],
+        input=sql, text=True, check=True
+    )
+    PYEOF
+  environment:
+    ADMIN_EMAIL: "{{ admin_email }}"
+    ADMIN_PW:    "{{ admin_password }}"
+  become_user: "{{ app_user }}"
+  no_log: true
+  changed_when: true
+

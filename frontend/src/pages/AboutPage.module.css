@@ -349,6 +349,54 @@
   font-weight: 500;
 }
 
+/* ── Gallery (dynamic photos from admin) ────────────────────────────────── */
+
+.gallery {
+  width: min(100%, var(--about-max-width));
+  margin: 0 auto;
+  display: grid;
+  gap: 22px;
+  padding: var(--about-section-gap) var(--about-side-padding) 0;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.galleryItem {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #e8e3dd;
+}
+
+.galleryImg {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.galleryItem:hover .galleryImg {
+  transform: scale(1.03);
+}
+
+.galleryCaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  background: linear-gradient(to top, rgba(17,17,17,0.62) 0%, transparent 100%);
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
 @media (min-width: 640px) {
   .page {
     --about-page-padding-bottom: 88px;

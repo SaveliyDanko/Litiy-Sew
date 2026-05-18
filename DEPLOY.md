@@ -11,6 +11,7 @@
 7. [Обновление приложения](#7-обновление-приложения)
 8. [Управление на сервере](#8-управление-на-сервере)
 9. [Диагностика проблем](#9-диагностика-проблем)
+10. [Админка](#10-админка)
 
 ---
 
@@ -37,9 +38,11 @@
 ### Установить Ansible и коллекции
 
 ```bash
-pip install ansible
+pip install ansible bcrypt
 ansible-galaxy collection install community.docker community.general
 ```
+
+> `bcrypt` нужен на локальной машине: Ansible использует его для хеширования пароля admin-пользователя перед записью в PostgreSQL.
 
 ### Проверить SSH-доступ к VPS
 
@@ -115,7 +118,12 @@ minio_secret_key: "StrongMinioSecret"
 mail_username: "yourmail@gmail.com"
 mail_password: "gmail-app-password"     # App Password, не обычный пароль
 mail_from: "yourmail@gmail.com"
+admin_email: "your@email.com"           # email для входа в /admin
+admin_password: "StrongAdminPassword"   # пароль для входа в /admin (мин. 8 символов)
 ```
+
+> Ansible автоматически создаст или обновит admin-пользователя при каждом запуске `site.yml` и `deploy.yml`.
+> Для смены кредов достаточно изменить значения в vault и перезапустить `deploy.yml` — или поменять прямо в браузере через вкладку **Настройки** в `/admin`.
 
 > **Gmail:** нужен App Password, не обычный пароль аккаунта.
 > Создать: Google Account → Security → 2-Step Verification → App passwords
@@ -348,3 +356,99 @@ sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml up -d --bu
 ```
 
 > `-v` удаляет Docker volumes — **все данные БД будут потеряны.**
+
+---
+
+## 10. Админка
+
+Админка доступна по адресу **https://litiy.site/admin** — только для пользователей с ролью `ADMIN`.
+
+### 10.1. Деплой (первый раз или после изменений кода)
+
+Если сервер уже поднят (`site.yml` отработал ранее), достаточно запустить быстрый re-deploy:
+
+```bash
+ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass
+```
+
+Плейбук пересоберёт backend и frontend, новые таблицы (`products`, `pattern_items`, `portfolio_photos`, `hero_banners`) создадутся автоматически при старте Spring Boot (через `ddl-auto: update`).
+
+### 10.2. Локальное тестирование
+
+Запустить docker-compose для инфраструктуры (PostgreSQL, Redis, MinIO):
+
+```bash
+docker compose up -d postgres redis minio minio-init
+```
+
+Задать переменные окружения с кредами для локального теста:
+
+```bash
+export ADMIN_EMAIL=admin@example.com
+export ADMIN_PASSWORD=testpassword
+```
+
+Запустить backend:
+
+```bash
+cd backend && ./gradlew bootRun
+```
+
+Создать ADMIN вручную в локальной БД (один раз):
+
+```bash
+docker compose exec postgres psql -U postgres -d litiy_sew \
+  -c "INSERT INTO users (email, password_hash, email_verified, role, created_at)
+      VALUES ('admin@example.com', '\$2a\$12\$...bcrypt_hash...', true, 'ADMIN', NOW())
+      ON CONFLICT (email) DO UPDATE SET role = 'ADMIN';"
+```
+
+> Или зарегистрируйтесь на сайте, а потом обновите роль через SQL — это проще при первом запуске локально.
+
+Запустить frontend:
+
+```bash
+cd frontend && npm run dev
+```
+
+Открыть **http://localhost:5173/admin**.
+
+### 10.3. Что умеет админка
+
+| Вкладка | Действия |
+|---|---|
+| **Товары** | Добавить (фото + название + цена + описание), удалить |
+| **Выкройки** | Добавить (фото + категория + размеры + рост + цена), удалить |
+| **Портфолио** | Добавить фото (опционально подпись), изменить порядок ↑↓, удалить |
+| **Баннер** | Загрузить/заменить hero-фото главной страницы, удалить |
+| **Настройки** | Изменить email и/или пароль для входа в админку |
+
+Фотографии загружаются **напрямую из браузера в MinIO** через presigned URL — backend не тратит память на передачу файлов.
+
+При удалении любого элемента файл из MinIO тоже удаляется автоматически.
+
+### 10.4. Публичные API для отображения на сайте
+
+Эти эндпоинты доступны без авторизации и возвращают контент, добавленный через админку:
+
+```
+GET /api/products    — список товаров
+GET /api/patterns    — список выкроек
+GET /api/portfolio   — фото портфолио (отсортированы по sortOrder)
+GET /api/hero        — текущий баннер (204 если не установлен)
+```
+
+### 10.5. Диагностика
+
+**Админка не открывается (редирект на главную)**
+— Пользователь не залогинен или роль не `ADMIN`. Проверить, что `admin_email` / `admin_password` заданы в vault и `deploy.yml` отработал успешно.
+
+**403 при запросах к `/api/admin/**`**
+— Сессия не передаётся. Убедиться, что браузер отправляет куки (`credentials: include` уже проставлено в коде).
+
+**Файл не загружается (ошибка PUT на MinIO)**
+— Проверить, что MinIO доступен и бакет существует:
+```bash
+sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml ps minio
+sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml logs minio
+```

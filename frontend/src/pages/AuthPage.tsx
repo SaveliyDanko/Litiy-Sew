@@ -240,8 +240,12 @@ export default function AuthPage() {
     setSubmitting(true);
     try {
       if (mode === 'login') {
-        await login(email, password);
+        const loggedIn = await login(email, password);
         emitAuthChanged();
+        if (loggedIn.role === 'ADMIN') {
+          window.location.href = '/admin';
+          return;
+        }
       } else {
         const result = await register(email, password);
         setCodeContext({
@@ -267,8 +271,12 @@ export default function AuthPage() {
     setSubmitting(true);
     try {
       await verifyEmail(codeContext.email, code);
-      await login(email, password);
+      const loggedIn = await login(email, password);
       emitAuthChanged();
+      if (loggedIn.role === 'ADMIN') {
+        window.location.href = '/admin';
+        return;
+      }
     } catch (err) {
       handleError(err);
     } finally {

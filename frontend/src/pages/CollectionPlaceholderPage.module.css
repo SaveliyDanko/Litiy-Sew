@@ -72,10 +72,17 @@
 
 .heroImage,
 .photoImage,
-.galleryImage {
+.galleryImage,
+.heroPlaceholder,
+.galleryPlaceholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.heroPlaceholder,
+.galleryPlaceholder {
+  display: block;
 }
 
 .heroOverlay {

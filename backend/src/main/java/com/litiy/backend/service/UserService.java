@@ -81,6 +81,22 @@ public class UserService implements org.springframework.security.core.userdetail
     }
 
     @Transactional
+    public void updateAdminCredentials(String currentEmail, String newEmail, String newPassword) {
+        User admin = getByEmail(currentEmail);
+        if (newEmail != null && !newEmail.isBlank()) {
+            String normalized = normalize(newEmail);
+            if (!normalized.equals(admin.getEmail()) && userRepository.existsByEmail(normalized)) {
+                throw new IllegalArgumentException("Email is already registered");
+            }
+            admin.setEmail(normalized);
+        }
+        if (newPassword != null && !newPassword.isBlank()) {
+            admin.setPasswordHash(passwordEncoder.encode(newPassword));
+        }
+        userRepository.save(admin);
+    }
+
+    @Transactional
     public User updateProfile(String email, String firstName, String lastName, String phoneNumber) {
         User user = getByEmail(email);
         boolean hasChanges = false;

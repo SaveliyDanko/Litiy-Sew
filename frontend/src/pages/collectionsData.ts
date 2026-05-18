@@ -1,5 +1,3 @@
-export const COLLECTIONS_MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
-
 export type CollectionTone = 'warm' | 'cool' | 'neutral';
 
 export type CollectionEntry = {
@@ -9,11 +7,11 @@ export type CollectionEntry = {
   subtitle: string;
   description: string;
   tone: CollectionTone;
-  imagePath: string;
+  cardSlotKey: string;
   detailIntro: string;
   detailFocus: string;
-  detailHeroImagePath: string;
-  detailGalleryImagePaths: [string, string, string, string];
+  detailHeroSlotKey: string;
+  detailGallerySlotKeys: [string, string, string, string];
 };
 
 export const FEATURED_COLLECTION: CollectionEntry = {
@@ -24,16 +22,16 @@ export const FEATURED_COLLECTION: CollectionEntry = {
   description:
     'Капсула о деликатности, свете и ощущении близости, где формы остаются мягкими, а настроение собирается из деталей, фактуры и воздуха между линиями.',
   tone: 'neutral',
-  imagePath: 'collections/the-glow-of-love-placeholder.jpg',
+  cardSlotKey: 'collection-glow-card',
   detailIntro:
     'Основная идея коллекции заключается в том, что современная свадебная одежда всё больше сближается с повседневной эстетикой.',
   detailFocus: 'Главный акцент — лаконичные формы',
-  detailHeroImagePath: 'collections/details/the-glow-of-love-hero-placeholder.jpg',
-  detailGalleryImagePaths: [
-    'collections/details/the-glow-of-love-look-1-placeholder.jpg',
-    'collections/details/the-glow-of-love-look-2-placeholder.jpg',
-    'collections/details/the-glow-of-love-look-3-placeholder.jpg',
-    'collections/details/the-glow-of-love-look-4-placeholder.jpg',
+  detailHeroSlotKey: 'collection-glow-hero',
+  detailGallerySlotKeys: [
+    'collection-glow-look-1',
+    'collection-glow-look-2',
+    'collection-glow-look-3',
+    'collection-glow-look-4',
   ],
 };
 
@@ -45,16 +43,16 @@ export const SOLO_COLLECTIONS: CollectionEntry[] = [
     subtitle: 'Театральный силуэт',
     description: 'Объёмная форма, декоративность и игра с образом как самостоятельным высказыванием.',
     tone: 'warm',
-    imagePath: 'collections/queen-of-hearts-placeholder.jpg',
+    cardSlotKey: 'collection-hearts-card',
     detailIntro:
       'Образ строится на контрасте драматичной декоративности и чёткой, почти сценической собранности силуэта.',
     detailFocus: 'Главный акцент — корсетная линия и выразительный объём',
-    detailHeroImagePath: 'collections/details/look-1/queen-of-hearts-hero-placeholder.jpg',
-    detailGalleryImagePaths: [
-      'collections/details/look-1/queen-of-hearts-look-1-placeholder.jpg',
-      'collections/details/look-1/queen-of-hearts-look-2-placeholder.jpg',
-      'collections/details/look-1/queen-of-hearts-look-3-placeholder.jpg',
-      'collections/details/look-1/queen-of-hearts-look-4-placeholder.jpg',
+    detailHeroSlotKey: 'collection-hearts-hero',
+    detailGallerySlotKeys: [
+      'collection-hearts-look-1',
+      'collection-hearts-look-2',
+      'collection-hearts-look-3',
+      'collection-hearts-look-4',
     ],
   },
   {
@@ -64,16 +62,16 @@ export const SOLO_COLLECTIONS: CollectionEntry[] = [
     subtitle: 'Воздух и пластика',
     description: 'Лёгкая фактура, мягкий вертикальный ритм и деликатный акцент на линии плеч и шеи.',
     tone: 'cool',
-    imagePath: 'collections/blue-reverie-placeholder.jpg',
+    cardSlotKey: 'collection-reverie-card',
     detailIntro:
       'Этот образ держится на ощущении воздуха, световой прозрачности и спокойной вертикали, собранной вокруг плечевого пояса.',
     detailFocus: 'Главный акцент — прозрачность материала и мягкий объём',
-    detailHeroImagePath: 'collections/details/blue-reverie-hero-placeholder.jpg',
-    detailGalleryImagePaths: [
-      'collections/details/blue-reverie-look-1-placeholder.jpg',
-      'collections/details/blue-reverie-look-2-placeholder.jpg',
-      'collections/details/blue-reverie-look-3-placeholder.jpg',
-      'collections/details/blue-reverie-look-4-placeholder.jpg',
+    detailHeroSlotKey: 'collection-reverie-hero',
+    detailGallerySlotKeys: [
+      'collection-reverie-look-1',
+      'collection-reverie-look-2',
+      'collection-reverie-look-3',
+      'collection-reverie-look-4',
     ],
   },
   {
@@ -83,25 +81,21 @@ export const SOLO_COLLECTIONS: CollectionEntry[] = [
     subtitle: 'Тихая чувственность',
     description: 'Минималистичная композиция, в которой ткань, посадка и поза работают как единый образ.',
     tone: 'neutral',
-    imagePath: 'collections/ivory-hush-placeholder.jpg',
+    cardSlotKey: 'collection-hush-card',
     detailIntro:
       'В основе этого образа лежит сдержанная пластика: внимание смещается с декора на посадку, пропорции и текучесть поверхности.',
     detailFocus: 'Главный акцент — чистый силуэт и тактильная фактура',
-    detailHeroImagePath: 'collections/details/ivory-hush-hero-placeholder.jpg',
-    detailGalleryImagePaths: [
-      'collections/details/ivory-hush-look-1-placeholder.jpg',
-      'collections/details/ivory-hush-look-2-placeholder.jpg',
-      'collections/details/ivory-hush-look-2-placeholder.jpg',
-      'collections/details/ivory-hush-look-2-placeholder.jpg',
+    detailHeroSlotKey: 'collection-hush-hero',
+    detailGallerySlotKeys: [
+      'collection-hush-look-1',
+      'collection-hush-look-2',
+      'collection-hush-look-3',
+      'collection-hush-look-4',
     ],
   },
 ];
 
 export const ALL_COLLECTIONS = [FEATURED_COLLECTION, ...SOLO_COLLECTIONS];
-
-export function getCollectionImageUrl(imagePath: string) {
-  return `${COLLECTIONS_MEDIA_BASE_URL}/${imagePath}`;
-}
 
 export function getCollectionHref(slug: string) {
   return `/collections/${slug}`;

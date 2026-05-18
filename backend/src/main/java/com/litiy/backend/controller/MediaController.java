@@ -4,7 +4,9 @@ import com.litiy.backend.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -15,15 +17,12 @@ public class MediaController {
     private final MediaService mediaService;
 
     /**
-     * POST /api/media/presign
-     * Body: { "filename": "photo.jpg", "contentType": "image/jpeg" }
-     * Response: { "uploadUrl": "...", "publicUrl": "...", "key": "..." }
+     * POST /api/media/upload  (multipart/form-data, field "file")
+     * Response: { "publicUrl": "...", "key": "..." }
      */
-    @PostMapping("/presign")
-    public ResponseEntity<Map<String, String>> presign(@RequestBody Map<String, String> body) {
-        String filename = body.get("filename");
-        String contentType = body.get("contentType");
-        return ResponseEntity.ok(mediaService.generatePresignedUploadUrl(filename, contentType));
+    @PostMapping("/upload")
+    public ResponseEntity<Map<String, String>> upload(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(mediaService.uploadFile(file));
     }
 
     /**

@@ -1,27 +1,56 @@
+import { useEffect, useState } from 'react';
 import {
   FEATURED_COLLECTION,
   getCollectionHref,
-  getCollectionImageUrl,
 } from '../pages/collectionsData';
 import { MEDIA_BASE_URL, PRODUCTS_BY_CATEGORY } from '../pages/patternsData';
+import { fetchSiteImage } from '../services/siteImages';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import ProductCard from './ProductCard';
 import styles from './HeroSection.module.css';
 
-const HERO_IMAGE_URL = 'http://localhost:9000/litiy-sew-media/hero/hero.jpg';
-const COLLECTION_IMAGE_URL = 'http://localhost:9000/litiy-sew-media/hero/new_collection.jpg';
-
 const NEW_ARRIVALS = PRODUCTS_BY_CATEGORY.all.slice(0, 4);
 
+type HeroData = { imageUrl: string; positionX: number; positionY: number } | null;
+
+async function fetchHeroBanner(): Promise<HeroData> {
+  const res = await fetch('/api/hero');
+  if (res.status === 204 || !res.ok) return null;
+  const data = await res.json() as { imageUrl: string; positionX?: number; positionY?: number };
+  return { imageUrl: data.imageUrl, positionX: data.positionX ?? 50, positionY: data.positionY ?? 50 };
+}
+
 export default function HeroSection() {
+  const [hero, setHero] = useState<HeroData>(null);
+  const [featuredImgUrl, setFeaturedImgUrl] = useState<string | null>(null);
+  const [featuredImgStyle, setFeaturedImgStyle] = useState<React.CSSProperties>({});
+
+  useEffect(() => {
+    fetchHeroBanner().then(setHero);
+    fetchSiteImage(FEATURED_COLLECTION.cardSlotKey).then((si) => {
+      if (si) {
+        setFeaturedImgUrl(si.imageUrl);
+        setFeaturedImgStyle({ objectPosition: `${si.positionX}% ${si.positionY}%` });
+      }
+    }).catch(() => {});
+  }, []);
+
   return (
     <>
-      <section className={styles.hero}>
-        <img
-          className={styles.bg}
-          src={HERO_IMAGE_URL}
-          alt="Litiy Sew hero"
-        />
+      <section
+        className={styles.hero}
+        style={hero ? ({
+          '--hero-bg-offset-x': `${hero.positionX}%`,
+          '--hero-bg-offset-y': `${hero.positionY}%`,
+        } as React.CSSProperties) : undefined}
+      >
+        {hero && (
+          <img
+            className={styles.bg}
+            src={hero.imageUrl}
+            alt="Litiy Sew hero"
+          />
+        )}
         <div className={styles.overlay} />
 
         <div className={styles.content}>
@@ -35,11 +64,6 @@ export default function HeroSection() {
           </h1>
 
           <div className={styles.card}>
-            <img
-              className={styles.cardImage}
-              src={COLLECTION_IMAGE_URL}
-              alt="Новая коллекция"
-            />
             <a href="/collections" className={styles.btn}>
               НОВАЯ КОЛЛЕКЦИЯ
             </a>
@@ -86,11 +110,14 @@ export default function HeroSection() {
           className={styles.featuredMedia}
           aria-label={`Открыть коллекцию ${FEATURED_COLLECTION.title}`}
         >
-          <img
-            className={styles.featuredImage}
-            src={getCollectionImageUrl(FEATURED_COLLECTION.imagePath)}
-            alt={FEATURED_COLLECTION.title}
-          />
+          {featuredImgUrl && (
+            <img
+              className={styles.featuredImage}
+              src={featuredImgUrl}
+              alt={FEATURED_COLLECTION.title}
+              style={featuredImgStyle}
+            />
+          )}
           <div className={styles.featuredGlow} />
         </a>
 

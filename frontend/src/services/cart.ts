@@ -1,7 +1,7 @@
 import type { CartItem } from '../types/cart';
 import type { Product } from '../types/product';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = '/api';
 
 type CartItemResponse = {
   id: number;

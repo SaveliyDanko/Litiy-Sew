@@ -1,13 +1,43 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { fetchPortfolioPhotos, type PortfolioPhoto } from '../services/portfolio';
+import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { ABOUT_PAGE_DATA, PORTFOLIO_ITEMS } from './aboutData';
 import styles from './AboutPage.module.css';
+
+const PORTFOLIO_SLOT_KEYS: Record<string, string> = {
+  problonde:     'portfolio-problonde',
+  melon:         'portfolio-melon',
+  'spring-breath': 'portfolio-spring',
+  'zigzag-diplom': 'portfolio-zigzag',
+  'prize-diploma': 'portfolio-prize',
+  diplom:        'portfolio-diplom',
+};
 
 export default function AboutPage() {
   const [activePortfolioId, setActivePortfolioId] = useState(PORTFOLIO_ITEMS[0].id);
   const activePortfolio = PORTFOLIO_ITEMS.find((item) => item.id === activePortfolioId) ?? PORTFOLIO_ITEMS[0];
+  const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
+  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
+
+  useEffect(() => {
+    fetchPortfolioPhotos().then(setPhotos).catch(() => {});
+    fetchAllSiteImages()
+      .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
+      .catch(() => {});
+  }, []);
+
+  function imgUrl(slotKey: string, fallback: string) {
+    const si = siteImages.get(slotKey);
+    return si ? si.imageUrl : fallback;
+  }
+
+  function imgStyle(slotKey: string): React.CSSProperties {
+    const si = siteImages.get(slotKey);
+    return si ? { objectPosition: `${si.positionX}% ${si.positionY}%` } : {};
+  }
 
   return (
     <>
@@ -17,8 +47,9 @@ export default function AboutPage() {
         <section className={styles.hero}>
           <img
             className={styles.heroImage}
-            src={ABOUT_PAGE_DATA.hero.imageUrl}
+            src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
             alt={ABOUT_PAGE_DATA.hero.imageAlt}
+            style={imgStyle('about-hero')}
           />
           <div className={styles.heroOverlay} />
           <div className={styles.heroContent}>
@@ -30,8 +61,9 @@ export default function AboutPage() {
           <div className={styles.storyFigure}>
             <img
               className={styles.storyImage}
-              src={ABOUT_PAGE_DATA.story.imageUrl}
+              src={imgUrl('about-portrait', ABOUT_PAGE_DATA.story.imageUrl)}
               alt={ABOUT_PAGE_DATA.story.imageAlt}
+              style={imgStyle('about-portrait')}
             />
           </div>
 
@@ -82,8 +114,9 @@ export default function AboutPage() {
                       <div className={styles.portfolioPreview}>
                         <img
                           className={styles.portfolioPreviewImage}
-                          src={activePortfolio.imageUrl}
+                          src={imgUrl(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '', activePortfolio.imageUrl)}
                           alt={activePortfolio.imageAlt}
+                          style={imgStyle(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '')}
                         />
                       </div>
 
@@ -102,6 +135,22 @@ export default function AboutPage() {
             })}
           </div>
         </section>
+        {photos.length > 0 && (
+          <section className={styles.gallery}>
+            <div className={styles.sectionHeading}>
+              <p className={styles.sectionEyebrow}>Работы</p>
+              <h2 className={styles.sectionTitle}>Gallery</h2>
+            </div>
+            <div className={styles.galleryGrid}>
+              {photos.map((photo) => (
+                <div key={photo.id} className={styles.galleryItem}>
+                  <img src={photo.photoUrl} alt={photo.caption ?? ''} className={styles.galleryImg} />
+                  {photo.caption && <p className={styles.galleryCaption}>{photo.caption}</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

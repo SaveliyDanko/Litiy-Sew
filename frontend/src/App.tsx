@@ -1,4 +1,5 @@
 import Toaster from './components/Toaster';
+import AdminPage from './pages/AdminPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPage from './pages/PrivacyPage';
 import OfferPage from './pages/OfferPage';
@@ -19,10 +20,15 @@ import { SHOP_ENABLED } from './utils/featureFlags';
 function renderPage() {
   const path = window.location.pathname;
 
+  if (path.startsWith('/admin')) {
+    return <AdminPage />;
+  }
+
+  if (path.startsWith('/auth') || path.startsWith('/profile')) {
+    return <AuthPage />;
+  }
+
   if (SHOP_ENABLED) {
-    if (path.startsWith('/auth') || path.startsWith('/profile')) {
-      return <AuthPage />;
-    }
 
     if (path.startsWith('/checkout')) {
       return <CheckoutUnavailablePage />;
@@ -48,8 +54,6 @@ function renderPage() {
       return <PatternsPage />;
     }
   } else if (
-    path.startsWith('/auth') ||
-    path.startsWith('/profile') ||
     path.startsWith('/checkout') ||
     path.startsWith('/cart') ||
     path.startsWith('/favorites') ||
