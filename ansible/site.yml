@@ -2,9 +2,6 @@
 - name: Provision VPS — базовая настройка
   hosts: vps
   become: yes
-  vars_files:
-    - group_vars/vps.yml
-    - vault.yml
   roles:
     - common
     - docker
@@ -13,8 +10,5 @@
 - name: Deploy LitiySew
   hosts: vps
   become: yes
-  vars_files:
-    - group_vars/vps.yml
-    - vault.yml
   roles:
     - app

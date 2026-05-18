@@ -3,10 +3,6 @@
 - name: Re-deploy LitiySew
   hosts: vps
   become: yes
-  vars_files:
-    - group_vars/vps.yml
-    - vault.yml
-
   tasks:
     - name: Синхронизировать backend
       synchronize:

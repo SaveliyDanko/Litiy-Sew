@@ -99,11 +99,13 @@ certbot_email: dankosaveliy.m@gmail.com
 
 ### 4.3. Создать vault с секретами
 
+Vault **обязан лежать в `ansible/group_vars/vault.yml`** — тогда Ansible автоматически подхватывает его для хоста `vps`.
+
 ```bash
-cp ansible/vault.yml.example ansible/vault.yml
+cp ansible/vault.yml.example ansible/group_vars/vault.yml
 ```
 
-Открыть `ansible/vault.yml` и заменить все `CHANGE_ME` на реальные значения:
+Открыть `ansible/group_vars/vault.yml` и заменить все `CHANGE_ME` на реальные значения:
 
 ```yaml
 postgres_password: "StrongPassword123"
@@ -121,12 +123,12 @@ mail_from: "yourmail@gmail.com"
 Зашифровать vault:
 
 ```bash
-ansible-vault encrypt ansible/vault.yml
+ansible-vault encrypt ansible/group_vars/vault.yml
 ```
 
 Придумать и запомнить vault-пароль — он понадобится при каждом запуске плейбука.
 
-> `ansible/vault.yml` добавлен в `.gitignore`. Никогда не коммить незашифрованный файл.
+> `ansible/group_vars/vault.yml` добавлен в `.gitignore`. Никогда не коммить незашифрованный файл.
 
 ---
 

@@ -26,6 +26,9 @@ frontend/references/
 frontend/dist/
 frontend/node_modules/
 
+# Ansible vault (секреты — никогда не коммитить незашифрованным)
+ansible/group_vars/vault.yml
+
 # Backend build
 backend/build/
 backend/.gradle/
