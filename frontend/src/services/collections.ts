@@ -11,6 +11,8 @@ export type DynamicCollectionPhoto = {
   createdAt: string;
 };
 
+export type CollectionCategory = 'COLLECTION' | 'SOLO' | 'SKETCH';
+
 export type DynamicCollection = {
   id: number;
   slug: string;
@@ -21,6 +23,7 @@ export type DynamicCollection = {
   detailIntro: string | null;
   detailFocus: string | null;
   tone: 'warm' | 'cool' | 'neutral';
+  category: CollectionCategory;
   sortOrder: number;
   featured: boolean;
   createdAt: string;
@@ -36,6 +39,7 @@ export type CreateCollectionData = {
   detailIntro?: string;
   detailFocus?: string;
   tone?: 'warm' | 'cool' | 'neutral';
+  category?: CollectionCategory;
   sortOrder?: number;
   featured?: boolean;
 };

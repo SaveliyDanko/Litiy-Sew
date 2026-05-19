@@ -1328,6 +1328,7 @@ function DynCollectionCard({
   const [detailIntro, setDetailIntro] = useState(collection.detailIntro ?? '');
   const [detailFocus, setDetailFocus] = useState(collection.detailFocus ?? '');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
+  const [category, setCategory] = useState<'COLLECTION' | 'SOLO' | 'SKETCH'>(collection.category ?? 'COLLECTION');
   const [featured, setFeatured] = useState(collection.featured);
   const [saving, setSaving] = useState(false);
 
@@ -1345,6 +1346,7 @@ function DynCollectionCard({
     setDetailIntro(collection.detailIntro ?? '');
     setDetailFocus(collection.detailFocus ?? '');
     setTone(collection.tone ?? 'neutral');
+    setCategory(collection.category ?? 'COLLECTION');
     setFeatured(collection.featured);
   }, [collection]);
 
@@ -1362,6 +1364,7 @@ function DynCollectionCard({
         detailIntro: detailIntro.trim() || undefined,
         detailFocus: detailFocus.trim() || undefined,
         tone,
+        category,
         sortOrder: collection.sortOrder,
         featured,
       });
@@ -1487,6 +1490,14 @@ function DynCollectionCard({
                     <option value="cool">Cool</option>
                   </select>
                 </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Раздел</span>
+                  <select className={styles.input} value={category} onChange={(e) => setCategory(e.target.value as 'COLLECTION' | 'SOLO' | 'SKETCH')}>
+                    <option value="COLLECTION">Коллекции</option>
+                    <option value="SOLO">Одиночные модели</option>
+                    <option value="SKETCH">Эскизные проекты</option>
+                  </select>
+                </label>
               </div>
               <label className={styles.field}>
                 <span className={styles.label}>Описание (для карточки в каталоге)</span>
@@ -1587,7 +1598,9 @@ const MAX_COLLECTIONS = 25;
 function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection) => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral' as 'warm' | 'cool' | 'neutral',
+    slug: '', title: '', subtitle: '', eyebrow: '', description: '',
+    tone: 'neutral' as 'warm' | 'cool' | 'neutral',
+    category: 'COLLECTION' as 'COLLECTION' | 'SOLO' | 'SKETCH',
   });
   const [saving, setSaving] = useState(false);
 
@@ -1604,9 +1617,10 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
         eyebrow: form.eyebrow.trim() || undefined,
         description: form.description.trim() || undefined,
         tone: form.tone,
+        category: form.category,
       });
       onCreated(created);
-      setForm({ slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral' });
+      setForm({ slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral', category: 'COLLECTION' });
       setOpen(false);
       showToast('Коллекция создана');
     } catch (err) {
@@ -1664,6 +1678,15 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
             <option value="neutral">Neutral</option>
             <option value="warm">Warm</option>
             <option value="cool">Cool</option>
+          </select>
+        </label>
+        <label className={styles.field}>
+          <span className={styles.label}>Раздел</span>
+          <select className={styles.input} value={form.category}
+            onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as 'COLLECTION' | 'SOLO' | 'SKETCH' }))}>
+            <option value="COLLECTION">Коллекции</option>
+            <option value="SOLO">Одиночные модели</option>
+            <option value="SKETCH">Эскизные проекты</option>
           </select>
         </label>
       </div>

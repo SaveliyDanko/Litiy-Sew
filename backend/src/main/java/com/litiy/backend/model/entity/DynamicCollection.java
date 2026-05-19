@@ -53,6 +53,11 @@ public class DynamicCollection {
     @Builder.Default
     private String tone = "neutral";
 
+    /** 'COLLECTION' | 'SOLO' | 'SKETCH' */
+    @Column(length = 16)
+    @Builder.Default
+    private String category = "COLLECTION";
+
     @Column(nullable = false)
     @Builder.Default
     private Integer sortOrder = 0;

@@ -15,6 +15,7 @@ public record DynamicCollectionRequest(
         @Size(max = 1024) String detailIntro,
         @Size(max = 1024) String detailFocus,
         @Pattern(regexp = "^(warm|cool|neutral)$") String tone,
+        @Pattern(regexp = "^(COLLECTION|SOLO|SKETCH)$") String category,
         Integer sortOrder,
         Boolean featured
 ) {}

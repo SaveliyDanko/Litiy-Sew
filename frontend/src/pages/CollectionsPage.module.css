@@ -101,20 +101,25 @@
   color: rgb(17 17 17 / 74%);
 }
 
-.solo {
+.solo,
+.group {
   display: grid;
   gap: 24px;
   padding: var(--collections-section-gap) var(--collections-side-padding) 0;
+  width: min(100%, var(--collections-max-width));
+  margin: 0 auto;
 }
 
-.soloHeading {
+.soloHeading,
+.groupHeading {
   display: grid;
   gap: 10px;
 }
 
-.soloTitle {
+.soloTitle,
+.groupTitle {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
   font-weight: 600;
   line-height: 1;
 }

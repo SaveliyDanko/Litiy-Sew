@@ -59,6 +59,7 @@ public class DynamicCollectionService {
                 .detailIntro(req.detailIntro())
                 .detailFocus(req.detailFocus())
                 .tone(req.tone() != null ? req.tone() : "neutral")
+                .category(req.category() != null ? req.category() : "COLLECTION")
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
                 .featured(Boolean.TRUE.equals(req.featured()))
                 .build();
@@ -80,6 +81,7 @@ public class DynamicCollectionService {
         c.setDetailIntro(req.detailIntro());
         c.setDetailFocus(req.detailFocus());
         if (req.tone() != null) c.setTone(req.tone());
+        if (req.category() != null) c.setCategory(req.category());
         if (req.sortOrder() != null) c.setSortOrder(req.sortOrder());
         if (req.featured() != null) c.setFeatured(req.featured());
         return toResponse(collectionRepo.save(c));
