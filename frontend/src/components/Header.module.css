@@ -9,6 +9,14 @@
   color: var(--color-white);
 }
 
+.headerTransparent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+}
+
 .logo {
   font-family: var(--font-display);
   font-size: 28px;

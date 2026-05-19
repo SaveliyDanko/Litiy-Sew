@@ -9,7 +9,7 @@ const navItems = [
   { href: '/collections', label: 'КОЛЛЕКЦИИ' },
 ];
 
-export default function Header() {
+export default function Header({ transparent = false }: { transparent?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${transparent ? styles.headerTransparent : ''}`}>
         <a
           href="/"
           className={styles.logo}

@@ -20,11 +20,7 @@ export default function CollectionPlaceholderPage() {
     return (
       <>
         <Header />
-        <main className={styles.page}>
-          <section className={styles.lookPage}>
-            <p className={styles.intro}>Загрузка…</p>
-          </section>
-        </main>
+        <main className={styles.page} />
         <Footer />
       </>
     );
@@ -35,14 +31,11 @@ export default function CollectionPlaceholderPage() {
       <>
         <Header />
         <main className={styles.page}>
-          <section className={styles.lookPage}>
+          <div className={styles.notFound}>
             <p className={styles.eyebrow}>Collection</p>
-            <h1 className={styles.title}>Страница не найдена</h1>
-            <p className={styles.intro}>
-              Для этой коллекции пока нет отдельной страницы. Можно вернуться к общему списку коллекций.
-            </p>
+            <h1 className={styles.notFoundTitle}>Страница не найдена</h1>
             <a href="/collections" className={styles.backLink}>Вернуться к коллекциям</a>
-          </section>
+          </div>
         </main>
         <Footer />
       </>
@@ -57,48 +50,103 @@ export default function CollectionPlaceholderPage() {
 
   const heroDisplay = heroPhoto ?? cardPhoto ?? null;
 
+  // First two gallery photos go into the detail strip; the rest into the mosaic
+  const detailPhotos = galleryPhotos.slice(0, 2);
+  const mosaicPhotos = galleryPhotos.slice(2);
+
   return (
     <>
-      <Header />
+      <Header transparent />
+
       <main className={styles.page}>
-        <section className={styles.lookPage}>
-          <a href="/collections" className={styles.backLink}>Назад к коллекциям</a>
-          <p className={styles.eyebrow}>{collection.eyebrow ?? 'Collection'}</p>
-          <h1 className={styles.title}>{collection.title}</h1>
-
-          <div className={styles.heroMedia}>
-            {heroDisplay ? (
-              <img
-                className={styles.heroImage}
-                src={heroDisplay.imageUrl}
-                alt={collection.title}
-                style={{ objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%` }}
-              />
-            ) : (
-              <div className={styles.heroPlaceholder} />
-            )}
-            <div className={styles.heroOverlay} />
+        {/* ── Full-screen hero ─────────────────────────────────────────── */}
+        <section className={styles.hero}>
+          {heroDisplay ? (
+            <img
+              className={styles.heroImage}
+              src={heroDisplay.imageUrl}
+              alt={collection.title}
+              style={{
+                objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%`,
+                transform: `scale(${(heroDisplay.scale ?? 100) / 100})`,
+              }}
+            />
+          ) : (
+            <div className={styles.heroPlaceholder} />
+          )}
+          <div className={styles.heroOverlay} />
+          <div className={styles.heroContent}>
+            <p className={styles.heroEyebrow}>{collection.eyebrow ?? 'Collection'}</p>
+            <h1 className={styles.heroTitle}>{collection.title}</h1>
           </div>
+        </section>
 
-          {collection.detailIntro && <p className={styles.intro}>{collection.detailIntro}</p>}
-          {collection.detailFocus && <p className={styles.focus}>{collection.detailFocus}</p>}
-
-          {galleryPhotos.length > 0 && (
-            <div className={styles.galleryGrid}>
-              {galleryPhotos.map((photo, index) => (
-                <div key={photo.id} className={styles.galleryItem}>
+        {/* ── Detail strip: two photos + description ───────────────────── */}
+        {(detailPhotos.length > 0 || collection.detailIntro || collection.detailFocus) && (
+          <section className={styles.detail}>
+            <div className={styles.detailInner}>
+              {detailPhotos[0] && (
+                <div className={styles.detailPhoto}>
                   <img
-                    className={styles.galleryImage}
+                    className={styles.detailImage}
+                    src={detailPhotos[0].imageUrl}
+                    alt={collection.title}
+                    style={{
+                      objectPosition: `${detailPhotos[0].positionX}% ${detailPhotos[0].positionY}%`,
+                      transform: `scale(${(detailPhotos[0].scale ?? 100) / 100})`,
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className={styles.detailText}>
+                {collection.detailIntro && <p className={styles.detailIntro}>{collection.detailIntro}</p>}
+                {collection.detailFocus && <p className={styles.detailFocus}>{collection.detailFocus}</p>}
+              </div>
+
+              {detailPhotos[1] && (
+                <div className={styles.detailPhoto}>
+                  <img
+                    className={styles.detailImage}
+                    src={detailPhotos[1].imageUrl}
+                    alt={collection.title}
+                    style={{
+                      objectPosition: `${detailPhotos[1].positionX}% ${detailPhotos[1].positionY}%`,
+                      transform: `scale(${(detailPhotos[1].scale ?? 100) / 100})`,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ── Mosaic gallery ───────────────────────────────────────────── */}
+        {mosaicPhotos.length > 0 && (
+          <section className={styles.mosaic}>
+            <div className={styles.mosaicGrid}>
+              {mosaicPhotos.map((photo, index) => (
+                <div key={photo.id} className={styles.mosaicItem}>
+                  <img
+                    className={styles.mosaicImage}
                     src={photo.imageUrl}
-                    alt={`${collection.title} — образ ${index + 1}`}
-                    style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%` }}
+                    alt={`${collection.title} — ${index + 1}`}
+                    style={{
+                      objectPosition: `${photo.positionX}% ${photo.positionY}%`,
+                      transform: `scale(${(photo.scale ?? 100) / 100})`,
+                    }}
                   />
                 </div>
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
+
+        <div className={styles.backWrap}>
+          <a href="/collections" className={styles.backLink}>← Все коллекции</a>
+        </div>
       </main>
+
       <Footer />
     </>
   );
