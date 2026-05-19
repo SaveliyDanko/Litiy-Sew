@@ -46,7 +46,7 @@ import {
 } from '../services/collections';
 import styles from './AdminPage.module.css';
 
-type Tab = 'products' | 'patterns' | 'portfolio' | 'hero' | 'home' | 'about' | 'collections' | 'settings';
+type Tab = 'products' | 'patterns' | 'portfolio' | 'home' | 'about' | 'collections' | 'settings';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -926,8 +926,10 @@ function HomeSection() {
 
   return (
     <div className={styles.section}>
+      <HeroSection />
+
       <div className={styles.formHeader}>
-        <h2 className={styles.sectionTitle}>Главная страница</h2>
+        <h2 className={styles.sectionTitle}>Фото главной страницы</h2>
         <p className={styles.formHint}>Фотографии, которые отображаются на главной странице сайта</p>
       </div>
       {HOME_SLOTS.map((cfg) => (
@@ -945,8 +947,9 @@ function HomeSection() {
 // ─── About ────────────────────────────────────────────────────────────────────
 
 const ABOUT_SLOTS: SlotConfig[] = [
-  { key: 'about-hero',     label: 'Герой страницы «О мастере»',   hint: 'Большое фоновое фото с именем Elizaveta' },
-  { key: 'about-portrait', label: 'Портрет в разделе Story',       hint: 'Фото мастера рядом с текстом о себе', portrait: true },
+  { key: 'about-hero',        label: 'Hero — Десктоп',          hint: 'Большое фоновое фото в шапке страницы «Обо мне» (десктоп / планшет)' },
+  { key: 'about-hero-mobile', label: 'Hero — Мобильный',        hint: 'Отдельное фото для мобильных устройств (до 640px). Если не загружено — используется десктопное' },
+  { key: 'about-portrait',    label: 'Портрет в разделе Story', hint: 'Фото мастера рядом с текстом о себе', portrait: true },
 ];
 
 const PORTFOLIO_SLOTS: SlotConfig[] = [
@@ -985,7 +988,7 @@ function AboutSection() {
   return (
     <div className={styles.section}>
       <div className={styles.formHeader}>
-        <h2 className={styles.sectionTitle}>Страница «О мастере»</h2>
+        <h2 className={styles.sectionTitle}>Страница «Обо мне»</h2>
         <p className={styles.formHint}>Все фотографии, которые отображаются на странице /about</p>
       </div>
 
@@ -1695,9 +1698,8 @@ export default function AdminPage() {
       { key: 'patterns' as Tab, label: 'Выкройки' },
     ] : []),
     { key: 'portfolio', label: 'Портфолио' },
-    { key: 'hero', label: 'Баннер' },
     { key: 'home', label: 'Главная' },
-    { key: 'about', label: 'О мастере' },
+    { key: 'about', label: 'Обо мне' },
     { key: 'collections', label: 'Коллекции' },
     { key: 'settings', label: 'Настройки' },
   ];
@@ -1728,7 +1730,6 @@ export default function AdminPage() {
         {tab === 'products' && <ProductsSection />}
         {tab === 'patterns' && <PatternsSection />}
         {tab === 'portfolio' && <PortfolioSection />}
-        {tab === 'hero' && <HeroSection />}
         {tab === 'home' && <HomeSection />}
         {tab === 'about' && <AboutSection />}
         {tab === 'collections' && <CollectionsSection />}
