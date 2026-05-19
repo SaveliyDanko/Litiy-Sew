@@ -1,0 +1,193 @@
+.page {
+  /* Панель настроек страницы «Портфолио». */
+  --portfolio-page-bg: #ffffff;
+  --portfolio-max-width: 1480px;
+  --portfolio-side-padding: 16px;
+  --portfolio-page-padding-bottom: 72px;
+  --portfolio-section-gap: 56px;
+
+  /* Hero */
+  --portfolio-hero-height: calc(100svh - 64px);
+  --portfolio-hero-overlay: linear-gradient(180deg, rgb(17 17 17 / 10%) 0%, rgb(17 17 17 / 55%) 100%);
+  --portfolio-hero-offset-x: 50%;
+  --portfolio-hero-offset-y: 50%;
+
+  /* Gallery */
+  --portfolio-gallery-columns: 2;
+  --portfolio-gallery-gap: 10px;
+  --portfolio-gallery-radius: 12px;
+  --portfolio-gallery-aspect: 3 / 4;
+
+  min-height: calc(100vh - 64px);
+  padding-bottom: var(--portfolio-page-padding-bottom);
+  background: var(--portfolio-page-bg);
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: var(--portfolio-hero-height);
+  overflow: hidden;
+  background: #1d1b1a;
+  display: flex;
+  align-items: flex-end;
+}
+
+.heroImage,
+.heroPlaceholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: var(--portfolio-hero-offset-x) var(--portfolio-hero-offset-y);
+}
+
+.heroPlaceholder {
+  background: linear-gradient(145deg, #2a2422 0%, #3d3330 50%, #1a1716 100%);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--portfolio-hero-overlay);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 24px var(--portfolio-side-padding) 40px;
+  color: var(--color-white);
+}
+
+.heroEyebrow {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 65%);
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+}
+
+/* ── Gallery ────────────────────────────────────────────────────────────── */
+
+.gallery {
+  width: min(100%, var(--portfolio-max-width));
+  margin: 0 auto;
+  padding: var(--portfolio-section-gap) var(--portfolio-side-padding) 0;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(var(--portfolio-gallery-columns), minmax(0, 1fr));
+  gap: var(--portfolio-gallery-gap);
+}
+
+.galleryItem {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--portfolio-gallery-radius);
+  background: #e8e3dd;
+}
+
+.galleryImage {
+  width: 100%;
+  aspect-ratio: var(--portfolio-gallery-aspect);
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.galleryItem:hover .galleryImage {
+  transform: scale(1.04);
+}
+
+.galleryCaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(to top, rgb(17 17 17 / 68%) 0%, transparent 100%);
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* ── Empty / loading states ─────────────────────────────────────────────── */
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--portfolio-section-gap) var(--portfolio-side-padding);
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #bbb;
+}
+
+.loadingState {
+  min-height: 240px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 480px) {
+  .page {
+    --portfolio-gallery-columns: 3;
+    --portfolio-gallery-gap: 12px;
+  }
+}
+
+@media (min-width: 640px) {
+  .page {
+    --portfolio-side-padding: 24px;
+    --portfolio-section-gap: 72px;
+    --portfolio-page-padding-bottom: 88px;
+    --portfolio-gallery-columns: 3;
+    --portfolio-gallery-gap: 14px;
+    --portfolio-gallery-radius: 16px;
+    --portfolio-hero-height: calc(100svh - 72px);
+  }
+
+  .heroContent {
+    padding: 36px var(--portfolio-side-padding) 56px;
+  }
+}
+
+@media (min-width: 960px) {
+  .page {
+    --portfolio-side-padding: 40px;
+    --portfolio-gallery-columns: 4;
+    --portfolio-gallery-gap: 16px;
+    --portfolio-gallery-radius: 18px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page {
+    --portfolio-side-padding: 56px;
+    --portfolio-section-gap: 88px;
+    --portfolio-page-padding-bottom: 104px;
+    --portfolio-gallery-columns: 5;
+    --portfolio-gallery-gap: 18px;
+    --portfolio-gallery-radius: 20px;
+  }
+}
