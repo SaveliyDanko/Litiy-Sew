@@ -93,31 +93,51 @@
 /* ── Detail strip ────────────────────────────────────────────────────────── */
 
 .detail {
-  padding: 64px 16px;
+  padding: 64px 0;
 }
 
 .detailInner {
   display: grid;
   grid-template-columns: 1fr;
   gap: 28px;
-  width: min(100%, 940px);
+  width: 100%;
   margin: 0 auto;
   align-items: center;
 }
 
 @media (min-width: 640px) {
+  .detail {
+    padding: 80px 0;
+  }
+
   .detailInner {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: 2fr 1.2fr 2fr;
+    gap: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .detail {
+    padding: 100px 0;
+  }
+
+  .detailInner {
+    grid-template-columns: 2.5fr 1fr 2.5fr;
   }
 }
 
 .detailPhoto {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   aspect-ratio: 3 / 4;
   background: #ede9e6;
+}
+
+@media (min-width: 640px) {
+  .detailPhoto {
+    aspect-ratio: 2 / 3;
+  }
 }
 
 .detailImage {
