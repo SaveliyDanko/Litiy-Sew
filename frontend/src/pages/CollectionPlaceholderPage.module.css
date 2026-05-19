@@ -1,9 +1,81 @@
 /* ── Collection detail page ──────────────────────────────────────────────── */
 
+/*
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║           ПЕРЕМЕННЫЕ ДЛЯ НАСТРОЙКИ СТРАНИЦЫ КОЛЛЕКЦИИ        ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * Все числа, которые влияют на внешний вид — здесь.
+ * Остальной код не трогать.
+ */
+
 .page {
-  background: #fff;
+  /* ── Фон страницы ─────────────────────────────────────────── */
+  --page-bg: #fff;
+
+  /* ── Hero (полноэкранный баннер) ──────────────────────────── */
+  --hero-min-height: 480px;          /* минимальная высота на маленьких экранах */
+  --hero-title-size: clamp(3rem, 10vw, 7rem);  /* размер заголовка «Lotus» */
+  --hero-title-bottom: 48px;         /* отступ заголовка от нижнего края */
+  --hero-overlay-top: 15%;           /* затемнение сверху (% непрозрачности) */
+  --hero-overlay-bottom: 40%;        /* затемнение снизу (% непрозрачности) */
+
+  /* ── Детальный блок (два фото + текст) ───────────────────── */
+  /* Мобильный (< 640px) */
+  --detail-padding-v-mobile: 64px;   /* вертикальный отступ */
+  --detail-padding-h-mobile: 16px;   /* горизонтальный отступ */
+  --detail-gap-mobile: 28px;         /* зазор между колонками */
+
+  /* Планшет (640px–1023px) */
+  --detail-padding-v-tablet: 80px;
+  --detail-padding-h-tablet: 48px;
+  --detail-gap-tablet: 32px;
+  --detail-cols-tablet: 1.4fr 1fr 1.4fr;   /* [фото] [текст] [фото] */
+
+  /* Десктоп (1024px–1439px) */
+  --detail-padding-v-desktop: 100px;
+  --detail-padding-h-desktop: 80px;
+  --detail-gap-desktop: 48px;
+  --detail-cols-desktop: 1.5fr 0.9fr 1.5fr;
+
+  /* Широкий экран (1440px+) */
+  --detail-padding-h-wide: 100px;
+  --detail-gap-wide: 56px;
+  --detail-cols-wide: 1.6fr 0.8fr 1.6fr;
+
+  --detail-photo-radius: 20px;       /* скругление углов боковых фото */
+  --detail-photo-radius-tablet: 24px;
+  --detail-photo-aspect: 3 / 4;      /* пропорция боковых фото (ширина / высота) */
+  --detail-text-size: 0.95rem;       /* размер текста описания */
+
+  /* ── Мозаика (галерея) ────────────────────────────────────── */
+  /* Мобильный */
+  --mosaic-padding-h-mobile: 8px;    /* отступ по бокам */
+  --mosaic-padding-b-mobile: 80px;   /* отступ снизу */
+  --mosaic-gap-mobile: 8px;          /* зазор между фото */
+  --mosaic-cols-mobile: 2;           /* количество колонок */
+
+  /* Планшет */
+  --mosaic-padding-h-tablet: 12px;
+  --mosaic-padding-b-tablet: 100px;
+  --mosaic-gap-tablet: 12px;
+  --mosaic-cols-tablet: 3;           /* количество колонок */
+
+  /* Десктоп */
+  --mosaic-padding-h-desktop: 16px;
+  --mosaic-padding-b-desktop: 120px;
+  --mosaic-gap-desktop: 16px;
+
+  --mosaic-item-radius: 4px;         /* скругление углов ячеек мозаики */
+  --mosaic-item-aspect: 2 / 3;       /* пропорция каждого фото в мозаике */
+
+  background: var(--page-bg);
   min-height: 100vh;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Дальше — служебный код, менять не нужно
+   ══════════════════════════════════════════════════════════════ */
 
 /* ── Not found ───────────────────────────────────────────────────────────── */
 
@@ -22,13 +94,13 @@
   text-align: center;
 }
 
-/* ── Hero — full viewport width, no side padding ─────────────────────────── */
+/* ── Hero ────────────────────────────────────────────────────────────────── */
 
 .hero {
   position: relative;
   width: 100%;
   height: 100svh;
-  min-height: 480px;
+  min-height: var(--hero-min-height);
   overflow: hidden;
   background: #1a1a1a;
 }
@@ -53,15 +125,15 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(17 17 17 / 15%) 0%,
-    rgb(17 17 17 / 0%)  40%,
-    rgb(17 17 17 / 40%) 100%
+    rgb(17 17 17 / var(--hero-overlay-top))  0%,
+    rgb(17 17 17 / 0%)                        40%,
+    rgb(17 17 17 / var(--hero-overlay-bottom)) 100%
   );
 }
 
 .heroContent {
   position: absolute;
-  bottom: 48px;
+  bottom: var(--hero-title-bottom);
   left: 0;
   right: 0;
   display: flex;
@@ -85,7 +157,7 @@
 .heroTitle {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 10vw, 7rem);
+  font-size: var(--hero-title-size);
   line-height: 0.92;
   color: #fff;
 }
@@ -93,13 +165,13 @@
 /* ── Detail strip ────────────────────────────────────────────────────────── */
 
 .detail {
-  padding: 64px 16px;
+  padding: var(--detail-padding-v-mobile) var(--detail-padding-h-mobile);
 }
 
 .detailInner {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 28px;
+  gap: var(--detail-gap-mobile);
   width: 100%;
   margin: 0 auto;
   align-items: center;
@@ -107,48 +179,48 @@
 
 @media (min-width: 640px) {
   .detail {
-    padding: 80px 48px;
+    padding: var(--detail-padding-v-tablet) var(--detail-padding-h-tablet);
   }
 
   .detailInner {
-    grid-template-columns: 1.4fr 1fr 1.4fr;
-    gap: 32px;
+    grid-template-columns: var(--detail-cols-tablet);
+    gap: var(--detail-gap-tablet);
   }
 }
 
 @media (min-width: 1024px) {
   .detail {
-    padding: 100px 80px;
+    padding: var(--detail-padding-v-desktop) var(--detail-padding-h-desktop);
   }
 
   .detailInner {
-    grid-template-columns: 1.5fr 0.9fr 1.5fr;
-    gap: 48px;
+    grid-template-columns: var(--detail-cols-desktop);
+    gap: var(--detail-gap-desktop);
   }
 }
 
 @media (min-width: 1440px) {
   .detail {
-    padding: 100px 100px;
+    padding: var(--detail-padding-v-desktop) var(--detail-padding-h-wide);
   }
 
   .detailInner {
-    grid-template-columns: 1.6fr 0.8fr 1.6fr;
-    gap: 56px;
+    grid-template-columns: var(--detail-cols-wide);
+    gap: var(--detail-gap-wide);
   }
 }
 
 .detailPhoto {
   position: relative;
   overflow: hidden;
-  border-radius: 20px;
-  aspect-ratio: 3 / 4;
+  border-radius: var(--detail-photo-radius);
+  aspect-ratio: var(--detail-photo-aspect);
   background: #ede9e6;
 }
 
 @media (min-width: 640px) {
   .detailPhoto {
-    border-radius: 24px;
+    border-radius: var(--detail-photo-radius-tablet);
   }
 }
 
@@ -170,7 +242,7 @@
 .detailIntro,
 .detailFocus {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--detail-text-size);
   line-height: 1.6;
   color: #3a3535;
 }
@@ -178,43 +250,43 @@
 /* ── Mosaic gallery ──────────────────────────────────────────────────────── */
 
 .mosaic {
-  padding: 0 8px 80px;
+  padding: 0 var(--mosaic-padding-h-mobile) var(--mosaic-padding-b-mobile);
 }
 
 .mosaicGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(var(--mosaic-cols-mobile), 1fr);
+  gap: var(--mosaic-gap-mobile);
   width: 100%;
 }
 
 @media (min-width: 640px) {
   .mosaic {
-    padding: 0 12px 100px;
+    padding: 0 var(--mosaic-padding-h-tablet) var(--mosaic-padding-b-tablet);
   }
 
   .mosaicGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(var(--mosaic-cols-tablet), 1fr);
+    gap: var(--mosaic-gap-tablet);
   }
 }
 
 @media (min-width: 1024px) {
   .mosaic {
-    padding: 0 16px 120px;
+    padding: 0 var(--mosaic-padding-h-desktop) var(--mosaic-padding-b-desktop);
   }
 
   .mosaicGrid {
-    gap: 16px;
+    gap: var(--mosaic-gap-desktop);
   }
 }
 
 .mosaicItem {
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: var(--mosaic-item-radius);
   background: #ede9e6;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: var(--mosaic-item-aspect);
 }
 
 .mosaicImage {
