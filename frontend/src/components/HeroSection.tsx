@@ -167,7 +167,13 @@ export default function HeroSection() {
       )}
 
       {featured && (
-        <section className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}>
+        <section
+          className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}
+          style={(() => {
+            const h = siteImages.get('home-featured-media')?.containerHeight;
+            return h ? ({ '--featured-media-height': `${h}px` } as React.CSSProperties) : undefined;
+          })()}
+        >
           <a
             href={getCollectionHref(featured.slug)}
             className={styles.featuredMedia}
