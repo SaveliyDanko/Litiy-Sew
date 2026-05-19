@@ -9,7 +9,6 @@ import CartPage from './pages/CartPage';
 import CheckoutUnavailablePage from './pages/CheckoutUnavailablePage';
 import CollectionPlaceholderPage from './pages/CollectionPlaceholderPage';
 import CollectionsPage from './pages/CollectionsPage';
-import PortfolioPage from './pages/PortfolioPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -69,10 +68,6 @@ function renderPage() {
 
   if (path.startsWith('/collections')) {
     return <CollectionsPage />;
-  }
-
-  if (path.startsWith('/portfolio')) {
-    return <PortfolioPage />;
   }
 
   if (path.startsWith('/about')) {

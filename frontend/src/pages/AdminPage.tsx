@@ -45,7 +45,7 @@ import {
 } from '../services/collections';
 import styles from './AdminPage.module.css';
 
-type Tab = 'products' | 'patterns' | 'portfolio' | 'home' | 'about' | 'portfolioPage' | 'collections' | 'settings';
+type Tab = 'products' | 'patterns' | 'portfolio' | 'hero' | 'home' | 'about' | 'collections' | 'settings';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -412,7 +412,7 @@ function PortfolioSection() {
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.formHeader}>
           <h2 className={styles.sectionTitle}>Добавить фото</h2>
-          <p className={styles.formHint}>Фото появится в галерее на странице «Обо мне»</p>
+          <p className={styles.formHint}>Фото появится в галерее на странице «О мастере»</p>
         </div>
         <label className={styles.field}>
           <span className={styles.label}>Фото</span>
@@ -834,7 +834,7 @@ const HOME_SLOTS: SlotConfig[] = [
 
 function HomeSection() {
   const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
-  const [imagesLoading, setImagesLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAllSiteImages()
@@ -843,7 +843,7 @@ function HomeSection() {
         setImages(map);
       })
       .catch(() => {})
-      .finally(() => setImagesLoading(false));
+      .finally(() => setLoading(false));
   }, []);
 
   function handleUpdate(slotKey: string, img: SiteImage | null) {
@@ -854,30 +854,22 @@ function HomeSection() {
     });
   }
 
+  if (loading) return <p className={styles.hint}>Загрузка…</p>;
+
   return (
     <div className={styles.section}>
       <div className={styles.formHeader}>
         <h2 className={styles.sectionTitle}>Главная страница</h2>
-        <p className={styles.formHint}>Баннер и фотографии, которые отображаются на главной странице сайта</p>
+        <p className={styles.formHint}>Фотографии, которые отображаются на главной странице сайта</p>
       </div>
-
-      <HeroSection />
-
-      {imagesLoading ? (
-        <p className={styles.hint}>Загрузка…</p>
-      ) : (
-        <div className={styles.slotGroup}>
-          <p className={styles.slotGroupTitle}>Дополнительные фото</p>
-          {HOME_SLOTS.map((cfg) => (
-            <SiteImageSlot
-              key={cfg.key}
-              config={cfg}
-              data={images.get(cfg.key) ?? null}
-              onUpdate={(img) => handleUpdate(cfg.key, img)}
-            />
-          ))}
-        </div>
-      )}
+      {HOME_SLOTS.map((cfg) => (
+        <SiteImageSlot
+          key={cfg.key}
+          config={cfg}
+          data={images.get(cfg.key) ?? null}
+          onUpdate={(img) => handleUpdate(cfg.key, img)}
+        />
+      ))}
     </div>
   );
 }
@@ -885,18 +877,17 @@ function HomeSection() {
 // ─── About ────────────────────────────────────────────────────────────────────
 
 const ABOUT_SLOTS: SlotConfig[] = [
-  { key: 'about-hero',        label: 'Hero — Десктоп',          hint: 'Большое фоновое фото в шапке страницы «Обо мне» (десктоп / планшет)' },
-  { key: 'about-hero-mobile', label: 'Hero — Мобильный',        hint: 'Отдельное фото для мобильных устройств (до 640px). Если не загружено — используется десктопное' },
-  { key: 'about-portrait',    label: 'Портрет в разделе Story', hint: 'Фото мастера рядом с текстом о себе', portrait: true },
+  { key: 'about-hero',     label: 'Герой страницы «О мастере»',   hint: 'Большое фоновое фото с именем Elizaveta' },
+  { key: 'about-portrait', label: 'Портрет в разделе Story',       hint: 'Фото мастера рядом с текстом о себе', portrait: true },
 ];
 
-const PORTFOLIO_CARD_SLOTS: SlotConfig[] = [
-  { key: 'portfolio-problonde',   label: 'Problonde',              hint: 'Практика в бренде', portrait: true },
-  { key: 'portfolio-melon',       label: 'Melon Fashion Group',    hint: 'Преддипломная практика', portrait: true },
-  { key: 'portfolio-spring',      label: 'Дыхание весны',          hint: 'Конкурс', portrait: true },
-  { key: 'portfolio-zigzag',      label: 'Диплом победителя',      hint: 'Техно-Зигзаг', portrait: true },
-  { key: 'portfolio-prize',       label: 'Диплом призёра',         hint: 'Большая Перемена', portrait: true },
-  { key: 'portfolio-diplom',      label: 'Диплом об образовании',  hint: 'СПбГУПТД', portrait: true },
+const PORTFOLIO_SLOTS: SlotConfig[] = [
+  { key: 'portfolio-problonde',   label: 'Problonde',         hint: 'Практика в бренде', portrait: true },
+  { key: 'portfolio-melon',       label: 'Melon Fashion Group', hint: 'Преддипломная практика', portrait: true },
+  { key: 'portfolio-spring',      label: 'Дыхание весны',     hint: 'Конкурс', portrait: true },
+  { key: 'portfolio-zigzag',      label: 'Диплом победителя', hint: 'Техно-Зигзаг', portrait: true },
+  { key: 'portfolio-prize',       label: 'Диплом призёра',    hint: 'Большая Перемена', portrait: true },
+  { key: 'portfolio-diplom',      label: 'Диплом об образовании', hint: 'СПбГУПТД', portrait: true },
 ];
 
 function AboutSection() {
@@ -926,7 +917,7 @@ function AboutSection() {
   return (
     <div className={styles.section}>
       <div className={styles.formHeader}>
-        <h2 className={styles.sectionTitle}>Страница «Обо мне»</h2>
+        <h2 className={styles.sectionTitle}>Страница «О мастере»</h2>
         <p className={styles.formHint}>Все фотографии, которые отображаются на странице /about</p>
       </div>
 
@@ -943,9 +934,9 @@ function AboutSection() {
       </div>
 
       <div className={styles.slotGroup}>
-        <p className={styles.slotGroupTitle}>Карточки портфолио (секция на странице /about)</p>
+        <p className={styles.slotGroupTitle}>Карточки портфолио</p>
         <div className={styles.slotGrid}>
-          {PORTFOLIO_CARD_SLOTS.map((cfg) => (
+          {PORTFOLIO_SLOTS.map((cfg) => (
             <SiteImageSlot
               key={cfg.key}
               config={cfg}
@@ -954,64 +945,6 @@ function AboutSection() {
             />
           ))}
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Portfolio Page ───────────────────────────────────────────────────────────
-
-const PORTFOLIO_PAGE_SLOTS: SlotConfig[] = [
-  {
-    key: 'portfolio-hero',
-    label: 'Hero-баннер',
-    hint: 'Большое фоновое изображение в шапке страницы /portfolio',
-  },
-];
-
-function PortfolioPageSection() {
-  const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchAllSiteImages()
-      .then((list) => {
-        const map = new Map(list.map((img) => [img.slotKey, img]));
-        setImages(map);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  function handleUpdate(slotKey: string, img: SiteImage | null) {
-    setImages((prev) => {
-      const next = new Map(prev);
-      if (img) next.set(slotKey, img); else next.delete(slotKey);
-      return next;
-    });
-  }
-
-  if (loading) return <p className={styles.hint}>Загрузка…</p>;
-
-  return (
-    <div className={styles.section}>
-      <div className={styles.formHeader}>
-        <h2 className={styles.sectionTitle}>Страница «Портфолио»</h2>
-        <p className={styles.formHint}>
-          Настройка страницы /portfolio. Фотографии галереи управляются через вкладку «Портфолио».
-        </p>
-      </div>
-
-      <div className={styles.slotGroup}>
-        <p className={styles.slotGroupTitle}>Фото страницы</p>
-        {PORTFOLIO_PAGE_SLOTS.map((cfg) => (
-          <SiteImageSlot
-            key={cfg.key}
-            config={cfg}
-            data={images.get(cfg.key) ?? null}
-            onUpdate={(img) => handleUpdate(cfg.key, img)}
-          />
-        ))}
       </div>
     </div>
   );
@@ -1694,9 +1627,9 @@ export default function AdminPage() {
       { key: 'patterns' as Tab, label: 'Выкройки' },
     ] : []),
     { key: 'portfolio', label: 'Портфолио' },
+    { key: 'hero', label: 'Баннер' },
     { key: 'home', label: 'Главная' },
-    { key: 'about', label: 'Обо мне' },
-    { key: 'portfolioPage', label: 'Портфолио' },
+    { key: 'about', label: 'О мастере' },
     { key: 'collections', label: 'Коллекции' },
     { key: 'settings', label: 'Настройки' },
   ];
@@ -1727,9 +1660,9 @@ export default function AdminPage() {
         {tab === 'products' && <ProductsSection />}
         {tab === 'patterns' && <PatternsSection />}
         {tab === 'portfolio' && <PortfolioSection />}
+        {tab === 'hero' && <HeroSection />}
         {tab === 'home' && <HomeSection />}
         {tab === 'about' && <AboutSection />}
-        {tab === 'portfolioPage' && <PortfolioPageSection />}
         {tab === 'collections' && <CollectionsSection />}
         {tab === 'settings' && <SettingsSection />}
       </main>

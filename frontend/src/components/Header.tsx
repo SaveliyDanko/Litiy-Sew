@@ -6,7 +6,6 @@ import styles from './Header.module.css';
 
 const navItems = [
   { href: '/about', label: 'ОБО МНЕ' },
-  { href: '/portfolio', label: 'ПОРТФОЛИО' },
   ...(SHOP_ENABLED ? [{ href: '/patterns', label: 'ВЫКРОЙКИ' }] : []),
   { href: '/collections', label: 'КОЛЛЕКЦИИ' },
 ];
