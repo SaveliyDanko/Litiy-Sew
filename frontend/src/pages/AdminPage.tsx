@@ -1159,10 +1159,12 @@ function AboutSection() {
 
 function DynPhotoRow({
   photo,
+  label,
   onDelete,
   onUpdate,
 }: {
   photo: DynamicCollectionPhoto;
+  label?: string;
   onDelete: (id: number) => void;
   onUpdate: (p: DynamicCollectionPhoto) => void;
 }) {
@@ -1198,7 +1200,7 @@ function DynPhotoRow({
     showToast('Удалено');
   }
 
-  const typeLabel = photo.photoType === 'CARD' ? 'Карточка' : photo.photoType === 'HERO' ? 'Hero' : 'Галерея';
+  const typeLabel = label ?? (photo.photoType === 'CARD' ? 'Карточка' : photo.photoType === 'HERO' ? 'Hero' : 'Галерея');
 
   return (
     <div className={styles.dynPhotoRow}>
@@ -1231,6 +1233,70 @@ function DynPhotoRow({
         </div>
       </div>
       <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить фото">×</button>
+    </div>
+  );
+}
+
+// ── Collection photo groups ───────────────────────────────────────────────
+
+type PhotoGroupDef = {
+  type: 'HERO' | 'CARD' | 'GALLERY';
+  label: string;
+  hint: string;
+};
+
+const PHOTO_GROUPS: PhotoGroupDef[] = [
+  { type: 'HERO',    label: 'Hero — полноэкранный баннер',  hint: 'Занимает весь экран вверху страницы коллекции. Заголовок выводится поверх.' },
+  { type: 'CARD',    label: 'Карточка — обложка в каталоге', hint: 'Используется в каталоге /collections и на главной. Если нет Hero-фото — становится баннером страницы.' },
+  { type: 'GALLERY', label: 'Галерея',                       hint: 'Фото 1–2: детальный блок (рядом с описанием коллекции). Фото 3+: мозаика в нижней части страницы.' },
+];
+
+function CollectionPhotoGroups({
+  photos,
+  onDelete,
+  onUpdate,
+}: {
+  photos: DynamicCollectionPhoto[];
+  onDelete: (id: number) => void;
+  onUpdate: (p: DynamicCollectionPhoto) => void;
+}) {
+  return (
+    <div className={styles.photoGroupsList}>
+      {PHOTO_GROUPS.map((group) => {
+        const groupPhotos = photos
+          .filter((p) => p.photoType === group.type)
+          .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+
+        return (
+          <div key={group.type} className={styles.photoGroup}>
+            <div className={styles.photoGroupHeader}>
+              <span className={styles.photoGroupLabel}>{group.label}</span>
+              <span className={styles.photoGroupCount}>{groupPhotos.length} фото</span>
+            </div>
+            <p className={styles.photoGroupHint}>{group.hint}</p>
+
+            {groupPhotos.length === 0 ? (
+              <p className={styles.hint} style={{ margin: '8px 0 0' }}>Не загружено</p>
+            ) : (
+              <div className={styles.dynPhotoList}>
+                {groupPhotos.map((photo, i) => (
+                  <DynPhotoRow
+                    key={photo.id}
+                    photo={photo}
+                    label={
+                      group.type === 'GALLERY'
+                        ? (i === 0 ? 'Деталь 1' : i === 1 ? 'Деталь 2' : `Мозаика ${i - 1}`)
+                        : undefined
+                    }
+                    onDelete={onDelete}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1461,7 +1527,7 @@ function DynCollectionCard({
                 <div>
                   <p className={styles.label} style={{ marginBottom: '0.4rem' }}>Тип фото</p>
                   <div className={styles.dynPhotoTypeRow}>
-                    {(['CARD', 'HERO', 'GALLERY'] as const).map((t) => (
+                    {(['HERO', 'CARD', 'GALLERY'] as const).map((t) => (
                       <button
                         key={t}
                         type="button"
@@ -1472,6 +1538,11 @@ function DynCollectionCard({
                       </button>
                     ))}
                   </div>
+                  <p className={styles.photoTypeHint}>
+                    {photoType === 'HERO' && 'Полноэкранный баннер вверху страницы коллекции'}
+                    {photoType === 'CARD' && 'Обложка в каталоге коллекций и на главной; fallback для Hero если нет HERO-фото'}
+                    {photoType === 'GALLERY' && 'Первые 2 — детальный блок (рядом с описанием), остальные — мозаика внизу страницы'}
+                  </p>
                 </div>
                 <div className={styles.fileInputRow}>
                   <label className={styles.fileBtn}>
@@ -1488,18 +1559,13 @@ function DynCollectionCard({
             )}
 
             {collection.photos.length === 0 ? (
-              <p className={styles.hint}>Фото пока нет</p>
+              <p className={styles.hint}>Фото пока нет. Добавьте Hero, Карточку и фото галереи.</p>
             ) : (
-              <div className={styles.dynPhotoList}>
-                {collection.photos.map((photo) => (
-                  <DynPhotoRow
-                    key={photo.id}
-                    photo={photo}
-                    onDelete={handlePhotoDelete}
-                    onUpdate={handlePhotoUpdate}
-                  />
-                ))}
-              </div>
+              <CollectionPhotoGroups
+                photos={collection.photos}
+                onDelete={handlePhotoDelete}
+                onUpdate={handlePhotoUpdate}
+              />
             )}
           </div>
         </div>

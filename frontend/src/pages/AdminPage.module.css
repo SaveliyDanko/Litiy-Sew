@@ -1180,6 +1180,62 @@ select.input {
   white-space: nowrap;
 }
 
+/* ── Photo type hint (below type pills) ─────────────────────────────────── */
+
+.photoTypeHint {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #888;
+  line-height: 1.45;
+}
+
+/* ── Collection photo groups ─────────────────────────────────────────────── */
+
+.photoGroupsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.photoGroup {
+  border-top: 1px solid #ebebeb;
+  padding: 14px 0 4px;
+}
+
+.photoGroup:first-child {
+  border-top: none;
+  padding-top: 8px;
+}
+
+.photoGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 4px;
+}
+
+.photoGroupLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #555;
+}
+
+.photoGroupCount {
+  font-size: 0.72rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.photoGroupHint {
+  margin: 0 0 10px;
+  font-size: 0.76rem;
+  color: #999;
+  line-height: 1.45;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
