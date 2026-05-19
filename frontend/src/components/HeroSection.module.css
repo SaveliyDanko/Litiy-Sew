@@ -127,12 +127,18 @@
   margin: var(--card-offset-y, -18px) auto 0;
 }
 
-.cardImage {
+.cardImageWrap {
   display: block;
   width: var(--card-image-width, 210px);
   height: var(--card-image-height, auto);
-  /* aspect-ratio применяется только если высота = auto */
   aspect-ratio: var(--card-aspect-ratio, 4 / 5);
+  overflow: hidden;
+}
+
+.cardImage {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: top;
 }

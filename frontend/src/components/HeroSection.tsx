@@ -127,12 +127,14 @@ export default function HeroSection() {
             })()}
           >
             {imgUrl('home-card-image') && (
-              <img
-                className={styles.cardImage}
-                src={imgUrl('home-card-image')!}
-                alt="Новая коллекция"
-                style={imgStyle('home-card-image')}
-              />
+              <div className={styles.cardImageWrap}>
+                <img
+                  className={styles.cardImage}
+                  src={imgUrl('home-card-image')!}
+                  alt="Новая коллекция"
+                  style={imgStyle('home-card-image')}
+                />
+              </div>
             )}
             <a href="/collections" className={styles.btn}>
               НОВАЯ КОЛЛЕКЦИЯ
