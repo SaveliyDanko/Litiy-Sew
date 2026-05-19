@@ -44,6 +44,10 @@ public class SiteImage {
     @Builder.Default
     private Integer positionY = 50;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer scale = 100;
+
     @Column(nullable = false, updatable = false)
     private Instant updatedAt;
 }

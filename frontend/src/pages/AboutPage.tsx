@@ -36,7 +36,11 @@ export default function AboutPage() {
 
   function imgStyle(slotKey: string): React.CSSProperties {
     const si = siteImages.get(slotKey);
-    return si ? { objectPosition: `${si.positionX}% ${si.positionY}%` } : {};
+    if (!si) return {};
+    return {
+      objectPosition: `${si.positionX}% ${si.positionY}%`,
+      transform: `scale(${(si.scale ?? 100) / 100})`,
+    };
   }
 
   return (
@@ -156,7 +160,7 @@ export default function AboutPage() {
                     src={photo.photoUrl}
                     alt={photo.caption ?? ''}
                     className={styles.galleryImg}
-                    style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%` }}
+                    style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%`, transform: `scale(${(photo.scale ?? 100) / 100})` }}
                   />
                   {photo.caption && <p className={styles.galleryCaption}>{photo.caption}</p>}
                 </div>

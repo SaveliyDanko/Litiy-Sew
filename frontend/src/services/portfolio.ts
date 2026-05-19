@@ -5,6 +5,7 @@ export type PortfolioPhoto = {
   sortOrder: number;
   positionX: number;
   positionY: number;
+  scale: number;
 };
 
 export async function fetchPortfolioPhotos(): Promise<PortfolioPhoto[]> {

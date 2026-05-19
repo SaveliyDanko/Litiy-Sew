@@ -12,6 +12,7 @@ public record PortfolioPhotoResponse(
         Integer sortOrder,
         Integer positionX,
         Integer positionY,
+        Integer scale,
         Instant createdAt
 ) {
     public static PortfolioPhotoResponse from(PortfolioPhoto p) {
@@ -23,6 +24,7 @@ public record PortfolioPhotoResponse(
                 p.getSortOrder(),
                 p.getPositionX() != null ? p.getPositionX() : 50,
                 p.getPositionY() != null ? p.getPositionY() : 50,
+                p.getScale() != null ? p.getScale() : 100,
                 p.getCreatedAt()
         );
     }

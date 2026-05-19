@@ -359,23 +359,28 @@ function PortfolioPhotoRow({
 }) {
   const [posX, setPosX] = useState(photo.positionX);
   const [posY, setPosY] = useState(photo.positionY);
+  const [scale, setScale] = useState(photo.scale ?? 100);
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setPosX(photo.positionX);
     setPosY(photo.positionY);
-  }, [photo.positionX, photo.positionY]);
+    setScale(photo.scale ?? 100);
+  }, [photo.positionX, photo.positionY, photo.scale]);
 
-  function handlePos(axis: 'x' | 'y', val: number) {
-    if (axis === 'x') setPosX(val); else setPosY(val);
+  function handlePos(axis: 'x' | 'y' | 's', val: number) {
+    if (axis === 'x') setPosX(val);
+    else if (axis === 'y') setPosY(val);
+    else setScale(val);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
         const nx = axis === 'x' ? val : posX;
         const ny = axis === 'y' ? val : posY;
-        const updated = await updatePortfolioPhotoPosition(photo.id, nx, ny);
+        const ns = axis === 's' ? val : scale;
+        const updated = await updatePortfolioPhotoPosition(photo.id, nx, ny, ns);
         onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -398,7 +403,7 @@ function PortfolioPhotoRow({
         <img
           src={photo.photoUrl}
           alt={photo.caption ?? ''}
-          style={{ objectPosition: `${posX}% ${posY}%` }}
+          style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }}
         />
       </div>
       <div className={styles.dynPhotoMeta}>
@@ -416,6 +421,12 @@ function PortfolioPhotoRow({
             <input type="range" min={0} max={100} value={posY} className={styles.slider}
               onChange={(e) => handlePos('y', Number(e.target.value))} />
             <span className={styles.sliderValue}>{posY}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Масштаб</span>
+            <input type="range" min={100} max={200} value={scale} className={styles.slider}
+              onChange={(e) => handlePos('s', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{scale}%</span>
           </label>
         </div>
         <div className={styles.cardActions} style={{ paddingLeft: 0, paddingBottom: 0, borderTop: 'none' }}>
@@ -548,6 +559,7 @@ function HeroSection() {
   const [previewD, setPreviewD] = useState<string | null>(null);
   const [posX, setPosX] = useState(50);
   const [posY, setPosY] = useState(50);
+  const [scaleD, setScaleD] = useState(100);
 
   // Mobile
   const [uploadingM, setUploadingM] = useState(false);
@@ -556,6 +568,7 @@ function HeroSection() {
   const [previewM, setPreviewM] = useState<string | null>(null);
   const [posXM, setPosXM] = useState(50);
   const [posYM, setPosYM] = useState(50);
+  const [scaleM, setScaleM] = useState(100);
 
   const [saving, setSaving] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -569,16 +582,20 @@ function HeroSection() {
           setPosY(hero.positionY ?? 50);
           setPosXM(hero.positionXMobile ?? 50);
           setPosYM(hero.positionYMobile ?? 50);
+          setScaleD(hero.scale ?? 100);
+          setScaleM(hero.scaleMobile ?? 100);
         }
       })
       .catch(() => setCurrent(null));
   }, []);
 
-  function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym', val: number) {
+  function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym' | 'sd' | 'sm', val: number) {
     if (field === 'x') setPosX(val);
     else if (field === 'y') setPosY(val);
     else if (field === 'xm') setPosXM(val);
-    else setPosYM(val);
+    else if (field === 'ym') setPosYM(val);
+    else if (field === 'sd') setScaleD(val);
+    else setScaleM(val);
 
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
@@ -588,7 +605,9 @@ function HeroSection() {
         const ny = field === 'y' ? val : posY;
         const nxm = field === 'xm' ? val : posXM;
         const nym = field === 'ym' ? val : posYM;
-        await updateHeroPosition(nx, ny, nxm, nym);
+        const nsd = field === 'sd' ? val : scaleD;
+        const nsm = field === 'sm' ? val : scaleM;
+        await updateHeroPosition(nx, ny, nxm, nym, nsd, nsm);
       } catch {
         showToast('Ошибка сохранения позиции');
       } finally {
@@ -610,6 +629,7 @@ function HeroSection() {
         imageKeyMobile: current?.imageKeyMobile ?? undefined,
         positionX: posX, positionY: posY,
         positionXMobile: posXM, positionYMobile: posYM,
+        scale: scaleD, scaleMobile: scaleM,
       });
       setCurrent(updated);
       setPreviewD(null);
@@ -681,7 +701,7 @@ function HeroSection() {
             <p className={styles.heroBannerBlockTitle}>Десктоп</p>
             <div className={styles.heroPreviewWrap}>
               {displayUrlD
-                ? <img src={displayUrlD} alt="Десктоп" className={styles.heroPreviewImg} style={{ objectPosition: `${posX}% ${posY}%` }} />
+                ? <img src={displayUrlD} alt="Десктоп" className={styles.heroPreviewImg} style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scaleD / 100})` }} />
                 : <div className={styles.heroPreviewEmpty}>Не установлен</div>
               }
             </div>
@@ -701,6 +721,12 @@ function HeroSection() {
                   <input type="range" min={0} max={100} value={posY} className={styles.slider}
                     onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
                   <span className={styles.sliderValue}>{posY}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Масштаб</span>
+                  <input type="range" min={100} max={200} value={scaleD} className={styles.slider}
+                    onChange={(e) => handlePositionChange('sd', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{scaleD}%</span>
                 </label>
               </>
             )}
@@ -728,7 +754,7 @@ function HeroSection() {
             <p className={styles.heroBannerBlockTitle}>Мобильный</p>
             <div className={styles.heroPreviewMobileWrap}>
               {displayUrlM
-                ? <img src={displayUrlM} alt="Мобильный" className={styles.heroPreviewImg} style={{ objectPosition: `${posXM}% ${posYM}%` }} />
+                ? <img src={displayUrlM} alt="Мобильный" className={styles.heroPreviewImg} style={{ objectPosition: `${posXM}% ${posYM}%`, transform: `scale(${scaleM / 100})` }} />
                 : <div className={styles.heroPreviewEmpty}>Не установлен</div>
               }
             </div>
@@ -748,6 +774,12 @@ function HeroSection() {
                   <input type="range" min={0} max={100} value={posYM} className={styles.slider}
                     onChange={(e) => handlePositionChange('ym', Number(e.target.value))} />
                   <span className={styles.sliderValue}>{posYM}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Масштаб</span>
+                  <input type="range" min={100} max={200} value={scaleM} className={styles.slider}
+                    onChange={(e) => handlePositionChange('sm', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{scaleM}%</span>
                 </label>
               </>
             )}
@@ -797,12 +829,13 @@ function SiteImageSlot({ config, data, onUpdate }: {
   const [fileName, setFileName] = useState<string | null>(null);
   const [posX, setPosX] = useState(data?.positionX ?? 50);
   const [posY, setPosY] = useState(data?.positionY ?? 50);
+  const [scale, setScale] = useState(data?.scale ?? 100);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (data) { setPosX(data.positionX); setPosY(data.positionY); }
+    if (data) { setPosX(data.positionX); setPosY(data.positionY); setScale(data.scale ?? 100); }
   }, [data]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -811,15 +844,18 @@ function SiteImageSlot({ config, data, onUpdate }: {
     setFileName(file ? file.name : null);
   }
 
-  function handlePositionChange(axis: 'x' | 'y', val: number) {
-    if (axis === 'x') setPosX(val); else setPosY(val);
+  function handlePositionChange(axis: 'x' | 'y' | 's', val: number) {
+    if (axis === 'x') setPosX(val);
+    else if (axis === 'y') setPosY(val);
+    else setScale(val);
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
         const newX = axis === 'x' ? val : posX;
         const newY = axis === 'y' ? val : posY;
-        const updated = await updateSiteImagePosition(config.key, newX, newY);
+        const newS = axis === 's' ? val : scale;
+        const updated = await updateSiteImagePosition(config.key, newX, newY, newS);
         if (updated) onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -842,6 +878,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
         imageKey: key,
         positionX: posX,
         positionY: posY,
+        scale,
       });
       onUpdate(updated);
       setPreview(null);
@@ -884,14 +921,14 @@ function SiteImageSlot({ config, data, onUpdate }: {
               src={displayUrl}
               alt={config.label}
               className={styles.slotPreviewImg}
-              style={{ objectPosition: `${posX}% ${posY}%` }}
+              style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }}
             />
           ) : (
             <div className={styles.slotPreviewEmpty}>Не загружено</div>
           )}
         </div>
 
-        {/* Position sliders */}
+        {/* Position + scale sliders */}
         {data && (
           <div className={styles.heroPositionBlock}>
             <p className={styles.heroPositionLabel}>
@@ -908,6 +945,12 @@ function SiteImageSlot({ config, data, onUpdate }: {
               <input type="range" min={0} max={100} value={posY} className={styles.slider}
                 onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
               <span className={styles.sliderValue}>{posY}%</span>
+            </label>
+            <label className={styles.sliderField}>
+              <span className={styles.sliderName}>Масштаб</span>
+              <input type="range" min={100} max={200} value={scale} className={styles.slider}
+                onChange={(e) => handlePositionChange('s', Number(e.target.value))} />
+              <span className={styles.sliderValue}>{scale}%</span>
             </label>
           </div>
         )}

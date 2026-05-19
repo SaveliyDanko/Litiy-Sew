@@ -125,7 +125,8 @@ public class AdminController {
                                                                                 @RequestBody Map<String, Integer> body) {
         int x = body.getOrDefault("positionX", 50);
         int y = body.getOrDefault("positionY", 50);
-        return ResponseEntity.ok(portfolioAdminService.updatePosition(id, x, y));
+        int scale = body.getOrDefault("scale", 100);
+        return ResponseEntity.ok(portfolioAdminService.updatePosition(id, x, y, scale));
     }
 
     // --- Hero Banner ---
@@ -148,7 +149,9 @@ public class AdminController {
                 body.getOrDefault("positionX", 50),
                 body.getOrDefault("positionY", 50),
                 body.getOrDefault("positionXMobile", 50),
-                body.getOrDefault("positionYMobile", 50)
+                body.getOrDefault("positionYMobile", 50),
+                body.getOrDefault("scale", 100),
+                body.getOrDefault("scaleMobile", 100)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 

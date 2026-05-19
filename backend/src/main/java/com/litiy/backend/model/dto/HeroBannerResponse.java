@@ -14,6 +14,8 @@ public record HeroBannerResponse(
         int positionY,
         int positionXMobile,
         int positionYMobile,
+        int scale,
+        int scaleMobile,
         Instant createdAt
 ) {
     public static HeroBannerResponse from(HeroBanner b) {
@@ -27,6 +29,8 @@ public record HeroBannerResponse(
                 b.getPositionY() != null ? b.getPositionY() : 50,
                 b.getPositionXMobile() != null ? b.getPositionXMobile() : 50,
                 b.getPositionYMobile() != null ? b.getPositionYMobile() : 50,
+                b.getScale() != null ? b.getScale() : 100,
+                b.getScaleMobile() != null ? b.getScaleMobile() : 100,
                 b.getCreatedAt()
         );
     }

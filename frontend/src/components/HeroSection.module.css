@@ -15,6 +15,7 @@
   --hero-bg-offset-x-mobile: 50%;
   --hero-bg-offset-y-mobile: 50%;
   --hero-bg-scale: 1;
+  --hero-bg-scale-mobile: 1;
   --hero-bg-scale-x: 1; /* -1 → зеркалит фон. */
   --hero-overlay-color: rgb(130 130 130 / 0%);
 
@@ -41,12 +42,13 @@
   object-fit: cover;
   object-position: var(--hero-bg-offset-x-mobile) var(--hero-bg-offset-y-mobile);
   z-index: 0;
-  transform: scale(var(--hero-bg-scale)) scaleX(var(--hero-bg-scale-x));
+  transform: scale(var(--hero-bg-scale-mobile)) scaleX(var(--hero-bg-scale-x));
 }
 
 @media (min-width: 640px) {
   .bg {
     object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
+    transform: scale(var(--hero-bg-scale)) scaleX(var(--hero-bg-scale-x));
   }
 }
 

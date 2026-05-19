@@ -16,6 +16,8 @@ type HeroData = {
   positionY: number;
   positionXMobile: number;
   positionYMobile: number;
+  scale: number;
+  scaleMobile: number;
 } | null;
 
 async function fetchHeroBanner(): Promise<HeroData> {
@@ -28,6 +30,8 @@ async function fetchHeroBanner(): Promise<HeroData> {
     positionY?: number;
     positionXMobile?: number;
     positionYMobile?: number;
+    scale?: number;
+    scaleMobile?: number;
   };
   return {
     imageUrl: data.imageUrl,
@@ -36,6 +40,8 @@ async function fetchHeroBanner(): Promise<HeroData> {
     positionY: data.positionY ?? 50,
     positionXMobile: data.positionXMobile ?? 50,
     positionYMobile: data.positionYMobile ?? 50,
+    scale: data.scale ?? 100,
+    scaleMobile: data.scaleMobile ?? 100,
   };
 }
 
@@ -63,7 +69,11 @@ export default function HeroSection() {
 
   function imgStyle(slotKey: string): React.CSSProperties {
     const si = siteImages.get(slotKey);
-    return si ? { objectPosition: `${si.positionX}% ${si.positionY}%` } : {};
+    if (!si) return {};
+    return {
+      objectPosition: `${si.positionX}% ${si.positionY}%`,
+      transform: `scale(${(si.scale ?? 100) / 100})`,
+    };
   }
 
   const featuredCardPhoto = featured?.photos.find((p) => p.photoType === 'CARD') ?? featured?.photos[0] ?? null;
@@ -77,6 +87,8 @@ export default function HeroSection() {
           '--hero-bg-offset-y': `${hero.positionY}%`,
           '--hero-bg-offset-x-mobile': `${hero.positionXMobile}%`,
           '--hero-bg-offset-y-mobile': `${hero.positionYMobile}%`,
+          '--hero-bg-scale': hero.scale / 100,
+          '--hero-bg-scale-mobile': hero.scaleMobile / 100,
         } as React.CSSProperties) : undefined}
       >
         {hero && (

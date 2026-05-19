@@ -10,5 +10,7 @@ public record HeroBannerRequest(
         Integer positionX,
         Integer positionY,
         Integer positionXMobile,
-        Integer positionYMobile
+        Integer positionYMobile,
+        Integer scale,
+        Integer scaleMobile
 ) {}

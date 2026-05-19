@@ -55,6 +55,14 @@ public class HeroBanner {
     @Builder.Default
     private Integer positionYMobile = 50;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer scale = 100;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer scaleMobile = 100;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 }

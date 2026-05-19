@@ -50,6 +50,7 @@ export type AdminPortfolioPhoto = {
   sortOrder: number;
   positionX: number;
   positionY: number;
+  scale: number;
   createdAt: string;
 };
 
@@ -63,6 +64,8 @@ export type AdminHeroBanner = {
   positionY: number;
   positionXMobile: number;
   positionYMobile: number;
+  scale: number;
+  scaleMobile: number;
   createdAt: string;
 };
 
@@ -166,10 +169,10 @@ export async function reorderPortfolioPhoto(id: number, sortOrder: number): Prom
   });
 }
 
-export async function updatePortfolioPhotoPosition(id: number, positionX: number, positionY: number): Promise<AdminPortfolioPhoto> {
+export async function updatePortfolioPhotoPosition(id: number, positionX: number, positionY: number, scale: number): Promise<AdminPortfolioPhoto> {
   return request<AdminPortfolioPhoto>(`/admin/portfolio/${id}/position`, {
     method: 'PATCH',
-    body: JSON.stringify({ positionX, positionY }),
+    body: JSON.stringify({ positionX, positionY, scale }),
   });
 }
 
@@ -182,19 +185,19 @@ export async function getHero(): Promise<AdminHeroBanner | null> {
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHero(data: { imageUrl: string; imageKey: string; imageUrlMobile?: string; imageKeyMobile?: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number }): Promise<AdminHeroBanner> {
+export async function replaceHero(data: { imageUrl: string; imageKey: string; imageUrlMobile?: string; imageKeyMobile?: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number; scale?: number; scaleMobile?: number }): Promise<AdminHeroBanner> {
   return request<AdminHeroBanner>('/admin/hero', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export async function updateHeroPosition(positionX: number, positionY: number, positionXMobile: number, positionYMobile: number): Promise<AdminHeroBanner | null> {
+export async function updateHeroPosition(positionX: number, positionY: number, positionXMobile: number, positionYMobile: number, scale: number, scaleMobile: number): Promise<AdminHeroBanner | null> {
   const res = await fetch('/api/admin/hero/position', {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ positionX, positionY, positionXMobile, positionYMobile }),
+    body: JSON.stringify({ positionX, positionY, positionXMobile, positionYMobile, scale, scaleMobile }),
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

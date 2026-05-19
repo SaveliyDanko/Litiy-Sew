@@ -8,5 +8,6 @@ public record PortfolioPhotoRequest(
         String caption,
         Integer sortOrder,
         Integer positionX,
-        Integer positionY
+        Integer positionY,
+        Integer scale
 ) {}

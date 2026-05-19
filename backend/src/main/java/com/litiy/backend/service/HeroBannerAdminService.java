@@ -40,17 +40,21 @@ public class HeroBannerAdminService {
                 .positionY(req.positionY() != null ? req.positionY() : 50)
                 .positionXMobile(req.positionXMobile() != null ? req.positionXMobile() : 50)
                 .positionYMobile(req.positionYMobile() != null ? req.positionYMobile() : 50)
+                .scale(req.scale() != null ? req.scale() : 100)
+                .scaleMobile(req.scaleMobile() != null ? req.scaleMobile() : 100)
                 .createdAt(Instant.now())
                 .build();
         return HeroBannerResponse.from(heroBannerRepository.save(banner));
     }
 
-    public Optional<HeroBannerResponse> updatePosition(int positionX, int positionY, int positionXMobile, int positionYMobile) {
+    public Optional<HeroBannerResponse> updatePosition(int positionX, int positionY, int positionXMobile, int positionYMobile, int scale, int scaleMobile) {
         return heroBannerRepository.findTopByOrderByCreatedAtDesc().map(banner -> {
             banner.setPositionX(positionX);
             banner.setPositionY(positionY);
             banner.setPositionXMobile(positionXMobile);
             banner.setPositionYMobile(positionYMobile);
+            banner.setScale(scale);
+            banner.setScaleMobile(scaleMobile);
             return HeroBannerResponse.from(heroBannerRepository.save(banner));
         });
     }

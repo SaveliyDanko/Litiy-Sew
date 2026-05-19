@@ -48,7 +48,8 @@ public class SiteImageController {
         return siteImageService.updatePosition(
                 slotKey,
                 body.getOrDefault("positionX", 50),
-                body.getOrDefault("positionY", 50)
+                body.getOrDefault("positionY", 50),
+                body.getOrDefault("scale", 100)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
