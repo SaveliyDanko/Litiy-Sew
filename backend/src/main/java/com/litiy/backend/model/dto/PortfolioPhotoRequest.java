@@ -6,5 +6,7 @@ public record PortfolioPhotoRequest(
         @NotBlank String photoUrl,
         @NotBlank String photoKey,
         String caption,
-        Integer sortOrder
+        Integer sortOrder,
+        Integer positionX,
+        Integer positionY
 ) {}

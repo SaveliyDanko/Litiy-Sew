@@ -3,6 +3,8 @@ export type PortfolioPhoto = {
   photoUrl: string;
   caption: string | null;
   sortOrder: number;
+  positionX: number;
+  positionY: number;
 };
 
 export async function fetchPortfolioPhotos(): Promise<PortfolioPhoto[]> {

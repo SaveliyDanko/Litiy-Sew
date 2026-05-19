@@ -26,6 +26,7 @@ import {
   reorderPortfolioPhoto,
   replaceHero,
   updateAdminCredentials,
+  updatePortfolioPhotoPosition,
   uploadFile,
   type AdminHeroBanner,
   type AdminPatternItem,
@@ -339,22 +340,103 @@ function PatternsSection() {
 
 // ─── Portfolio ───────────────────────────────────────────────────────────────
 
+function PortfolioPhotoRow({
+  photo,
+  idx,
+  total,
+  onUpdate,
+  onDelete,
+  onMove,
+}: {
+  photo: AdminPortfolioPhoto;
+  idx: number;
+  total: number;
+  onUpdate: (p: AdminPortfolioPhoto) => void;
+  onDelete: (id: number) => void;
+  onMove: (id: number, dir: 'up' | 'down') => void;
+}) {
+  const [posX, setPosX] = useState(photo.positionX);
+  const [posY, setPosY] = useState(photo.positionY);
+  const [saving, setSaving] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setPosX(photo.positionX);
+    setPosY(photo.positionY);
+  }, [photo.positionX, photo.positionY]);
+
+  function handlePos(axis: 'x' | 'y', val: number) {
+    if (axis === 'x') setPosX(val); else setPosY(val);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        const nx = axis === 'x' ? val : posX;
+        const ny = axis === 'y' ? val : posY;
+        const updated = await updatePortfolioPhotoPosition(photo.id, nx, ny);
+        onUpdate(updated);
+      } catch {
+        showToast('Ошибка сохранения позиции');
+      } finally {
+        setSaving(false);
+      }
+    }, 600);
+  }
+
+  async function handleDelete() {
+    if (!confirm('Удалить фото?')) return;
+    await deletePortfolioPhoto(photo.id);
+    onDelete(photo.id);
+    showToast('Удалено');
+  }
+
+  return (
+    <div className={styles.dynPhotoRow}>
+      <div className={styles.dynPhotoThumb}>
+        <img
+          src={photo.photoUrl}
+          alt={photo.caption ?? ''}
+          style={{ objectPosition: `${posX}% ${posY}%` }}
+        />
+      </div>
+      <div className={styles.dynPhotoMeta}>
+        {photo.caption && <span className={styles.dynPhotoType}>{photo.caption}</span>}
+        {saving && <span className={styles.dynPhotoSaving}>сохраняется…</span>}
+        <div className={styles.dynPhotoSliders}>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Гориз.</span>
+            <input type="range" min={0} max={100} value={posX} className={styles.slider}
+              onChange={(e) => handlePos('x', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posX}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Верт.</span>
+            <input type="range" min={0} max={100} value={posY} className={styles.slider}
+              onChange={(e) => handlePos('y', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posY}%</span>
+          </label>
+        </div>
+        <div className={styles.cardActions} style={{ paddingLeft: 0, paddingBottom: 0, borderTop: 'none' }}>
+          <button className={styles.orderBtn} onClick={() => onMove(photo.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
+          <button className={styles.orderBtn} onClick={() => onMove(photo.id, 'down')} disabled={idx === total - 1} aria-label="Вниз">↓</button>
+        </div>
+      </div>
+      <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить">×</button>
+    </div>
+  );
+}
+
 function PortfolioSection() {
   const [items, setItems] = useState<AdminPortfolioPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState('');
-  const [preview, setPreview] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   useEffect(() => {
     listPortfolio().then(setItems).finally(() => setLoading(false));
   }, []);
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    setPreview(file ? URL.createObjectURL(file) : null);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -372,7 +454,7 @@ function PortfolioSection() {
       });
       setItems((prev) => [...prev, created]);
       setCaption('');
-      setPreview(null);
+      setFileName(null);
       if (fileRef.current) fileRef.current.value = '';
       showToast('Фото добавлено');
     } catch (err) {
@@ -382,26 +464,16 @@ function PortfolioSection() {
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm('Удалить фото?')) return;
-    await deletePortfolioPhoto(id);
-    setItems((prev) => prev.filter((p) => p.id !== id));
-    showToast('Удалено');
-  }
-
-  async function handleMove(item: AdminPortfolioPhoto, direction: 'up' | 'down') {
-    const idx = items.findIndex((i) => i.id === item.id);
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+  async function handleMove(id: number, dir: 'up' | 'down') {
+    const idx = items.findIndex((i) => i.id === id);
+    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= items.length) return;
-
-    const newOrder = item.sortOrder;
+    const newOrder = items[idx].sortOrder;
     const swapOrder = items[swapIdx].sortOrder;
-
-    await reorderPortfolioPhoto(item.id, swapOrder);
+    await reorderPortfolioPhoto(id, swapOrder);
     await reorderPortfolioPhoto(items[swapIdx].id, newOrder);
-
     const updated = [...items];
-    updated[idx] = { ...item, sortOrder: swapOrder };
+    updated[idx] = { ...items[idx], sortOrder: swapOrder };
     updated[swapIdx] = { ...items[swapIdx], sortOrder: newOrder };
     updated.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
     setItems(updated);
@@ -409,24 +481,30 @@ function PortfolioSection() {
 
   return (
     <div className={styles.section}>
+      <div className={styles.formHeader}>
+        <h2 className={styles.sectionTitle}>Портфолио</h2>
+        <p className={styles.formHint}>Галерея работ на странице «Обо мне». Ползунки задают кадрировку каждого фото.</p>
+      </div>
+
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.formHeader}>
-          <h2 className={styles.sectionTitle}>Добавить фото</h2>
-          <p className={styles.formHint}>Фото появится в галерее на странице «О мастере»</p>
+          <p className={styles.sectionTitle} style={{ marginBottom: 0 }}>Добавить фото</p>
+        </div>
+        <div className={styles.field}>
+          <span className={styles.label}>Фото</span>
+          <div className={styles.fileInputRow}>
+            <label className={styles.fileBtn}>
+              Загрузить
+              <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden}
+                onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)} />
+            </label>
+            <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
+          </div>
         </div>
         <label className={styles.field}>
-          <span className={styles.label}>Фото</span>
-          <input ref={fileRef} type="file" accept="image/*" className={styles.input} onChange={handleFileChange} />
-        </label>
-        {preview && <img src={preview} alt="Предпросмотр" className={styles.filePreviewPortrait} />}
-        <label className={styles.field}>
           <span className={styles.label}>Подпись (необязательно)</span>
-          <input
-            className={styles.input}
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Весенняя коллекция 2024"
-          />
+          <input className={styles.input} value={caption}
+            onChange={(e) => setCaption(e.target.value)} placeholder="Весенняя коллекция 2024" />
         </label>
         <button className={styles.submit} type="submit" disabled={uploading}>
           {uploading ? 'Загрузка…' : 'Добавить'}
@@ -438,27 +516,17 @@ function PortfolioSection() {
       ) : items.length === 0 ? (
         <p className={styles.hint}>Фото пока нет</p>
       ) : (
-        <div className={styles.grid}>
+        <div className={styles.dynPhotoList}>
           {items.map((p, idx) => (
-            <div key={p.id} className={styles.card}>
-              <img src={p.photoUrl} alt={p.caption ?? ''} className={styles.cardImgPortrait} />
-              {p.caption && <p className={styles.cardCaption}>{p.caption}</p>}
-              <div className={styles.cardActions}>
-                <button
-                  className={styles.orderBtn}
-                  onClick={() => handleMove(p, 'up')}
-                  disabled={idx === 0}
-                  aria-label="Переместить вверх"
-                >↑</button>
-                <button
-                  className={styles.orderBtn}
-                  onClick={() => handleMove(p, 'down')}
-                  disabled={idx === items.length - 1}
-                  aria-label="Переместить вниз"
-                >↓</button>
-                <button className={styles.deleteBtn} onClick={() => handleDelete(p.id)} aria-label="Удалить">×</button>
-              </div>
-            </div>
+            <PortfolioPhotoRow
+              key={p.id}
+              photo={p}
+              idx={idx}
+              total={items.length}
+              onUpdate={(updated) => setItems((prev) => prev.map((i) => i.id === updated.id ? updated : i))}
+              onDelete={(id) => setItems((prev) => prev.filter((i) => i.id !== id))}
+              onMove={handleMove}
+            />
           ))}
         </div>
       )}

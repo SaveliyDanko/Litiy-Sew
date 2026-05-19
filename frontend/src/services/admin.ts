@@ -48,6 +48,8 @@ export type AdminPortfolioPhoto = {
   photoKey: string;
   caption: string | null;
   sortOrder: number;
+  positionX: number;
+  positionY: number;
   createdAt: string;
 };
 
@@ -159,6 +161,13 @@ export async function reorderPortfolioPhoto(id: number, sortOrder: number): Prom
   return request<void>(`/admin/portfolio/${id}/order`, {
     method: 'PATCH',
     body: JSON.stringify({ sortOrder }),
+  });
+}
+
+export async function updatePortfolioPhotoPosition(id: number, positionX: number, positionY: number): Promise<AdminPortfolioPhoto> {
+  return request<AdminPortfolioPhoto>(`/admin/portfolio/${id}/position`, {
+    method: 'PATCH',
+    body: JSON.stringify({ positionX, positionY }),
   });
 }
 

@@ -39,6 +39,12 @@ public class PortfolioPhoto {
     @Column(nullable = false)
     private Integer sortOrder;
 
+    @Column(nullable = false)
+    private Integer positionX = 50;
+
+    @Column(nullable = false)
+    private Integer positionY = 50;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 }

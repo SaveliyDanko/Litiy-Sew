@@ -33,6 +33,8 @@ public class PortfolioAdminService {
                 .photoKey(req.photoKey())
                 .caption(req.caption())
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
+                .positionX(req.positionX() != null ? req.positionX() : 50)
+                .positionY(req.positionY() != null ? req.positionY() : 50)
                 .createdAt(Instant.now())
                 .build();
         return PortfolioPhotoResponse.from(portfolioPhotoRepository.save(photo));
@@ -50,5 +52,13 @@ public class PortfolioAdminService {
                 .orElseThrow(() -> new IllegalArgumentException("PortfolioPhoto not found: " + id));
         photo.setSortOrder(sortOrder);
         portfolioPhotoRepository.save(photo);
+    }
+
+    public PortfolioPhotoResponse updatePosition(Long id, int positionX, int positionY) {
+        PortfolioPhoto photo = portfolioPhotoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("PortfolioPhoto not found: " + id));
+        photo.setPositionX(positionX);
+        photo.setPositionY(positionY);
+        return PortfolioPhotoResponse.from(portfolioPhotoRepository.save(photo));
     }
 }

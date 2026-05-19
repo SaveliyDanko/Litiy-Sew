@@ -120,6 +120,14 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/portfolio/{id}/position")
+    public ResponseEntity<PortfolioPhotoResponse> updatePortfolioPhotoPosition(@PathVariable Long id,
+                                                                                @RequestBody Map<String, Integer> body) {
+        int x = body.getOrDefault("positionX", 50);
+        int y = body.getOrDefault("positionY", 50);
+        return ResponseEntity.ok(portfolioAdminService.updatePosition(id, x, y));
+    }
+
     // --- Hero Banner ---
 
     @GetMapping("/hero")

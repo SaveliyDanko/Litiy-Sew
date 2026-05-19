@@ -45,12 +45,20 @@ export default function AboutPage() {
 
       <main className={styles.page}>
         <section className={styles.hero}>
-          <img
-            className={styles.heroImage}
-            src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
-            alt={ABOUT_PAGE_DATA.hero.imageAlt}
-            style={imgStyle('about-hero')}
-          />
+          <picture>
+            {siteImages.get('about-hero-mobile') && (
+              <source
+                media="(max-width: 639px)"
+                srcSet={siteImages.get('about-hero-mobile')!.imageUrl}
+              />
+            )}
+            <img
+              className={styles.heroImage}
+              src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
+              alt={ABOUT_PAGE_DATA.hero.imageAlt}
+              style={imgStyle('about-hero')}
+            />
+          </picture>
           <div className={styles.heroOverlay} />
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>{ABOUT_PAGE_DATA.hero.title}</h1>
@@ -144,7 +152,12 @@ export default function AboutPage() {
             <div className={styles.galleryGrid}>
               {photos.map((photo) => (
                 <div key={photo.id} className={styles.galleryItem}>
-                  <img src={photo.photoUrl} alt={photo.caption ?? ''} className={styles.galleryImg} />
+                  <img
+                    src={photo.photoUrl}
+                    alt={photo.caption ?? ''}
+                    className={styles.galleryImg}
+                    style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%` }}
+                  />
                   {photo.caption && <p className={styles.galleryCaption}>{photo.caption}</p>}
                 </div>
               ))}
