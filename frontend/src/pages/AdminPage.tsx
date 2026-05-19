@@ -19,21 +19,18 @@ import {
   updateHeroPosition,
   deletePortfolioPhoto,
   deleteProduct,
-  fetchCollectionsMeta,
   getHero,
   listPatterns,
   listPortfolio,
   listProducts,
   reorderPortfolioPhoto,
   replaceHero,
-  saveCollectionMeta,
   updateAdminCredentials,
   uploadFile,
   type AdminHeroBanner,
   type AdminPatternItem,
   type AdminPortfolioPhoto,
   type AdminProduct,
-  type CollectionMeta,
 } from '../services/admin';
 import {
   addCollectionPhoto,
@@ -46,7 +43,6 @@ import {
   type DynamicCollection,
   type DynamicCollectionPhoto,
 } from '../services/collections';
-import { ALL_COLLECTIONS, FEATURED_COLLECTION } from './collectionsData';
 import styles from './AdminPage.module.css';
 
 type Tab = 'products' | 'patterns' | 'portfolio' | 'hero' | 'home' | 'about' | 'collections' | 'settings';
@@ -834,11 +830,6 @@ const HOME_SLOTS: SlotConfig[] = [
     hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
     portrait: true,
   },
-  {
-    key: FEATURED_COLLECTION.cardSlotKey,
-    label: `Секция «${FEATURED_COLLECTION.title}»`,
-    hint: 'Большое фото коллекции в нижней секции главной страницы и на странице /collections',
-  },
 ];
 
 function HomeSection() {
@@ -961,137 +952,6 @@ function AboutSection() {
 
 // ─── Collections ─────────────────────────────────────────────────────────────
 
-// ── Static collection card (site_images-based) ────────────────────────────
-
-function StaticCollectionCard({
-  collection,
-  images,
-  meta,
-  onImageUpdate,
-  onMetaUpdate,
-}: {
-  collection: typeof ALL_COLLECTIONS[number];
-  images: Map<string, SiteImage>;
-  meta: CollectionMeta | null;
-  onImageUpdate: (slotKey: string, img: SiteImage | null) => void;
-  onMetaUpdate: (m: CollectionMeta) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState(meta?.title ?? collection.title);
-  const [subtitle, setSubtitle] = useState(meta?.subtitle ?? collection.subtitle);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setTitle(meta?.title ?? collection.title);
-    setSubtitle(meta?.subtitle ?? collection.subtitle);
-  }, [meta, collection.title, collection.subtitle]);
-
-  async function handleSaveMeta(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim()) { showToast('Название не может быть пустым'); return; }
-    setSaving(true);
-    try {
-      const updated = await saveCollectionMeta(collection.slug, { title: title.trim(), subtitle: subtitle.trim() || undefined });
-      onMetaUpdate(updated);
-      showToast('Сохранено');
-    } catch {
-      showToast('Ошибка сохранения');
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const cardImg = images.get(collection.cardSlotKey);
-  const hasPhotos = [
-    collection.cardSlotKey,
-    collection.detailHeroSlotKey,
-    ...collection.detailGallerySlotKeys,
-  ].some((k) => images.has(k));
-
-  const displayTitle = meta?.title ?? collection.title;
-  const displaySubtitle = meta?.subtitle ?? collection.subtitle;
-
-  return (
-    <div className={styles.collectionCard}>
-      <button
-        type="button"
-        className={styles.collectionCardHeader}
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-      >
-        <div className={styles.collectionCardThumb}>
-          {cardImg ? (
-            <img src={cardImg.imageUrl} alt={displayTitle}
-              style={{ objectPosition: `${cardImg.positionX}% ${cardImg.positionY}%` }} />
-          ) : (
-            <div className={styles.collectionCardThumbEmpty} />
-          )}
-        </div>
-        <div className={styles.collectionCardInfo}>
-          <p className={styles.collectionCardTitle}>{displayTitle}</p>
-          {displaySubtitle && <p className={styles.collectionCardSubtitle}>{displaySubtitle}</p>}
-          <p className={styles.collectionCardSlug}>/collections/{collection.slug}</p>
-        </div>
-        <div className={styles.collectionCardMeta}>
-          {hasPhotos && <span className={styles.collectionCardBadge}>фото загружены</span>}
-          <span className={`${styles.collectionCardChevron} ${open ? styles.collectionCardChevronOpen : ''}`}>›</span>
-        </div>
-      </button>
-
-      {open && (
-        <div className={styles.collectionCardBody}>
-          <div className={styles.collectionSubGroup}>
-            <p className={styles.collectionSubGroupTitle}>Название и подзаголовок</p>
-            <form className={styles.collectionMetaForm} onSubmit={handleSaveMeta}>
-              <label className={styles.field}>
-                <span className={styles.label}>Название</span>
-                <input className={styles.input} value={title}
-                  onChange={(e) => setTitle(e.target.value)} placeholder={collection.title} />
-              </label>
-              <label className={styles.field}>
-                <span className={styles.label}>Подзаголовок</span>
-                <input className={styles.input} value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)} placeholder={collection.subtitle} />
-              </label>
-              <button className={styles.submit} type="submit" disabled={saving}>
-                {saving ? 'Сохранение…' : 'Сохранить'}
-              </button>
-            </form>
-          </div>
-
-          <div className={styles.collectionSubGroup}>
-            <p className={styles.collectionSubGroupTitle}>Карточка в каталоге /collections</p>
-            <SiteImageSlot
-              config={{ key: collection.cardSlotKey, label: 'Фото карточки', hint: 'Показывается в общем списке коллекций' }}
-              data={images.get(collection.cardSlotKey) ?? null}
-              onUpdate={(img) => onImageUpdate(collection.cardSlotKey, img)}
-            />
-          </div>
-
-          <div className={styles.collectionSubGroup}>
-            <p className={styles.collectionSubGroupTitle}>Страница коллекции /collections/{collection.slug}</p>
-            <div className={styles.slotGrid}>
-              <SiteImageSlot
-                config={{ key: collection.detailHeroSlotKey, label: 'Hero — главное фото', hint: 'Большое фото вверху страницы' }}
-                data={images.get(collection.detailHeroSlotKey) ?? null}
-                onUpdate={(img) => onImageUpdate(collection.detailHeroSlotKey, img)}
-              />
-              {collection.detailGallerySlotKeys.map((slotKey, i) => (
-                <SiteImageSlot
-                  key={slotKey}
-                  config={{ key: slotKey, label: `Галерея — образ ${i + 1}`, hint: `${i + 1}-е фото в галерее` }}
-                  data={images.get(slotKey) ?? null}
-                  onUpdate={(img) => onImageUpdate(slotKey, img)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ── Dynamic collection photo row ──────────────────────────────────────────
 
 function DynPhotoRow({
@@ -1166,7 +1026,7 @@ function DynPhotoRow({
 
 // ── Dynamic collection card ───────────────────────────────────────────────
 
-const MAX_PHOTOS = 30;
+const MAX_PHOTOS = 25;
 
 function DynCollectionCard({
   collection,
@@ -1542,52 +1402,31 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
 // ── CollectionsSection ────────────────────────────────────────────────────
 
 function CollectionsSection() {
-  const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
-  const [metas, setMetas] = useState<Map<string, CollectionMeta>>(new Map());
-  const [dynamicCollections, setDynamicCollections] = useState<DynamicCollection[]>([]);
+  const [collections, setCollections] = useState<DynamicCollection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchAllSiteImages(), fetchCollectionsMeta(), fetchCollections()])
-      .then(([imgs, metaMap, dyns]) => {
-        setImages(new Map(imgs.map((img) => [img.slotKey, img])));
-        setMetas(new Map(Object.entries(metaMap)));
-        setDynamicCollections(dyns);
-      })
+    fetchCollections()
+      .then(setCollections)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  function handleImageUpdate(slotKey: string, img: SiteImage | null) {
-    setImages((prev) => {
-      const next = new Map(prev);
-      if (img) next.set(slotKey, img); else next.delete(slotKey);
-      return next;
-    });
+  function handleChange(updated: DynamicCollection) {
+    setCollections((prev) => prev.map((c) => c.id === updated.id ? updated : c));
   }
 
-  function handleMetaUpdate(slug: string, m: CollectionMeta) {
-    setMetas((prev) => new Map(prev).set(slug, m));
+  function handleDelete(id: number) {
+    setCollections((prev) => prev.filter((c) => c.id !== id));
   }
 
-  function handleDynChange(updated: DynamicCollection) {
-    setDynamicCollections((prev) => prev.map((c) => c.id === updated.id ? updated : c));
-  }
-
-  function handleDynDelete(id: number) {
-    setDynamicCollections((prev) => prev.filter((c) => c.id !== id));
-  }
-
-  function handleDynCreated(c: DynamicCollection) {
-    setDynamicCollections((prev) => [...prev, c]);
+  function handleCreated(c: DynamicCollection) {
+    setCollections((prev) => [...prev, c]);
   }
 
   if (loading) return <p className={styles.hint}>Загрузка…</p>;
 
-  const dynamicSlugs = new Set(dynamicCollections.map((c) => c.slug));
-  // Static collections that aren't overridden by a dynamic one
-  const staticOnly = ALL_COLLECTIONS.filter((c) => !dynamicSlugs.has(c.slug));
-  const canCreate = dynamicCollections.length < MAX_COLLECTIONS;
+  const canCreate = collections.length < MAX_COLLECTIONS;
 
   return (
     <div className={styles.section}>
@@ -1595,55 +1434,27 @@ function CollectionsSection() {
         <h2 className={styles.sectionTitle}>Коллекции</h2>
         <p className={styles.formHint}>
           Управление коллекциями на страницах /collections и /collections/slug.
-          Лимит: {dynamicCollections.length} / {MAX_COLLECTIONS} динамических коллекций.
+          {collections.length} / {MAX_COLLECTIONS} коллекций.
         </p>
       </div>
 
-      {/* Dynamic collections */}
-      {dynamicCollections.length > 0 && (
-        <div>
-          <div className={styles.collectionSectionHeader} style={{ marginBottom: '0.75rem' }}>
-            <p className={styles.collectionSectionTitle}>Динамические коллекции</p>
-          </div>
-          <div className={styles.collectionsList}>
-            {dynamicCollections.map((c) => (
-              <DynCollectionCard
-                key={c.id}
-                collection={c}
-                onChange={handleDynChange}
-                onDelete={handleDynDelete}
-              />
-            ))}
-          </div>
+      {collections.length > 0 && (
+        <div className={styles.collectionsList}>
+          {collections.map((c) => (
+            <DynCollectionCard
+              key={c.id}
+              collection={c}
+              onChange={handleChange}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
       )}
 
-      {/* Create form */}
-      {canCreate && <CreateCollectionForm onCreated={handleDynCreated} />}
-      {!canCreate && (
-        <p className={styles.hint}>Достигнут лимит {MAX_COLLECTIONS} коллекций.</p>
-      )}
-
-      {/* Static collections */}
-      {staticOnly.length > 0 && (
-        <div>
-          <div className={styles.collectionSectionHeader} style={{ marginBottom: '0.75rem' }}>
-            <p className={styles.collectionSectionTitle}>Встроенные коллекции (slot-keys)</p>
-          </div>
-          <div className={styles.collectionsList}>
-            {staticOnly.map((collection) => (
-              <StaticCollectionCard
-                key={collection.slug}
-                collection={collection}
-                images={images}
-                meta={metas.get(collection.slug) ?? null}
-                onImageUpdate={handleImageUpdate}
-                onMetaUpdate={(m) => handleMetaUpdate(collection.slug, m)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {canCreate
+        ? <CreateCollectionForm onCreated={handleCreated} />
+        : <p className={styles.hint}>Достигнут лимит {MAX_COLLECTIONS} коллекций.</p>
+      }
     </div>
   );
 }

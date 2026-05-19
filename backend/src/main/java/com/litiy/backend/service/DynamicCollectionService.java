@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 public class DynamicCollectionService {
 
     private static final int MAX_COLLECTIONS = 25;
-    private static final int MAX_PHOTOS_PER_COLLECTION = 30;
+    private static final int MAX_PHOTOS_PER_COLLECTION = 25;
 
     private final DynamicCollectionRepository collectionRepo;
     private final DynamicCollectionPhotoRepository photoRepo;

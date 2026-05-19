@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  FEATURED_COLLECTION,
-  getCollectionHref,
-} from '../pages/collectionsData';
 import { MEDIA_BASE_URL, PRODUCTS_BY_CATEGORY } from '../pages/patternsData';
-import { fetchCollectionsMeta, type CollectionMeta } from '../services/admin';
+import { getCollectionHref } from '../pages/collectionsData';
+import { fetchCollections, type DynamicCollection } from '../services/collections';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import ProductCard from './ProductCard';
@@ -30,15 +27,18 @@ async function fetchHeroBanner(): Promise<HeroData> {
 export default function HeroSection() {
   const [hero, setHero] = useState<HeroData>(null);
   const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
-  const [featuredMeta, setFeaturedMeta] = useState<CollectionMeta | null>(null);
+  const [featured, setFeatured] = useState<DynamicCollection | null>(null);
 
   useEffect(() => {
     fetchHeroBanner().then(setHero);
     fetchAllSiteImages()
       .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
       .catch(() => {});
-    fetchCollectionsMeta()
-      .then((map) => setFeaturedMeta(map[FEATURED_COLLECTION.slug] ?? null))
+    fetchCollections()
+      .then((list) => {
+        const f = list.find((c) => c.featured) ?? list[0] ?? null;
+        setFeatured(f);
+      })
       .catch(() => {});
   }, []);
 
@@ -50,6 +50,8 @@ export default function HeroSection() {
     const si = siteImages.get(slotKey);
     return si ? { objectPosition: `${si.positionX}% ${si.positionY}%` } : {};
   }
+
+  const featuredCardPhoto = featured?.photos.find((p) => p.photoType === 'CARD') ?? featured?.photos[0] ?? null;
 
   return (
     <>
@@ -130,28 +132,32 @@ export default function HeroSection() {
         </section>
       )}
 
-      <section className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}>
-        <a
-          href={getCollectionHref(FEATURED_COLLECTION.slug)}
-          className={styles.featuredMedia}
-          aria-label={`Открыть коллекцию ${FEATURED_COLLECTION.title}`}
-        >
-          {imgUrl(FEATURED_COLLECTION.cardSlotKey) && (
-            <img
-              className={styles.featuredImage}
-              src={imgUrl(FEATURED_COLLECTION.cardSlotKey)!}
-              alt={FEATURED_COLLECTION.title}
-              style={imgStyle(FEATURED_COLLECTION.cardSlotKey)}
-            />
-          )}
-          <div className={styles.featuredGlow} />
-        </a>
+      {featured && (
+        <section className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}>
+          <a
+            href={getCollectionHref(featured.slug)}
+            className={styles.featuredMedia}
+            aria-label={`Открыть коллекцию ${featured.title}`}
+          >
+            {featuredCardPhoto ? (
+              <img
+                className={styles.featuredImage}
+                src={featuredCardPhoto.imageUrl}
+                alt={featured.title}
+                style={{ objectPosition: `${featuredCardPhoto.positionX}% ${featuredCardPhoto.positionY}%` }}
+              />
+            ) : (
+              <div className={styles.featuredGlow} />
+            )}
+            <div className={styles.featuredGlow} />
+          </a>
 
-        <div className={styles.featuredCopy}>
-          <h2 className={styles.featuredTitle}>{featuredMeta?.title ?? FEATURED_COLLECTION.title}</h2>
-          <p className={styles.featuredSubtitle}>{featuredMeta?.subtitle ?? FEATURED_COLLECTION.subtitle}</p>
-        </div>
-      </section>
+          <div className={styles.featuredCopy}>
+            <h2 className={styles.featuredTitle}>{featured.title}</h2>
+            <p className={styles.featuredSubtitle}>{featured.subtitle ?? ''}</p>
+          </div>
+        </section>
+      )}
     </>
   );
 }
