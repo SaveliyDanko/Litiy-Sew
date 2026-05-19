@@ -1030,13 +1030,6 @@ const HOME_SLOTS: SlotConfig[] = [
     hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
     portrait: true,
   },
-  {
-    key: 'home-featured-media',
-    label: 'Высота блока с коллекцией',
-    hint: 'Регулирует высоту контейнера с фотографией коллекции на главной странице',
-    heightOnly: true,
-    hasContainerHeight: true,
-  },
 ];
 
 function HomeSection() {
