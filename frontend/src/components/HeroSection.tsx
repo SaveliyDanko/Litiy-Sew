@@ -9,14 +9,29 @@ import styles from './HeroSection.module.css';
 
 const NEW_ARRIVALS = PRODUCTS_BY_CATEGORY.all.slice(0, 4);
 
-type HeroData = { imageUrl: string; positionX: number; positionY: number; positionXMobile: number; positionYMobile: number } | null;
+type HeroData = {
+  imageUrl: string;
+  imageUrlMobile: string | null;
+  positionX: number;
+  positionY: number;
+  positionXMobile: number;
+  positionYMobile: number;
+} | null;
 
 async function fetchHeroBanner(): Promise<HeroData> {
   const res = await fetch('/api/hero');
   if (res.status === 204 || !res.ok) return null;
-  const data = await res.json() as { imageUrl: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number };
+  const data = await res.json() as {
+    imageUrl: string;
+    imageUrlMobile?: string | null;
+    positionX?: number;
+    positionY?: number;
+    positionXMobile?: number;
+    positionYMobile?: number;
+  };
   return {
     imageUrl: data.imageUrl,
+    imageUrlMobile: data.imageUrlMobile ?? null,
     positionX: data.positionX ?? 50,
     positionY: data.positionY ?? 50,
     positionXMobile: data.positionXMobile ?? 50,
@@ -65,11 +80,16 @@ export default function HeroSection() {
         } as React.CSSProperties) : undefined}
       >
         {hero && (
-          <img
-            className={styles.bg}
-            src={hero.imageUrl}
-            alt="Litiy Sew hero"
-          />
+          <picture>
+            {hero.imageUrlMobile && (
+              <source media="(max-width: 639px)" srcSet={hero.imageUrlMobile} />
+            )}
+            <img
+              className={styles.bg}
+              src={hero.imageUrl}
+              alt="Litiy Sew hero"
+            />
+          </picture>
         )}
         <div className={styles.overlay} />
 

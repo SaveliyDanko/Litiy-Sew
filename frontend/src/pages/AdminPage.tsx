@@ -15,6 +15,7 @@ import {
   createPortfolioPhoto,
   createProduct,
   deleteHero,
+  deleteHeroMobile,
   deletePattern,
   updateHeroPosition,
   deletePortfolioPhoto,
@@ -25,6 +26,7 @@ import {
   listProducts,
   reorderPortfolioPhoto,
   replaceHero,
+  replaceHeroMobile,
   updateAdminCredentials,
   updatePortfolioPhotoPosition,
   uploadFile,
@@ -538,14 +540,23 @@ function PortfolioSection() {
 
 function HeroSection() {
   const [current, setCurrent] = useState<AdminHeroBanner | null | undefined>(undefined);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+
+  // Desktop
+  const [uploadingD, setUploadingD] = useState(false);
+  const fileRefD = useRef<HTMLInputElement>(null);
+  const [fileNameD, setFileNameD] = useState<string | null>(null);
+  const [previewD, setPreviewD] = useState<string | null>(null);
   const [posX, setPosX] = useState(50);
   const [posY, setPosY] = useState(50);
+
+  // Mobile
+  const [uploadingM, setUploadingM] = useState(false);
+  const fileRefM = useRef<HTMLInputElement>(null);
+  const [fileNameM, setFileNameM] = useState<string | null>(null);
+  const [previewM, setPreviewM] = useState<string | null>(null);
   const [posXM, setPosXM] = useState(50);
   const [posYM, setPosYM] = useState(50);
+
   const [saving, setSaving] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -562,12 +573,6 @@ function HeroSection() {
       })
       .catch(() => setCurrent(null));
   }, []);
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    setPreview(file ? URL.createObjectURL(file) : null);
-    setFileName(file ? file.name : null);
-  }
 
   function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym', val: number) {
     if (field === 'x') setPosX(val);
@@ -592,38 +597,72 @@ function HeroSection() {
     }, 600);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmitDesktop(e: React.FormEvent) {
     e.preventDefault();
-    const file = fileRef.current?.files?.[0];
+    const file = fileRefD.current?.files?.[0];
     if (!file) { showToast('Выберите изображение'); return; }
-    setUploading(true);
+    setUploadingD(true);
     try {
       const { publicUrl, key } = await uploadFile(file);
-      const created = await replaceHero({
+      const updated = await replaceHero({
         imageUrl: publicUrl, imageKey: key,
+        imageUrlMobile: current?.imageUrlMobile ?? undefined,
+        imageKeyMobile: current?.imageKeyMobile ?? undefined,
         positionX: posX, positionY: posY,
         positionXMobile: posXM, positionYMobile: posYM,
       });
-      setCurrent(created);
-      setPreview(null);
-      setFileName(null);
-      if (fileRef.current) fileRef.current.value = '';
-      showToast('Баннер обновлён');
+      setCurrent(updated);
+      setPreviewD(null);
+      setFileNameD(null);
+      if (fileRefD.current) fileRefD.current.value = '';
+      showToast('Десктоп-баннер обновлён');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Ошибка загрузки');
     } finally {
-      setUploading(false);
+      setUploadingD(false);
     }
   }
 
+  async function handleSubmitMobile(e: React.FormEvent) {
+    e.preventDefault();
+    const file = fileRefM.current?.files?.[0];
+    if (!file) { showToast('Выберите изображение'); return; }
+    setUploadingM(true);
+    try {
+      const { publicUrl, key } = await uploadFile(file);
+      const updated = await replaceHeroMobile(publicUrl, key);
+      if (updated) setCurrent(updated);
+      setPreviewM(null);
+      setFileNameM(null);
+      if (fileRefM.current) fileRefM.current.value = '';
+      showToast('Мобильный баннер обновлён');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка загрузки');
+    } finally {
+      setUploadingM(false);
+    }
+  }
+
+  async function handleDeleteMobile() {
+    if (!confirm('Удалить мобильный баннер?')) return;
+    const updated = await deleteHeroMobile();
+    if (updated) setCurrent(updated);
+    setPreviewM(null);
+    setFileNameM(null);
+    showToast('Мобильный баннер удалён');
+  }
+
   async function handleDelete() {
-    if (!confirm('Удалить баннер?')) return;
+    if (!confirm('Удалить баннер полностью?')) return;
     await deleteHero();
     setCurrent(null);
+    setPreviewD(null);
+    setPreviewM(null);
     showToast('Баннер удалён');
   }
 
-  const displayUrl = preview ?? current?.imageUrl ?? null;
+  const displayUrlD = previewD ?? current?.imageUrl ?? null;
+  const displayUrlM = previewM ?? current?.imageUrlMobile ?? displayUrlD;
 
   return (
     <div className={styles.section}>
@@ -637,38 +676,19 @@ function HeroSection() {
       ) : (
         <div className={styles.heroEditor}>
 
-          {/* Previews */}
-          <div className={styles.heroPreviews}>
-            <div className={styles.heroPreviewGroup}>
-              <p className={styles.heroPreviewLabel}>Десктоп</p>
-              <div className={styles.heroPreviewWrap}>
-                {displayUrl ? (
-                  <img src={displayUrl} alt="Десктоп" className={styles.heroPreviewImg}
-                    style={{ objectPosition: `${posX}% ${posY}%` }} />
-                ) : (
-                  <div className={styles.heroPreviewEmpty}>Не установлен</div>
-                )}
-              </div>
+          {/* Desktop block */}
+          <div className={styles.heroBannerBlock}>
+            <p className={styles.heroBannerBlockTitle}>Десктоп</p>
+            <div className={styles.heroPreviewWrap}>
+              {displayUrlD
+                ? <img src={displayUrlD} alt="Десктоп" className={styles.heroPreviewImg} style={{ objectPosition: `${posX}% ${posY}%` }} />
+                : <div className={styles.heroPreviewEmpty}>Не установлен</div>
+              }
             </div>
-            <div className={styles.heroPreviewGroup}>
-              <p className={styles.heroPreviewLabel}>Мобильный</p>
-              <div className={styles.heroPreviewMobileWrap}>
-                {displayUrl ? (
-                  <img src={displayUrl} alt="Мобильный" className={styles.heroPreviewImg}
-                    style={{ objectPosition: `${posXM}% ${posYM}%` }} />
-                ) : (
-                  <div className={styles.heroPreviewEmpty}>Не установлен</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Position sliders — only when banner exists */}
-          {current && (
-            <div className={styles.heroPositionBlocks}>
-              <div className={styles.heroPositionBlock}>
+            {current && (
+              <>
                 <p className={styles.heroPositionLabel}>
-                  Кадрировка — Десктоп {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                  Кадрировка {saving && <span className={styles.heroSaving}>сохраняется…</span>}
                 </p>
                 <label className={styles.sliderField}>
                   <span className={styles.sliderName}>Горизонталь</span>
@@ -682,11 +702,40 @@ function HeroSection() {
                     onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
                   <span className={styles.sliderValue}>{posY}%</span>
                 </label>
-              </div>
+              </>
+            )}
+            <form className={styles.heroInlineForm} onSubmit={handleSubmitDesktop}>
+              <label className={styles.fileBtn}>
+                {fileNameD ?? (current ? 'Заменить фото' : 'Загрузить фото')}
+                <input ref={fileRefD} type="file" accept="image/*" className={styles.fileInputHidden}
+                  onChange={(e) => { const f = e.target.files?.[0]; setPreviewD(f ? URL.createObjectURL(f) : null); setFileNameD(f?.name ?? null); }} />
+              </label>
+              {fileNameD && (
+                <button className={styles.submit} type="submit" disabled={uploadingD}>
+                  {uploadingD ? 'Загрузка…' : 'Сохранить'}
+                </button>
+              )}
+            </form>
+            {current && (
+              <button className={styles.deleteBannerBtn} onClick={handleDelete}>
+                Удалить баннер полностью
+              </button>
+            )}
+          </div>
 
-              <div className={styles.heroPositionBlock}>
+          {/* Mobile block */}
+          <div className={styles.heroBannerBlock}>
+            <p className={styles.heroBannerBlockTitle}>Мобильный</p>
+            <div className={styles.heroPreviewMobileWrap}>
+              {displayUrlM
+                ? <img src={displayUrlM} alt="Мобильный" className={styles.heroPreviewImg} style={{ objectPosition: `${posXM}% ${posYM}%` }} />
+                : <div className={styles.heroPreviewEmpty}>Не установлен</div>
+              }
+            </div>
+            {current && (
+              <>
                 <p className={styles.heroPositionLabel}>
-                  Кадрировка — Мобильный {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                  Кадрировка {saving && <span className={styles.heroSaving}>сохраняется…</span>}
                 </p>
                 <label className={styles.sliderField}>
                   <span className={styles.sliderName}>Горизонталь</span>
@@ -700,32 +749,29 @@ function HeroSection() {
                     onChange={(e) => handlePositionChange('ym', Number(e.target.value))} />
                   <span className={styles.sliderValue}>{posYM}%</span>
                 </label>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+            <form className={styles.heroInlineForm} onSubmit={handleSubmitMobile}>
+              <label className={`${styles.fileBtn} ${!current ? styles.fileBtnDisabled : ''}`}>
+                {fileNameM ?? (current?.imageUrlMobile ? 'Заменить фото' : 'Загрузить фото')}
+                <input ref={fileRefM} type="file" accept="image/*" className={styles.fileInputHidden}
+                  disabled={!current}
+                  onChange={(e) => { const f = e.target.files?.[0]; setPreviewM(f ? URL.createObjectURL(f) : null); setFileNameM(f?.name ?? null); }} />
+              </label>
+              {fileNameM && (
+                <button className={styles.submit} type="submit" disabled={uploadingM}>
+                  {uploadingM ? 'Загрузка…' : 'Сохранить'}
+                </button>
+              )}
+            </form>
+            {current?.imageUrlMobile && (
+              <button className={styles.deleteBannerBtn} onClick={handleDeleteMobile}>
+                Удалить мобильное фото
+              </button>
+            )}
+            {!current && <p className={styles.hint}>Сначала загрузите десктоп-баннер</p>}
+          </div>
 
-          {/* Upload form */}
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.field}>
-              <span className={styles.label}>{current ? 'Новый баннер (заменит текущий)' : 'Загрузить баннер'}</span>
-              <div className={styles.fileInputRow}>
-                <label className={styles.fileBtn}>
-                  Загрузить
-                  <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden} onChange={handleFileChange} />
-                </label>
-                <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
-              </div>
-            </div>
-            <button className={styles.submit} type="submit" disabled={uploading}>
-              {uploading ? 'Загрузка…' : current ? 'Заменить баннер' : 'Загрузить баннер'}
-            </button>
-          </form>
-
-          {current && (
-            <button className={styles.deleteBannerBtn} onClick={handleDelete}>
-              Удалить баннер
-            </button>
-          )}
         </div>
       )}
     </div>

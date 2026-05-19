@@ -152,6 +152,23 @@ public class AdminController {
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
+    @PutMapping("/hero/mobile")
+    public ResponseEntity<HeroBannerResponse> replaceHeroMobile(@RequestBody Map<String, String> body) {
+        String url = body.get("imageUrl");
+        String key = body.get("imageKey");
+        if (url == null || key == null) return ResponseEntity.badRequest().build();
+        return heroBannerAdminService.replaceMobileImage(url, key)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
+    @DeleteMapping("/hero/mobile")
+    public ResponseEntity<HeroBannerResponse> deleteHeroMobile() {
+        return heroBannerAdminService.deleteMobileImage()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
     @DeleteMapping("/hero")
     public ResponseEntity<Void> deleteHero() {
         heroBannerAdminService.deleteCurrent();

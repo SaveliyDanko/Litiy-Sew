@@ -57,6 +57,8 @@ export type AdminHeroBanner = {
   id: number;
   imageUrl: string;
   imageKey: string;
+  imageUrlMobile: string | null;
+  imageKeyMobile: string | null;
   positionX: number;
   positionY: number;
   positionXMobile: number;
@@ -180,7 +182,7 @@ export async function getHero(): Promise<AdminHeroBanner | null> {
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHero(data: { imageUrl: string; imageKey: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number }): Promise<AdminHeroBanner> {
+export async function replaceHero(data: { imageUrl: string; imageKey: string; imageUrlMobile?: string; imageKeyMobile?: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number }): Promise<AdminHeroBanner> {
   return request<AdminHeroBanner>('/admin/hero', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -193,6 +195,28 @@ export async function updateHeroPosition(positionX: number, positionY: number, p
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ positionX, positionY, positionXMobile, positionYMobile }),
+  });
+  if (res.status === 204) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json() as Promise<AdminHeroBanner>;
+}
+
+export async function replaceHeroMobile(imageUrl: string, imageKey: string): Promise<AdminHeroBanner | null> {
+  const res = await fetch('/api/admin/hero/mobile', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageUrl, imageKey }),
+  });
+  if (res.status === 204) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json() as Promise<AdminHeroBanner>;
+}
+
+export async function deleteHeroMobile(): Promise<AdminHeroBanner | null> {
+  const res = await fetch('/api/admin/hero/mobile', {
+    method: 'DELETE',
+    credentials: 'include',
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

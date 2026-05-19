@@ -33,6 +33,12 @@ public class HeroBanner {
     @Column(nullable = false, length = 512)
     private String imageKey;
 
+    @Column(length = 512)
+    private String imageUrlMobile;
+
+    @Column(length = 512)
+    private String imageKeyMobile;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer positionX = 50;

@@ -28,11 +28,14 @@ public class HeroBannerAdminService {
     public HeroBannerResponse replace(HeroBannerRequest req) {
         heroBannerRepository.findTopByOrderByCreatedAtDesc().ifPresent(existing -> {
             mediaService.deleteFile(existing.getImageKey());
+            if (existing.getImageKeyMobile() != null) mediaService.deleteFile(existing.getImageKeyMobile());
             heroBannerRepository.delete(existing);
         });
         HeroBanner banner = HeroBanner.builder()
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
+                .imageUrlMobile(req.imageUrlMobile())
+                .imageKeyMobile(req.imageKeyMobile())
                 .positionX(req.positionX() != null ? req.positionX() : 50)
                 .positionY(req.positionY() != null ? req.positionY() : 50)
                 .positionXMobile(req.positionXMobile() != null ? req.positionXMobile() : 50)
@@ -52,9 +55,28 @@ public class HeroBannerAdminService {
         });
     }
 
+    public Optional<HeroBannerResponse> replaceMobileImage(String imageUrl, String imageKey) {
+        return heroBannerRepository.findTopByOrderByCreatedAtDesc().map(banner -> {
+            if (banner.getImageKeyMobile() != null) mediaService.deleteFile(banner.getImageKeyMobile());
+            banner.setImageUrlMobile(imageUrl);
+            banner.setImageKeyMobile(imageKey);
+            return HeroBannerResponse.from(heroBannerRepository.save(banner));
+        });
+    }
+
+    public Optional<HeroBannerResponse> deleteMobileImage() {
+        return heroBannerRepository.findTopByOrderByCreatedAtDesc().map(banner -> {
+            if (banner.getImageKeyMobile() != null) mediaService.deleteFile(banner.getImageKeyMobile());
+            banner.setImageUrlMobile(null);
+            banner.setImageKeyMobile(null);
+            return HeroBannerResponse.from(heroBannerRepository.save(banner));
+        });
+    }
+
     public void deleteCurrent() {
         heroBannerRepository.findTopByOrderByCreatedAtDesc().ifPresent(existing -> {
             mediaService.deleteFile(existing.getImageKey());
+            if (existing.getImageKeyMobile() != null) mediaService.deleteFile(existing.getImageKeyMobile());
             heroBannerRepository.delete(existing);
         });
     }
