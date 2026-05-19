@@ -817,6 +817,7 @@ type SlotConfig = {
   label: string;
   hint: string;
   portrait?: boolean;
+  hasContainerHeight?: boolean;
 };
 
 function SiteImageSlot({ config, data, onUpdate }: {
@@ -830,12 +831,18 @@ function SiteImageSlot({ config, data, onUpdate }: {
   const [posX, setPosX] = useState(data?.positionX ?? 50);
   const [posY, setPosY] = useState(data?.positionY ?? 50);
   const [scale, setScale] = useState(data?.scale ?? 100);
+  const [containerHeight, setContainerHeight] = useState(data?.containerHeight ?? 0);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (data) { setPosX(data.positionX); setPosY(data.positionY); setScale(data.scale ?? 100); }
+    if (data) {
+      setPosX(data.positionX);
+      setPosY(data.positionY);
+      setScale(data.scale ?? 100);
+      setContainerHeight(data.containerHeight ?? 0);
+    }
   }, [data]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -844,10 +851,11 @@ function SiteImageSlot({ config, data, onUpdate }: {
     setFileName(file ? file.name : null);
   }
 
-  function handlePositionChange(axis: 'x' | 'y' | 's', val: number) {
+  function handlePositionChange(axis: 'x' | 'y' | 's' | 'h', val: number) {
     if (axis === 'x') setPosX(val);
     else if (axis === 'y') setPosY(val);
-    else setScale(val);
+    else if (axis === 's') setScale(val);
+    else setContainerHeight(val);
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true);
@@ -855,7 +863,8 @@ function SiteImageSlot({ config, data, onUpdate }: {
         const newX = axis === 'x' ? val : posX;
         const newY = axis === 'y' ? val : posY;
         const newS = axis === 's' ? val : scale;
-        const updated = await updateSiteImagePosition(config.key, newX, newY, newS);
+        const newH = axis === 'h' ? val : containerHeight;
+        const updated = await updateSiteImagePosition(config.key, newX, newY, newS, newH);
         if (updated) onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -879,6 +888,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
         positionX: posX,
         positionY: posY,
         scale,
+        containerHeight,
       });
       onUpdate(updated);
       setPreview(null);
@@ -915,7 +925,10 @@ function SiteImageSlot({ config, data, onUpdate }: {
 
       <div className={styles.slotBody}>
         {/* Preview */}
-        <div className={config.portrait ? styles.slotPreviewPortrait : styles.slotPreviewLandscape}>
+        <div
+          className={config.portrait ? styles.slotPreviewPortrait : styles.slotPreviewLandscape}
+          style={config.hasContainerHeight && containerHeight > 0 ? { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' } : undefined}
+        >
           {displayUrl ? (
             <img
               src={displayUrl}
@@ -952,6 +965,14 @@ function SiteImageSlot({ config, data, onUpdate }: {
                 onChange={(e) => handlePositionChange('s', Number(e.target.value))} />
               <span className={styles.sliderValue}>{scale}%</span>
             </label>
+            {config.hasContainerHeight && (
+              <label className={styles.sliderField}>
+                <span className={styles.sliderName}>Высота, px</span>
+                <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
+                  onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
+                <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
+              </label>
+            )}
           </div>
         )}
       </div>
@@ -986,6 +1007,7 @@ const HOME_SLOTS: SlotConfig[] = [
     label: 'Карточка «Новая коллекция»',
     hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
     portrait: true,
+    hasContainerHeight: true,
   },
 ];
 

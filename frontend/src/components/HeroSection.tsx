@@ -115,7 +115,17 @@ export default function HeroSection() {
             <span className={styles.srOnly}>Litiy Sew</span>
           </h1>
 
-          <div className={styles.card}>
+          <div
+            className={styles.card}
+            style={(() => {
+              const si = siteImages.get('home-card-image');
+              if (!si?.containerHeight) return undefined;
+              return {
+                '--card-image-height': `${si.containerHeight}px`,
+                '--card-aspect-ratio': 'auto',
+              } as React.CSSProperties;
+            })()}
+          >
             {imgUrl('home-card-image') && (
               <img
                 className={styles.cardImage}

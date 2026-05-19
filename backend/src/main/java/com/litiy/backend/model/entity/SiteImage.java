@@ -48,6 +48,11 @@ public class SiteImage {
     @Builder.Default
     private Integer scale = 100;
 
+    /** px высота контейнера с фото; 0 = авто (aspect-ratio) */
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer containerHeight = 0;
+
     @Column(nullable = false, updatable = false)
     private Instant updatedAt;
 }

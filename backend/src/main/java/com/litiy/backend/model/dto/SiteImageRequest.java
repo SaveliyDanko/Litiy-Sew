@@ -8,5 +8,6 @@ public record SiteImageRequest(
         @NotBlank String imageKey,
         Integer positionX,
         Integer positionY,
-        Integer scale
+        Integer scale,
+        Integer containerHeight
 ) {}

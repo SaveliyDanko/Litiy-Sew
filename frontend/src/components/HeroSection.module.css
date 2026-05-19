@@ -130,7 +130,9 @@
 .cardImage {
   display: block;
   width: var(--card-image-width, 210px);
-  aspect-ratio: 4 / 5;
+  height: var(--card-image-height, auto);
+  /* aspect-ratio применяется только если высота = auto */
+  aspect-ratio: var(--card-aspect-ratio, 4 / 5);
   object-fit: cover;
   object-position: top;
 }

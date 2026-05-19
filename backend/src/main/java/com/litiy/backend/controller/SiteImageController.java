@@ -49,7 +49,8 @@ public class SiteImageController {
                 slotKey,
                 body.getOrDefault("positionX", 50),
                 body.getOrDefault("positionY", 50),
-                body.getOrDefault("scale", 100)
+                body.getOrDefault("scale", 100),
+                body.getOrDefault("containerHeight", 0)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 

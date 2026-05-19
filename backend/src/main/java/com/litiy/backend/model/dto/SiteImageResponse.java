@@ -9,7 +9,8 @@ public record SiteImageResponse(
         String imageKey,
         int positionX,
         int positionY,
-        int scale
+        int scale,
+        int containerHeight
 ) {
     public static SiteImageResponse from(SiteImage s) {
         return new SiteImageResponse(
@@ -19,7 +20,8 @@ public record SiteImageResponse(
                 s.getImageKey(),
                 s.getPositionX() != null ? s.getPositionX() : 50,
                 s.getPositionY() != null ? s.getPositionY() : 50,
-                s.getScale() != null ? s.getScale() : 100
+                s.getScale() != null ? s.getScale() : 100,
+                s.getContainerHeight() != null ? s.getContainerHeight() : 0
         );
     }
 }
