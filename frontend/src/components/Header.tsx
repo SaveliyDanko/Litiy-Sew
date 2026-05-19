@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useAuth } from '../hooks/useAuth';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import styles from './Header.module.css';
 
@@ -12,8 +11,6 @@ const navItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -66,7 +63,6 @@ export default function Header() {
               {item.label}
             </a>
           ))}
-          {isAdmin && <a href="/admin">АДМИН</a>}
         </nav>
 
         <div className={styles.actions}>
@@ -119,9 +115,6 @@ export default function Header() {
               {item.label}
             </a>
           ))}
-          {isAdmin && (
-            <a href="/admin" className={styles.mobileMenuLink} onClick={closeMenu}>АДМИН</a>
-          )}
         </nav>
       </header>
 
