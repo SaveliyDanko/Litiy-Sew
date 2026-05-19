@@ -45,7 +45,7 @@
   position: relative;
   display: block;
   overflow: hidden;
-  min-height: var(--collections-featured-media-height);
+  height: var(--collections-featured-media-height);
   border-radius: var(--collections-featured-media-radius);
   background: linear-gradient(145deg, #bcb0b0 0%, #b5a7a7 48%, #cec4c4 100%);
 }
@@ -137,7 +137,7 @@
 .cardMedia {
   position: relative;
   overflow: hidden;
-  min-height: var(--collections-card-media-height);
+  height: var(--collections-card-media-height);
   border-radius: var(--collections-card-radius);
 }
 

@@ -50,6 +50,10 @@ public class DynamicCollectionPhoto {
 
     @Column(nullable = false)
     @Builder.Default
+    private Integer scale = 100;
+
+    @Column(nullable = false)
+    @Builder.Default
     private Integer sortOrder = 0;
 
     @Column(nullable = false, updatable = false)

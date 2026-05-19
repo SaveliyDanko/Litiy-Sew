@@ -10,6 +10,7 @@ public record DynamicCollectionPhotoResponse(
         String imageKey,
         int positionX,
         int positionY,
+        int scale,
         int sortOrder,
         String createdAt
 ) {
@@ -22,6 +23,7 @@ public record DynamicCollectionPhotoResponse(
                 p.getImageKey(),
                 p.getPositionX() != null ? p.getPositionX() : 50,
                 p.getPositionY() != null ? p.getPositionY() : 50,
+                p.getScale() != null ? p.getScale() : 100,
                 p.getSortOrder() != null ? p.getSortOrder() : 0,
                 p.getCreatedAt().toString()
         );

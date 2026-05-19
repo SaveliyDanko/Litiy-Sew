@@ -178,7 +178,7 @@ export default function HeroSection() {
                 className={styles.featuredImage}
                 src={featuredCardPhoto.imageUrl}
                 alt={featured.title}
-                style={{ objectPosition: `${featuredCardPhoto.positionX}% ${featuredCardPhoto.positionY}%` }}
+                style={{ objectPosition: `${featuredCardPhoto.positionX}% ${featuredCardPhoto.positionY}%`, transform: `scale(${(featuredCardPhoto.scale ?? 100) / 100})` }}
               />
             ) : (
               <div className={styles.featuredGlow} />

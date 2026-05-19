@@ -6,6 +6,7 @@ export type DynamicCollectionPhoto = {
   imageKey: string;
   positionX: number;
   positionY: number;
+  scale: number;
   sortOrder: number;
   createdAt: string;
 };
@@ -110,10 +111,10 @@ export async function addCollectionPhoto(collectionId: number, data: AddPhotoDat
   });
 }
 
-export async function updateCollectionPhotoPosition(photoId: number, positionX: number, positionY: number): Promise<DynamicCollectionPhoto> {
+export async function updateCollectionPhotoPosition(photoId: number, positionX: number, positionY: number, scale: number): Promise<DynamicCollectionPhoto> {
   return adminRequest<DynamicCollectionPhoto>(`/admin/collections/photos/${photoId}/position`, {
     method: 'PATCH',
-    body: JSON.stringify({ positionX, positionY }),
+    body: JSON.stringify({ positionX, positionY, scale }),
   });
 }
 

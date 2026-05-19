@@ -117,11 +117,12 @@ public class DynamicCollectionService {
         return DynamicCollectionPhotoResponse.from(photoRepo.save(photo));
     }
 
-    public DynamicCollectionPhotoResponse updatePhotoPosition(Long photoId, int positionX, int positionY) {
+    public DynamicCollectionPhotoResponse updatePhotoPosition(Long photoId, int positionX, int positionY, int scale) {
         DynamicCollectionPhoto photo = photoRepo.findById(photoId)
                 .orElseThrow(() -> new NoSuchElementException("Photo not found: " + photoId));
         photo.setPositionX(positionX);
         photo.setPositionY(positionY);
+        photo.setScale(scale);
         return DynamicCollectionPhotoResponse.from(photoRepo.save(photo));
     }
 

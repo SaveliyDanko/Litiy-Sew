@@ -1168,18 +1168,20 @@ function DynPhotoRow({
 }) {
   const [posX, setPosX] = useState(photo.positionX);
   const [posY, setPosY] = useState(photo.positionY);
+  const [scale, setScale] = useState(photo.scale ?? 100);
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function handlePos(axis: 'x' | 'y', val: number) {
-    if (axis === 'x') setPosX(val); else setPosY(val);
+  function handlePos(axis: 'x' | 'y' | 's', val: number) {
+    if (axis === 'x') setPosX(val); else if (axis === 'y') setPosY(val); else setScale(val);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
         const nx = axis === 'x' ? val : posX;
         const ny = axis === 'y' ? val : posY;
-        const updated = await updateCollectionPhotoPosition(photo.id, nx, ny);
+        const ns = axis === 's' ? val : scale;
+        const updated = await updateCollectionPhotoPosition(photo.id, nx, ny, ns);
         onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -1202,7 +1204,7 @@ function DynPhotoRow({
     <div className={styles.dynPhotoRow}>
       <div className={styles.dynPhotoThumb}>
         <img src={photo.imageUrl} alt={typeLabel}
-          style={{ objectPosition: `${posX}% ${posY}%` }} />
+          style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }} />
       </div>
       <div className={styles.dynPhotoMeta}>
         <span className={styles.dynPhotoType}>{typeLabel}</span>
@@ -1219,6 +1221,12 @@ function DynPhotoRow({
             <input type="range" min={0} max={100} value={posY} className={styles.slider}
               onChange={(e) => handlePos('y', Number(e.target.value))} />
             <span className={styles.sliderValue}>{posY}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Масштаб</span>
+            <input type="range" min={100} max={200} value={scale} className={styles.slider}
+              onChange={(e) => handlePos('s', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{scale}%</span>
           </label>
         </div>
       </div>

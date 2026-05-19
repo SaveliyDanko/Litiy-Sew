@@ -69,7 +69,7 @@ export default function CollectionsPage() {
                 className={styles.featuredImage}
                 src={featuredCard.imageUrl}
                 alt={featured.title}
-                style={{ objectPosition: `${featuredCard.positionX}% ${featuredCard.positionY}%` }}
+                style={{ objectPosition: `${featuredCard.positionX}% ${featuredCard.positionY}%`, transform: `scale(${(featuredCard.scale ?? 100) / 100})` }}
               />
             ) : (
               <div className={styles.featuredPlaceholder} />
@@ -111,7 +111,7 @@ export default function CollectionsPage() {
                             className={styles.cardImage}
                             src={photo.imageUrl}
                             alt={collection.title}
-                            style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%` }}
+                            style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%`, transform: `scale(${(photo.scale ?? 100) / 100})` }}
                           />
                         ) : (
                           <div className={styles.cardPlaceholder} />

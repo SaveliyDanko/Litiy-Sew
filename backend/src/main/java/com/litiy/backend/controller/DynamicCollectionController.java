@@ -81,7 +81,8 @@ public class DynamicCollectionController {
         return ResponseEntity.ok(service.updatePhotoPosition(
                 photoId,
                 body.getOrDefault("positionX", 50),
-                body.getOrDefault("positionY", 50)
+                body.getOrDefault("positionY", 50),
+                body.getOrDefault("scale", 100)
         ));
     }
 
