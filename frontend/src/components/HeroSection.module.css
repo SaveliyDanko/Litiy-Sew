@@ -130,8 +130,7 @@
 .cardImageWrap {
   display: block;
   width: var(--card-image-width, 210px);
-  height: var(--card-image-height, auto);
-  aspect-ratio: var(--card-aspect-ratio, 4 / 5);
+  aspect-ratio: 4 / 5;
   overflow: hidden;
 }
 

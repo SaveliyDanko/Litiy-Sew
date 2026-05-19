@@ -115,17 +115,7 @@ export default function HeroSection() {
             <span className={styles.srOnly}>Litiy Sew</span>
           </h1>
 
-          <div
-            className={styles.card}
-            style={(() => {
-              const si = siteImages.get('home-card-image');
-              if (!si?.containerHeight) return undefined;
-              return {
-                '--card-image-height': `${si.containerHeight}px`,
-                '--card-aspect-ratio': 'auto',
-              } as React.CSSProperties;
-            })()}
-          >
+          <div className={styles.card}>
             {imgUrl('home-card-image') && (
               <div className={styles.cardImageWrap}>
                 <img
@@ -177,7 +167,13 @@ export default function HeroSection() {
       )}
 
       {featured && (
-        <section className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}>
+        <section
+          className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}
+          style={(() => {
+            const h = siteImages.get('home-featured-media')?.containerHeight;
+            return h ? ({ '--featured-media-height': `${h}px` } as React.CSSProperties) : undefined;
+          })()}
+        >
           <a
             href={getCollectionHref(featured.slug)}
             className={styles.featuredMedia}

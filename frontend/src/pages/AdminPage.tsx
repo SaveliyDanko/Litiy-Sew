@@ -818,6 +818,7 @@ type SlotConfig = {
   hint: string;
   portrait?: boolean;
   hasContainerHeight?: boolean;
+  heightOnly?: boolean;
 };
 
 function SiteImageSlot({ config, data, onUpdate }: {
@@ -864,7 +865,12 @@ function SiteImageSlot({ config, data, onUpdate }: {
         const newY = axis === 'y' ? val : posY;
         const newS = axis === 's' ? val : scale;
         const newH = axis === 'h' ? val : containerHeight;
-        const updated = await updateSiteImagePosition(config.key, newX, newY, newS, newH);
+        let updated;
+        if (config.heightOnly && !data) {
+          updated = await upsertSiteImage({ slotKey: config.key, imageUrl: '', imageKey: '', containerHeight: newH });
+        } else {
+          updated = await updateSiteImagePosition(config.key, newX, newY, newS, newH);
+        }
         if (updated) onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -923,78 +929,94 @@ function SiteImageSlot({ config, data, onUpdate }: {
         )}
       </div>
 
-      <div className={styles.slotBody}>
-        {/* Preview */}
-        <div
-          className={config.portrait ? styles.slotPreviewPortrait : styles.slotPreviewLandscape}
-          style={config.hasContainerHeight && containerHeight > 0 ? { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' } : undefined}
-        >
-          {displayUrl ? (
-            <img
-              src={displayUrl}
-              alt={config.label}
-              className={styles.slotPreviewImg}
-              style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }}
-            />
-          ) : (
-            <div className={styles.slotPreviewEmpty}>Не загружено</div>
-          )}
+      {config.heightOnly ? (
+        <div className={styles.heroPositionBlock}>
+          <p className={styles.heroPositionLabel}>
+            Высота {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+          </p>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Высота, px</span>
+            <input type="range" min={200} max={1200} value={containerHeight || 500} className={styles.slider}
+              onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
+          </label>
         </div>
+      ) : (
+        <>
+          <div className={styles.slotBody}>
+            {/* Preview */}
+            <div
+              className={config.portrait ? styles.slotPreviewPortrait : styles.slotPreviewLandscape}
+              style={config.hasContainerHeight && containerHeight > 0 ? { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' } : undefined}
+            >
+              {displayUrl ? (
+                <img
+                  src={displayUrl}
+                  alt={config.label}
+                  className={styles.slotPreviewImg}
+                  style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }}
+                />
+              ) : (
+                <div className={styles.slotPreviewEmpty}>Не загружено</div>
+              )}
+            </div>
 
-        {/* Position + scale sliders */}
-        {data && (
-          <div className={styles.heroPositionBlock}>
-            <p className={styles.heroPositionLabel}>
-              Кадрировка {saving && <span className={styles.heroSaving}>сохраняется…</span>}
-            </p>
-            <label className={styles.sliderField}>
-              <span className={styles.sliderName}>Горизонталь</span>
-              <input type="range" min={0} max={100} value={posX} className={styles.slider}
-                onChange={(e) => handlePositionChange('x', Number(e.target.value))} />
-              <span className={styles.sliderValue}>{posX}%</span>
-            </label>
-            <label className={styles.sliderField}>
-              <span className={styles.sliderName}>Вертикаль</span>
-              <input type="range" min={0} max={100} value={posY} className={styles.slider}
-                onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
-              <span className={styles.sliderValue}>{posY}%</span>
-            </label>
-            <label className={styles.sliderField}>
-              <span className={styles.sliderName}>Масштаб</span>
-              <input type="range" min={100} max={200} value={scale} className={styles.slider}
-                onChange={(e) => handlePositionChange('s', Number(e.target.value))} />
-              <span className={styles.sliderValue}>{scale}%</span>
-            </label>
-            {config.hasContainerHeight && (
-              <label className={styles.sliderField}>
-                <span className={styles.sliderName}>Высота, px</span>
-                <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
-                  onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
-                <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
-              </label>
+            {/* Position + scale sliders */}
+            {data && (
+              <div className={styles.heroPositionBlock}>
+                <p className={styles.heroPositionLabel}>
+                  Кадрировка {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                </p>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Горизонталь</span>
+                  <input type="range" min={0} max={100} value={posX} className={styles.slider}
+                    onChange={(e) => handlePositionChange('x', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posX}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Вертикаль</span>
+                  <input type="range" min={0} max={100} value={posY} className={styles.slider}
+                    onChange={(e) => handlePositionChange('y', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posY}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Масштаб</span>
+                  <input type="range" min={100} max={200} value={scale} className={styles.slider}
+                    onChange={(e) => handlePositionChange('s', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{scale}%</span>
+                </label>
+                {config.hasContainerHeight && (
+                  <label className={styles.sliderField}>
+                    <span className={styles.sliderName}>Высота, px</span>
+                    <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
+                      onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
+                    <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
+                  </label>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Upload form */}
-      <form className={styles.slotForm} onSubmit={handleSubmit}>
-        <div className={styles.field}>
-          <span className={styles.label}>{data ? 'Заменить фото' : 'Загрузить фото'}</span>
-          <div className={styles.fileInputRow}>
-            <label className={styles.fileBtn}>
-              Загрузить
-              <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden}
-                onChange={handleFileChange} />
-            </label>
-            <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
-          </div>
-        </div>
-        {preview && <img src={preview} alt="Предпросмотр" className={previewClass} />}
-        <button className={styles.submit} type="submit" disabled={uploading}>
-          {uploading ? 'Загрузка…' : data ? 'Заменить' : 'Загрузить'}
-        </button>
-      </form>
+          {/* Upload form */}
+          <form className={styles.slotForm} onSubmit={handleSubmit}>
+            <div className={styles.field}>
+              <span className={styles.label}>{data ? 'Заменить фото' : 'Загрузить фото'}</span>
+              <div className={styles.fileInputRow}>
+                <label className={styles.fileBtn}>
+                  Загрузить
+                  <input ref={fileRef} type="file" accept="image/*" className={styles.fileInputHidden}
+                    onChange={handleFileChange} />
+                </label>
+                <span className={styles.fileNameLabel}>{fileName ?? 'Файл не выбран'}</span>
+              </div>
+            </div>
+            {preview && <img src={preview} alt="Предпросмотр" className={previewClass} />}
+            <button className={styles.submit} type="submit" disabled={uploading}>
+              {uploading ? 'Загрузка…' : data ? 'Заменить' : 'Загрузить'}
+            </button>
+          </form>
+        </>
+      )}
     </div>
   );
 }
@@ -1007,6 +1029,12 @@ const HOME_SLOTS: SlotConfig[] = [
     label: 'Карточка «Новая коллекция»',
     hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
     portrait: true,
+  },
+  {
+    key: 'home-featured-media',
+    label: 'Высота блока с коллекцией',
+    hint: 'Регулирует высоту контейнера с фотографией коллекции на главной странице',
+    heightOnly: true,
     hasContainerHeight: true,
   },
 ];
