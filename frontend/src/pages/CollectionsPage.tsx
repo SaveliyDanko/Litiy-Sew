@@ -29,6 +29,7 @@ function CollectionCard({ collection, globalIndex }: { collection: DynamicCollec
               className={styles.cardImage}
               src={photo.imageUrl}
               alt={collection.title}
+              loading="lazy"
               style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%`, transform: `scale(${(photo.scale ?? 100) / 100})` }}
             />
           ) : (
@@ -132,6 +133,7 @@ export default function CollectionsPage() {
                   className={styles.featuredImage}
                   src={featuredCard.imageUrl}
                   alt={featured.title}
+                  fetchpriority="high"
                   style={{ objectPosition: `${featuredCard.positionX}% ${featuredCard.positionY}%`, transform: `scale(${(featuredCard.scale ?? 100) / 100})` }}
                 />
               ) : (

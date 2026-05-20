@@ -66,6 +66,7 @@ export default function CollectionPlaceholderPage() {
               className={styles.heroImage}
               src={heroDisplay.imageUrl}
               alt={collection.title}
+              fetchpriority="high"
               style={{
                 objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%`,
                 transform: `scale(${(heroDisplay.scale ?? 100) / 100})`,
@@ -91,6 +92,7 @@ export default function CollectionPlaceholderPage() {
                     className={styles.detailImage}
                     src={detailPhotos[0].imageUrl}
                     alt={collection.title}
+                    loading="lazy"
                     style={{
                       objectPosition: `${detailPhotos[0].positionX}% ${detailPhotos[0].positionY}%`,
                       transform: `scale(${(detailPhotos[0].scale ?? 100) / 100})`,
@@ -110,6 +112,7 @@ export default function CollectionPlaceholderPage() {
                     className={styles.detailImage}
                     src={detailPhotos[1].imageUrl}
                     alt={collection.title}
+                    loading="lazy"
                     style={{
                       objectPosition: `${detailPhotos[1].positionX}% ${detailPhotos[1].positionY}%`,
                       transform: `scale(${(detailPhotos[1].scale ?? 100) / 100})`,
@@ -131,6 +134,7 @@ export default function CollectionPlaceholderPage() {
                     className={styles.mosaicImage}
                     src={photo.imageUrl}
                     alt={`${collection.title} — ${index + 1}`}
+                    loading="lazy"
                     style={{
                       objectPosition: `${photo.positionX}% ${photo.positionY}%`,
                       transform: `scale(${(photo.scale ?? 100) / 100})`,
