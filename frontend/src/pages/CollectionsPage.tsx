@@ -133,7 +133,7 @@ export default function CollectionsPage() {
                   className={styles.featuredImage}
                   src={featuredCard.imageUrl}
                   alt={featured.title}
-                  fetchpriority="high"
+                  fetchPriority="high"
                   style={{ objectPosition: `${featuredCard.positionX}% ${featuredCard.positionY}%`, transform: `scale(${(featuredCard.scale ?? 100) / 100})` }}
                 />
               ) : (

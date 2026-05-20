@@ -482,13 +482,12 @@ function PortfolioSection() {
     const idx = items.findIndex((i) => i.id === id);
     const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= items.length) return;
-    const newOrder = items[idx].sortOrder;
-    const swapOrder = items[swapIdx].sortOrder;
-    await reorderPortfolioPhoto(id, swapOrder);
-    await reorderPortfolioPhoto(items[swapIdx].id, newOrder);
-    const updated = [...items];
-    updated[idx] = { ...items[idx], sortOrder: swapOrder };
-    updated[swapIdx] = { ...items[swapIdx], sortOrder: newOrder };
+    const normalized = items.map((item, i) => ({ ...item, sortOrder: i }));
+    await reorderPortfolioPhoto(normalized[idx].id, swapIdx);
+    await reorderPortfolioPhoto(normalized[swapIdx].id, idx);
+    const updated = [...normalized];
+    updated[idx] = { ...normalized[idx], sortOrder: swapIdx };
+    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: idx };
     updated.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
     setItems(updated);
   }
@@ -1322,6 +1321,7 @@ function DynCollectionCard({
   onDelete: (id: number) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [slug, setSlug] = useState(collection.slug);
   const [title, setTitle] = useState(collection.title);
   const [subtitle, setSubtitle] = useState(collection.subtitle ?? '');
   const [eyebrow, setEyebrow] = useState(collection.eyebrow ?? '');
@@ -1340,6 +1340,7 @@ function DynCollectionCard({
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setSlug(collection.slug);
     setTitle(collection.title);
     setSubtitle(collection.subtitle ?? '');
     setEyebrow(collection.eyebrow ?? '');
@@ -1354,10 +1355,12 @@ function DynCollectionCard({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) { showToast('Название не может быть пустым'); return; }
+    if (!slug.trim()) { showToast('Slug не может быть пустым'); return; }
+    if (!/^[a-z0-9-]+$/.test(slug)) { showToast('Slug: только строчные буквы, цифры и дефис'); return; }
     setSaving(true);
     try {
       const updated = await updateCollection(collection.id, {
-        slug: collection.slug,
+        slug: slug.trim(),
         title: title.trim(),
         subtitle: subtitle.trim() || undefined,
         eyebrow: eyebrow.trim() || undefined,
@@ -1471,6 +1474,12 @@ function DynCollectionCard({
             </div>
             <form className={styles.collectionMetaForm} onSubmit={handleSave}>
               <div className={styles.createCollectionGrid}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Slug (URL)</span>
+                  <input className={styles.input} value={slug}
+                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                    placeholder="my-collection" />
+                </label>
                 <label className={styles.field}>
                   <span className={styles.label}>Название</span>
                   <input className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -1720,7 +1729,9 @@ function CollectionsSection() {
   }, []);
 
   function handleChange(updated: DynamicCollection) {
-    setCollections((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+    setCollections((prev) => prev.map((c) =>
+      c.id === updated.id ? updated : (updated.featured ? { ...c, featured: false } : c)
+    ));
   }
 
   function handleDelete(id: number) {
@@ -1736,13 +1747,13 @@ function CollectionsSection() {
     const idx = sorted.findIndex((c) => c.id === id);
     const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= sorted.length) return;
-    const newOrder = sorted[idx].sortOrder;
-    const swapOrder = sorted[swapIdx].sortOrder;
-    await reorderCollection(id, swapOrder);
-    await reorderCollection(sorted[swapIdx].id, newOrder);
-    const updated = [...sorted];
-    updated[idx] = { ...sorted[idx], sortOrder: swapOrder };
-    updated[swapIdx] = { ...sorted[swapIdx], sortOrder: newOrder };
+    // Normalize: assign each item its current index as sortOrder, then swap
+    const normalized = sorted.map((c, i) => ({ ...c, sortOrder: i }));
+    await reorderCollection(normalized[idx].id, swapIdx);
+    await reorderCollection(normalized[swapIdx].id, idx);
+    const updated = [...normalized];
+    updated[idx] = { ...normalized[idx], sortOrder: swapIdx };
+    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: idx };
     updated.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
     setCollections(updated);
   }
@@ -1922,7 +1933,18 @@ function SettingsSection() {
 
 export default function AdminPage() {
   const { user, status, logout } = useAuth();
-  const [tab, setTab] = useState<Tab>(SHOP_ENABLED ? 'products' : 'portfolio');
+
+  const VALID_TABS: Tab[] = ['products', 'patterns', 'portfolio', 'home', 'about', 'collections', 'settings'];
+  const DEFAULT_TAB: Tab = SHOP_ENABLED ? 'products' : 'portfolio';
+  const urlTab = new URLSearchParams(window.location.search).get('tab') as Tab | null;
+  const [tab, setTab] = useState<Tab>(urlTab && VALID_TABS.includes(urlTab) ? urlTab : DEFAULT_TAB);
+
+  function navigateTab(t: Tab) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', t);
+    window.history.pushState(null, '', url);
+    setTab(t);
+  }
 
   if (status === 'loading') {
     return <div className={styles.loading}>Загрузка…</div>;
@@ -1977,7 +1999,7 @@ export default function AdminPage() {
           <button
             key={t.key}
             className={`${styles.tab} ${tab === t.key ? styles.tabActive : ''}`}
-            onClick={() => setTab(t.key)}
+            onClick={() => navigateTab(t.key)}
           >
             {t.label}
           </button>

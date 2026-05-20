@@ -63,7 +63,9 @@ public class DynamicCollectionService {
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
                 .featured(Boolean.TRUE.equals(req.featured()))
                 .build();
-        return toResponse(collectionRepo.save(c));
+        DynamicCollection saved = collectionRepo.save(c);
+        if (saved.getFeatured()) collectionRepo.clearFeaturedExcept(saved.getId());
+        return toResponse(saved);
     }
 
     public DynamicCollectionResponse update(Long id, DynamicCollectionRequest req) {
@@ -84,7 +86,9 @@ public class DynamicCollectionService {
         if (req.category() != null) c.setCategory(req.category());
         if (req.sortOrder() != null) c.setSortOrder(req.sortOrder());
         if (req.featured() != null) c.setFeatured(req.featured());
-        return toResponse(collectionRepo.save(c));
+        DynamicCollection saved = collectionRepo.save(c);
+        if (saved.getFeatured()) collectionRepo.clearFeaturedExcept(saved.getId());
+        return toResponse(saved);
     }
 
     public void reorder(Long id, int sortOrder) {

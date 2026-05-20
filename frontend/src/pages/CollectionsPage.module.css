@@ -1,33 +1,164 @@
+/* ============================================================
+   НАСТРОЙКИ СТРАНИЦЫ КОЛЛЕКЦИЙ
+   Все визуальные параметры вынесены в CSS-переменные ниже.
+   Меняй только значения в блоках .page { } и @media { .page { } }.
+   Остальной код трогать не нужно.
+   ============================================================ */
+
 .page {
-  /* Панель настроек страницы «Коллекции». */
+
+  /* ----------------------------------------------------------
+     СТРАНИЦА — общие параметры
+     ---------------------------------------------------------- */
+
+  /* Цвет фона всей страницы */
   --collections-page-bg: #ffffff;
+
+  /* Максимальная ширина контента (после этого — центрируется) */
   --collections-max-width: 1480px;
+
+  /* Горизонтальные отступы от краёв экрана */
   --collections-side-padding: 16px;
+
+  /* Вертикальный отступ между секциями (Featured → группы карточек) */
   --collections-section-gap: 56px;
+
+  /* Отступ снизу страницы */
   --collections-page-padding-bottom: 72px;
 
-  /* Featured */
+
+  /* ----------------------------------------------------------
+     FEATURED — большой блок в верхней части страницы
+     Состоит из фото слева и текста справа (на широких экранах).
+     ---------------------------------------------------------- */
+
+  /* Отступ между фото и текстом в featured-блоке */
   --collections-featured-gap: 20px;
+
+  /* Высота фото в featured-блоке */
   --collections-featured-media-height: 320px;
+
+  /* Скругление углов фото в featured-блоке */
   --collections-featured-media-radius: 28px;
+
+  /* Ширина текстовой колонки featured-блока.
+     100% = на всю ширину (мобайл).
+     На широких экранах переопределяется в @media (960px). */
   --collections-featured-copy-width: 100%;
+
+  /* Размер заголовка featured-блока */
   --collections-featured-title-size: 3rem;
+
+  /* Размер подзаголовка featured-блока */
   --collections-featured-subtitle-size: 1rem;
+
+  /* Размер описания featured-блока */
   --collections-featured-text-size: 1rem;
 
-  /* Solo grid */
+
+  /* ----------------------------------------------------------
+     КАРТОЧКИ КОЛЛЕКЦИЙ — сетка под featured-блоком
+     ---------------------------------------------------------- */
+
+  /* Отступ между карточками в сетке */
   --collections-grid-gap: 24px;
+
+  /* Количество колонок в сетке карточек.
+     1 = одна карточка в ряд (мобайл).
+     На широких экранах переопределяется в @media (960px). */
   --collections-grid-columns: 1;
+
+  /* Скругление углов фото карточки */
   --collections-card-radius: 28px;
+
+  /* Высота фото карточки */
   --collections-card-media-height: 360px;
+
+  /* Горизонтальный отступ внутри текстовой части карточки */
   --collections-card-padding: 16px;
+
+  /* Размер названия коллекции в карточке */
   --collections-card-title-size: 1.75rem;
+
+  /* Размер описания коллекции в карточке */
   --collections-card-text-size: 0.98rem;
 
+
+  /* ----------------------------------------------------------
+     Служебные стили — не трогать
+     ---------------------------------------------------------- */
   min-height: calc(100vh - 64px);
   padding-bottom: var(--collections-page-padding-bottom);
   background: var(--collections-page-bg);
 }
+
+
+/* ============================================================
+   БРЕЙКПОИНТЫ — переопределение переменных под разные экраны
+   ============================================================ */
+
+/* Планшет — от 640px */
+@media (min-width: 640px) {
+  .page {
+    --collections-side-padding: 24px;
+    --collections-section-gap: 72px;
+    --collections-page-padding-bottom: 88px;
+
+    --collections-featured-gap: 28px;
+    --collections-featured-media-height: 420px;        /* выше фото featured */
+    --collections-featured-title-size: 4.5rem;
+    --collections-featured-subtitle-size: 1.3rem;
+
+    --collections-grid-gap: 28px;
+    --collections-card-media-height: 420px;            /* выше фото карточек */
+    --collections-card-padding: 8px;
+    --collections-card-title-size: 2rem;
+  }
+}
+
+/* Десктоп — от 960px: featured делится на две колонки */
+@media (min-width: 960px) {
+  .page {
+    --collections-side-padding: 40px;
+
+    --collections-featured-gap: 36px;
+    --collections-featured-media-height: 560px;
+    /* Ширина текстовой колонки featured-блока на десктопе */
+    --collections-featured-copy-width: min(100%, 420px);
+    --collections-featured-title-size: 5.75rem;
+
+    /* Количество колонок карточек на десктопе */
+    --collections-grid-columns: 3;
+    --collections-card-media-height: 520px;
+    --collections-card-title-size: 2.2rem;
+  }
+
+  /* Раскладка featured: фото (1.25 части) + текст (0.75 части) */
+  .featured {
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    align-items: end;
+  }
+}
+
+/* Широкий десктоп — от 1280px */
+@media (min-width: 1280px) {
+  .page {
+    --collections-side-padding: 56px;
+    --collections-section-gap: 88px;
+
+    --collections-featured-media-height: 600px;
+    --collections-featured-title-size: 6.6rem;
+
+    --collections-card-media-height: 610px;
+    --collections-card-title-size: 2.4rem;
+    --collections-grid-gap: 34px;
+  }
+}
+
+
+/* ============================================================
+   СТИЛИ — не редактируй, если не знаешь зачем
+   ============================================================ */
 
 .featured,
 .solo {
@@ -158,6 +289,7 @@
   object-fit: cover;
 }
 
+/* Фоновые градиенты карточек при отсутствии фото — по тону коллекции */
 .card[data-tone='warm'] .cardMedia {
   background: radial-gradient(circle at 28% 30%, #ff875d 0%, #d15e36 18%, #512318 52%, #28110e 100%);
 }
@@ -170,6 +302,7 @@
   background: linear-gradient(160deg, #6c685f 0%, #8a8378 42%, #d8d0c6 100%);
 }
 
+/* Тёмный градиент снизу фото — для читаемости текста поверх */
 .cardMedia::before {
   content: '';
   position: absolute;
@@ -220,50 +353,4 @@
   font-size: var(--collections-card-text-size);
   line-height: 1.6;
   color: rgb(17 17 17 / 74%);
-}
-
-@media (min-width: 640px) {
-  .page {
-    --collections-side-padding: 24px;
-    --collections-section-gap: 72px;
-    --collections-page-padding-bottom: 88px;
-    --collections-featured-gap: 28px;
-    --collections-featured-media-height: 420px;
-    --collections-featured-title-size: 4.5rem;
-    --collections-featured-subtitle-size: 1.3rem;
-    --collections-grid-gap: 28px;
-    --collections-card-media-height: 420px;
-    --collections-card-padding: 8px;
-    --collections-card-title-size: 2rem;
-  }
-}
-
-@media (min-width: 960px) {
-  .page {
-    --collections-side-padding: 40px;
-    --collections-featured-gap: 36px;
-    --collections-featured-media-height: 560px;
-    --collections-featured-copy-width: min(100%, 420px);
-    --collections-featured-title-size: 5.75rem;
-    --collections-grid-columns: 3;
-    --collections-card-media-height: 520px;
-    --collections-card-title-size: 2.2rem;
-  }
-
-  .featured {
-    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-    align-items: end;
-  }
-}
-
-@media (min-width: 1280px) {
-  .page {
-    --collections-side-padding: 56px;
-    --collections-section-gap: 88px;
-    --collections-featured-media-height: 600px;
-    --collections-featured-title-size: 6.6rem;
-    --collections-card-media-height: 610px;
-    --collections-card-title-size: 2.4rem;
-    --collections-grid-gap: 34px;
-  }
 }

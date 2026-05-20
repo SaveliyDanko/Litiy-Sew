@@ -66,7 +66,7 @@ export default function CollectionPlaceholderPage() {
               className={styles.heroImage}
               src={heroDisplay.imageUrl}
               alt={collection.title}
-              fetchpriority="high"
+              fetchPriority="high"
               style={{
                 objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%`,
                 transform: `scale(${(heroDisplay.scale ?? 100) / 100})`,

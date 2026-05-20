@@ -92,6 +92,61 @@ npm run lint             # ESLint
 
 ---
 
+## Медиафайлы (загруженные фотографии)
+
+Загруженные через админку фото хранятся на хосте в `/opt/litiy-sew/uploads/` и монтируются в контейнер как bind mount — файлы **не теряются** при пересборке. Путь задаётся переменной `MEDIA_UPLOAD_DIR` в `.env`.
+
+Полная инструкция по переносу — в следующем разделе.
+
+---
+
+## Перенос проекта (dev → prod или сервер → сервер)
+
+Состояние проекта разделено на три части, каждую нужно переносить отдельно:
+
+| Часть | Где лежит | Как переносить |
+|---|---|---|
+| **Код** | git-репозиторий | `git push` / `git pull` |
+| **Медиафайлы** | `/opt/litiy-sew/uploads/` на хосте | `rsync` или `tar + scp` |
+| **Метаданные** | PostgreSQL (Docker volume) | `pg_dump` / `psql` |
+
+### 1. Экспорт (на исходном сервере)
+
+```bash
+# Дамп базы данных
+docker compose exec postgres pg_dump -U postgres litiy_sew > backup.sql
+
+# Архив медиафайлов
+tar -czf uploads.tar.gz -C /opt/litiy-sew uploads/
+```
+
+### 2. Перенос файлов
+
+```bash
+scp backup.sql uploads.tar.gz user@новый-сервер:~
+```
+
+Или через rsync (быстрее при повторных переносах):
+
+```bash
+rsync -avz --progress ./uploads/ user@новый-сервер:/opt/litiy-sew/uploads/
+```
+
+### 3. Импорт (на новом сервере)
+
+```bash
+# Распаковать медиафайлы
+tar -xzf uploads.tar.gz -C /opt/litiy-sew/
+
+# Восстановить БД (сервисы должны быть запущены)
+docker compose exec -T postgres psql -U postgres litiy_sew < backup.sql
+```
+
+> **Важно:** `MEDIA_PUBLIC_URL` в `.env` должен совпадать с доменом в URL-ах, хранящихся в БД. При смене домена обновить `image_url` во всех таблицах:
+> `products`, `pattern_items`, `portfolio_photos`, `hero_banners`, `site_images`, `dynamic_collection_photos`.
+
+---
+
 ## Добавить новую колонку в существующую таблицу
 
 `ddl-auto: update` **не** добавляет колонки в таблицы с данными. Нужен ручной ALTER:
