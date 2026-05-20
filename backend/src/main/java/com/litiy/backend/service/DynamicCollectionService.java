@@ -90,7 +90,7 @@ public class DynamicCollectionService {
     public void delete(Long id) {
         DynamicCollection c = collectionRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Collection not found: " + id));
-        // Delete all photos from MinIO and DB
+        // Delete all photos from storage and DB
         photoRepo.findAllByCollectionIdOrderBySortOrderAscCreatedAtAsc(id).forEach(p -> {
             try { mediaService.deleteFile(p.getImageKey()); } catch (Exception ignored) {}
         });

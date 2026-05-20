@@ -1,8 +1,6 @@
 # Скопируйте в group_vars/vps/vault.yml и зашифруйте: ansible-vault encrypt group_vars/vps/vault.yml
 postgres_password: "CHANGE_ME"
 redis_password: ""
-minio_access_key: "CHANGE_ME"
-minio_secret_key: "CHANGE_ME_STRONG_PASSWORD"
 mail_username: ""
 mail_password: ""
 mail_from: ""
