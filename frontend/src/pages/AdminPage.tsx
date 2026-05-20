@@ -41,6 +41,7 @@ import {
   deleteCollection,
   deleteCollectionPhoto,
   fetchCollections,
+  reorderCollection,
   updateCollection,
   updateCollectionPhotoPosition,
   type DynamicCollection,
@@ -1727,11 +1728,28 @@ function CollectionsSection() {
   }
 
   function handleCreated(c: DynamicCollection) {
-    setCollections((prev) => [...prev, c]);
+    setCollections((prev) => [...prev, c].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id));
+  }
+
+  async function handleMove(id: number, dir: 'up' | 'down') {
+    const sorted = [...collections].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+    const idx = sorted.findIndex((c) => c.id === id);
+    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    const newOrder = sorted[idx].sortOrder;
+    const swapOrder = sorted[swapIdx].sortOrder;
+    await reorderCollection(id, swapOrder);
+    await reorderCollection(sorted[swapIdx].id, newOrder);
+    const updated = [...sorted];
+    updated[idx] = { ...sorted[idx], sortOrder: swapOrder };
+    updated[swapIdx] = { ...sorted[swapIdx], sortOrder: newOrder };
+    updated.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+    setCollections(updated);
   }
 
   if (loading) return <p className={styles.hint}>Загрузка…</p>;
 
+  const sorted = [...collections].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
   const canCreate = collections.length < MAX_COLLECTIONS;
 
   return (
@@ -1744,15 +1762,20 @@ function CollectionsSection() {
         </p>
       </div>
 
-      {collections.length > 0 && (
+      {sorted.length > 0 && (
         <div className={styles.collectionsList}>
-          {collections.map((c) => (
-            <DynCollectionCard
-              key={c.id}
-              collection={c}
-              onChange={handleChange}
-              onDelete={handleDelete}
-            />
+          {sorted.map((c, idx) => (
+            <div key={c.id} className={styles.collectionSortRow}>
+              <div className={styles.collectionSortBtns}>
+                <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
+                <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'down')} disabled={idx === sorted.length - 1} aria-label="Вниз">↓</button>
+              </div>
+              <DynCollectionCard
+                collection={c}
+                onChange={handleChange}
+                onDelete={handleDelete}
+              />
+            </div>
           ))}
         </div>
       )}

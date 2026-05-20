@@ -888,6 +888,25 @@ select.input {
   gap: 0.5rem;
 }
 
+.collectionSortRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.collectionSortBtns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  flex-shrink: 0;
+}
+
+.collectionSortRow > .collectionCard {
+  flex: 1;
+  min-width: 0;
+}
+
 .collectionCard {
   background: #fff;
   border: 1px solid #ebebeb;

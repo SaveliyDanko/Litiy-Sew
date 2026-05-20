@@ -87,6 +87,13 @@ public class DynamicCollectionService {
         return toResponse(collectionRepo.save(c));
     }
 
+    public void reorder(Long id, int sortOrder) {
+        DynamicCollection c = collectionRepo.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Collection not found: " + id));
+        c.setSortOrder(sortOrder);
+        collectionRepo.save(c);
+    }
+
     public void delete(Long id) {
         DynamicCollection c = collectionRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Collection not found: " + id));

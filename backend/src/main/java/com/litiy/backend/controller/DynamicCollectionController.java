@@ -56,6 +56,14 @@ public class DynamicCollectionController {
         return ResponseEntity.ok(service.update(id, req));
     }
 
+    @PatchMapping("/api/admin/collections/{id}/order")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> reorderCollection(@PathVariable Long id,
+                                                   @RequestBody Map<String, Integer> body) {
+        service.reorder(id, body.get("sortOrder"));
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/api/admin/collections/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCollection(@PathVariable Long id) {

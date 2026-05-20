@@ -102,6 +102,13 @@ export async function updateCollection(id: number, data: UpdateCollectionData): 
   });
 }
 
+export async function reorderCollection(id: number, sortOrder: number): Promise<void> {
+  return adminRequest<void>(`/admin/collections/${id}/order`, {
+    method: 'PATCH',
+    body: JSON.stringify({ sortOrder }),
+  });
+}
+
 export async function deleteCollection(id: number): Promise<void> {
   return adminRequest<void>(`/admin/collections/${id}`, { method: 'DELETE' });
 }
