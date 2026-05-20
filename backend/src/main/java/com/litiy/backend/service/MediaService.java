@@ -36,7 +36,12 @@ public class MediaService {
 
         Path target = Paths.get(uploadDir).resolve(key);
         Files.createDirectories(target.getParent());
-        file.transferTo(target);
+        try {
+            file.transferTo(target);
+        } catch (IOException e) {
+            deleteFile(key);
+            throw e;
+        }
 
         return Map.of("publicUrl", publicUrl + "/" + key, "key", key);
     }

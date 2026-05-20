@@ -10,8 +10,9 @@ function cardPhoto(c: DynamicCollection) {
   return c.photos.find((p) => p.photoType === 'CARD') ?? c.photos[0] ?? null;
 }
 
-function CollectionCard({ collection, index }: { collection: DynamicCollection; index: number }) {
+function CollectionCard({ collection, globalIndex }: { collection: DynamicCollection; globalIndex: number }) {
   const photo = cardPhoto(collection);
+  const badge = collection.eyebrow ?? `Look ${String(globalIndex + 1).padStart(2, '0')}`;
   return (
     <a
       href={getCollectionHref(collection.slug)}
@@ -21,7 +22,7 @@ function CollectionCard({ collection, index }: { collection: DynamicCollection; 
       <article className={styles.card} data-tone={collection.tone}>
         <div className={styles.cardMedia}>
           <div className={styles.cardBadge}>
-            Look {String(index + 1).padStart(2, '0')}
+            {badge}
           </div>
           {photo ? (
             <img
@@ -46,7 +47,11 @@ function CollectionCard({ collection, index }: { collection: DynamicCollection; 
   );
 }
 
-function CollectionGroup({ title, collections }: { title: string; collections: DynamicCollection[] }) {
+function CollectionGroup({ title, collections, allCollections }: {
+  title: string;
+  collections: DynamicCollection[];
+  allCollections: DynamicCollection[];
+}) {
   if (collections.length === 0) return null;
   return (
     <section className={styles.group}>
@@ -54,8 +59,8 @@ function CollectionGroup({ title, collections }: { title: string; collections: D
         <h2 className={styles.groupTitle}>{title}:</h2>
       </div>
       <div className={styles.soloGrid}>
-        {collections.map((c, i) => (
-          <CollectionCard key={c.slug} collection={c} index={i} />
+        {collections.map((c) => (
+          <CollectionCard key={c.slug} collection={c} globalIndex={allCollections.indexOf(c)} />
         ))}
       </div>
     </section>
@@ -144,11 +149,11 @@ export default function CollectionsPage() {
         )}
 
         {collectionList.length > 0 && (
-          <CollectionGroup title="Коллекции" collections={collectionList} />
+          <CollectionGroup title="Коллекции" collections={collectionList} allCollections={collections} />
         )}
 
-        <CollectionGroup title="Одиночные модели" collections={soloList} />
-        <CollectionGroup title="Эскизные проекты" collections={sketchList} />
+        <CollectionGroup title="Одиночные модели" collections={soloList} allCollections={collections} />
+        <CollectionGroup title="Эскизные проекты" collections={sketchList} allCollections={collections} />
       </main>
 
       <Footer />
