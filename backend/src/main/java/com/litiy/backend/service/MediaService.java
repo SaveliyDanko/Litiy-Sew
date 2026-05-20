@@ -9,10 +9,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class MediaService {
+
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"
+    );
 
     @Value("${app.media.upload-dir}")
     private String uploadDir;
@@ -21,6 +26,11 @@ public class MediaService {
     private String publicUrl;
 
     public Map<String, String> uploadFile(MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, GIF, AVIF");
+        }
+
         String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
         String key = UUID.randomUUID() + "/" + originalFilename;
 

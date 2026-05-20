@@ -77,7 +77,8 @@ public class SecurityConfig {
                                 "/api/auth/verify-email",
                                 "/api/auth/resend-code"
                         ).permitAll()
-                        .requestMatchers("/api/media/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/media/**").permitAll()
+                        .requestMatchers("/api/media/**").hasRole("ADMIN")
                         .requestMatchers("/api/products/**", "/api/patterns/**", "/api/portfolio/**", "/api/hero/**", "/api/site-images/**", "/api/collections/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
