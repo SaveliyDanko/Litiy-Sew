@@ -50,7 +50,7 @@
 
   /* ── Мозаика (галерея) ────────────────────────────────────── */
   /* Мобильный */
-  --mosaic-padding-h-mobile: 8px;    /* отступ по бокам */
+  --mosaic-padding-h-mobile: 6px;    /* отступ по бокам */
   --mosaic-padding-b-mobile: 80px;   /* отступ снизу */
   --mosaic-gap-mobile: 8px;          /* зазор между фото */
   --mosaic-cols-mobile: 2;           /* количество колонок */
@@ -62,11 +62,11 @@
   --mosaic-cols-tablet: 3;           /* количество колонок */
 
   /* Десктоп */
-  --mosaic-padding-h-desktop: 16px;
+  --mosaic-padding-h-desktop: 100px;
   --mosaic-padding-b-desktop: 120px;
   --mosaic-gap-desktop: 16px;
 
-  --mosaic-item-radius: 4px;         /* скругление углов ячеек мозаики */
+  --mosaic-item-radius: 20px;         /* скругление углов ячеек мозаики */
   --mosaic-item-aspect: 2 / 3;       /* пропорция каждого фото в мозаике */
 
   background: var(--page-bg);

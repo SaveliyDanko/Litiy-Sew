@@ -113,8 +113,6 @@ cp ansible/vault.yml.example ansible/group_vars/vps/vault.yml
 ```yaml
 postgres_password: "StrongPassword123"
 redis_password: ""                      # можно оставить пустым
-minio_access_key: "minioadmin"
-minio_secret_key: "StrongMinioSecret"
 mail_username: "yourmail@gmail.com"
 mail_password: "gmail-app-password"     # App Password, не обычный пароль
 mail_from: "yourmail@gmail.com"
@@ -375,10 +373,10 @@ ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass
 
 ### 10.2. Локальное тестирование
 
-Запустить docker-compose для инфраструктуры (PostgreSQL, Redis, MinIO):
+Запустить docker-compose для инфраструктуры (PostgreSQL, Redis):
 
 ```bash
-docker compose up -d postgres redis minio minio-init
+docker compose up -d postgres redis
 ```
 
 Задать переменные окружения с кредами для локального теста:
@@ -423,10 +421,6 @@ cd frontend && npm run dev
 | **Баннер** | Загрузить/заменить hero-фото главной страницы, удалить |
 | **Настройки** | Изменить email и/или пароль для входа в админку |
 
-Фотографии загружаются **напрямую из браузера в MinIO** через presigned URL — backend не тратит память на передачу файлов.
-
-При удалении любого элемента файл из MinIO тоже удаляется автоматически.
-
 ### 10.4. Публичные API для отображения на сайте
 
 Эти эндпоинты доступны без авторизации и возвращают контент, добавленный через админку:
@@ -445,10 +439,3 @@ GET /api/hero        — текущий баннер (204 если не уста
 
 **403 при запросах к `/api/admin/**`**
 — Сессия не передаётся. Убедиться, что браузер отправляет куки (`credentials: include` уже проставлено в коде).
-
-**Файл не загружается (ошибка PUT на MinIO)**
-— Проверить, что MinIO доступен и бакет существует:
-```bash
-sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml ps minio
-sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml logs minio
-```

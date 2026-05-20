@@ -32,7 +32,7 @@ REST API для интернет-магазина одежды на Spring Boot.
 ./gradlew bootRun         # запуск (http://localhost:8080)
 ./gradlew build           # сборка JAR
 ./gradlew test            # тесты
-docker compose up --build -d backend  # backend + postgres + redis + minio в Docker
+docker compose up --build -d backend  # backend + postgres + redis в Docker
 ```
 
 ## Локальный запуск
@@ -45,12 +45,12 @@ docker compose up --build -d backend  # backend + postgres + redis + minio в Do
 docker compose up --build -d backend
 ```
 
-Эта команда соберёт образ backend и поднимет вместе с ним `postgres`, `redis`, `minio`, а также автоматически выполнит `minio-init` для создания бакета.
+Эта команда соберёт образ backend и поднимет вместе с ним `postgres`, `redis`.
 
 2. Локально через Gradle, оставив инфраструктуру в Docker:
 
 ```bash
-docker compose up -d postgres redis minio minio-init
+docker compose up -d postgres redis
 ./gradlew bootRun
 ```
 
@@ -59,7 +59,7 @@ docker compose up -d postgres redis minio minio-init
 Самый короткий путь для локального `bootRun`:
 
 ```bash
-docker compose up -d postgres redis minio minio-init
+docker compose up -d postgres redis
 ```
 
 Если используете локальный PostgreSQL без Docker, создайте базу вручную:

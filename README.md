@@ -24,7 +24,3 @@ LitiySew/
 ## Frontend README:
 
 [frontend/README.md](frontend/README.md)
-
-## Minio
-
-[minio.md](docs/minio.md)

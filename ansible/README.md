@@ -84,10 +84,9 @@ Internet
  Nginx
    ├── / → /opt/litiy-sew/frontend/dist   (статика React SPA)
    ├── /api/ → 127.0.0.1:8080             (Spring Boot backend)
-   └── /media/ → 127.0.0.1:9000           (MinIO объекты)
 
 Docker (внутренняя сеть):
-  backend:8080 ← postgres:5432, redis:6379, minio:9000
+  backend:8080 ← postgres:5432, redis:6379
 ```
 
 Все порты Docker биндятся только на `127.0.0.1` — наружу не торчат.
