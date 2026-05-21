@@ -59,9 +59,41 @@ ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
 
 ---
 
+## Перенос данных (БД + медиафайлы)
+
+При первом деплое на чистый VPS — после `site.yml` запусти перенос данных:
+
+```bash
+ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass
+```
+
+По умолчанию берёт медиафайлы из `MEDIA_UPLOAD_DIR` (или `/opt/litiy-sew/uploads`).
+Если папка другая — передай явно:
+
+```bash
+ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass \
+  -e "local_uploads_dir=/my/custom/uploads"
+```
+
+Плейбук сделает:
+1. `pg_dump` из локального Docker-контейнера
+2. Скопирует дамп на VPS и восстановит через `psql`
+3. Автоматически заменит `localhost:8080/media` → `https://litiy.site/media` во всех таблицах
+4. Синхронизирует медиафайлы через rsync
+
+---
+
 ## Обновление (re-deploy)
 
-После изменений в коде:
+После изменений в коде — **только код**, данные не трогаются:
+
+| Что | `deploy.yml` делает |
+|---|---|
+| Код (Java, React) | ✅ rsync + пересборка |
+| Фото на VPS (`/opt/litiy-sew/uploads/`) | ❌ не трогает |
+| БД на VPS (PostgreSQL) | ❌ не трогает |
+
+Фото загруженные через админку на проде остаются на VPS независимо от деплоев.
 
 ```bash
 ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass

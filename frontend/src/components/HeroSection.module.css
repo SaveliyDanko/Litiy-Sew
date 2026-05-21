@@ -1,39 +1,277 @@
+/* ============================================================
+   НАСТРОЙКИ ГЛАВНОЙ СТРАНИЦЫ (/)
+   Все визуальные параметры вынесены в CSS-переменные ниже.
+   Меняй только значения в блоках переменных и @media { }.
+   Остальной код трогать не нужно.
+   ============================================================ */
+
+
+/* ============================================================
+   СЕКЦИЯ 1 — HERO (полноэкранный баннер)
+   ============================================================ */
+
 .hero {
-  /* Правьте в первую очередь переменные ниже: они собраны как панель настроек Hero. */
 
-  /* Hero: секция и фон */
+  /* ----------------------------------------------------------
+     Фон и размер
+     ---------------------------------------------------------- */
+
+  /* Минимальная высота баннера на мобайле */
   --hero-min-height: 100svh;
-  --hero-bg-color: var(--color-white);
-  position: relative;
-  min-height: var(--hero-min-height);
-  overflow: hidden;
-  background-color: var(--hero-bg-color);
 
-  /* Hero: положение фонового изображения */
+  /* Цвет фона если фото не загружено */
+  --hero-bg-color: var(--color-white);
+
+  /* Цвет затемняющего слоя поверх фото.
+     Формат: rgb(R G B / прозрачность%).
+     0% = нет затемнения, 60% = заметное затемнение. */
+  --hero-overlay-color: rgb(130 130 130 / 0%);
+
+  /* Горизонтальное зеркалирование фона.
+     1 = нормально, -1 = зеркально (отражение). */
+  --hero-bg-scale-x: 1;
+
+
+  /* ----------------------------------------------------------
+     Положение фонового фото
+     Задаётся из JS через inline-style (из настроек админки).
+     Дефолтные значения — на случай если фото не загружено.
+     ---------------------------------------------------------- */
+
   --hero-bg-offset-x: 50%;
   --hero-bg-offset-y: 50%;
   --hero-bg-offset-x-mobile: 50%;
   --hero-bg-offset-y-mobile: 50%;
   --hero-bg-scale: 1;
   --hero-bg-scale-mobile: 1;
-  --hero-bg-scale-x: 1; /* -1 → зеркалит фон. */
-  --hero-overlay-color: rgb(130 130 130 / 0%);
 
-  /* Hero: внутренние отступы контента */
+
+  /* ----------------------------------------------------------
+     Отступы внутри баннера (вокруг заголовка и карточки)
+     ---------------------------------------------------------- */
+
+  /* Отступ сверху */
   --hero-content-padding-top: 32px;
+
+  /* Горизонтальный отступ от краёв */
   --hero-content-padding-x: 20px;
+
+  /* Отступ снизу */
   --hero-content-padding-bottom: 40px;
 
-  /* Hero: заголовок */
+
+  /* ----------------------------------------------------------
+     Заголовок «Litiy Sew»
+     ---------------------------------------------------------- */
+
+  /* Размер шрифта заголовка (мобайл) */
   --hero-title-size: 5rem;
+
+  /* Отступ под заголовком */
   --hero-title-margin-bottom: 0px;
+
+  /* Трекинг (межбуквенное расстояние) заголовка */
   --hero-title-letter-spacing: 0.01em;
+
+  /* Цвет заголовка */
   --hero-title-color: var(--color-black);
-  --hero-title-align: flex-start; /* flex-start → мобильная лесенка, center → по центру (ПК). */
+
+  /* Выравнивание заголовка по горизонтали.
+     flex-start = по левому краю (мобайл),
+     center = по центру (десктоп). */
+  --hero-title-align: flex-start;
+
+  /* Выравнивание текста внутри заголовка */
   --hero-title-text-align: left;
+
+
+  /* ----------------------------------------------------------
+     Карточка коллекции (маленькое фото + кнопка под заголовком)
+     Видна только от 640px — на мобайле скрыта.
+     ---------------------------------------------------------- */
+
+  /* Вертикальный сдвиг карточки относительно заголовка.
+     Отрицательное значение = карточка поднимается вверх (наезжает на заголовок). */
+  --card-offset-y: -18px;
+
+  /* Ширина фото внутри карточки */
+  --card-image-width: 210px;
+
+  /* Отступы внутри кнопки «НОВАЯ КОЛЛЕКЦИЯ» */
+  --card-button-padding-y: 13px;
+  --card-button-padding-x: 22px;
+
+  /* Размер шрифта кнопки */
+  --card-button-font-size: 11px;
+
+  /* Трекинг кнопки */
+  --card-button-letter-spacing: 0.15em;
+
+  /* Цвета кнопки */
+  --card-button-bg: var(--color-black);
+  --card-button-text-color: var(--color-white);
+  --card-button-hover-bg: #333;
+
+
+  /* ----------------------------------------------------------
+     Служебные стили — не трогать
+     ---------------------------------------------------------- */
+  position: relative;
+  min-height: var(--hero-min-height);
+  overflow: hidden;
+  background-color: var(--hero-bg-color);
 }
 
-/* Hero: фон — мобилка использует mobile-переменные, десктоп — основные */
+
+/* ============================================================
+   СЕКЦИЯ 2 — FEATURED (блок с featured-коллекцией)
+   ============================================================ */
+
+.featured {
+
+  /* ----------------------------------------------------------
+     Размеры и отступы
+     ---------------------------------------------------------- */
+
+  /* Горизонтальные отступы от краёв */
+  --featured-side-padding: 16px;
+
+  /* Отступ между фото и текстом */
+  --featured-gap: 20px;
+
+  /* Высота фото коллекции */
+  --featured-media-height: 208px;
+
+  /* Скругление углов фото */
+  --featured-media-radius: 28px;
+
+
+  /* ----------------------------------------------------------
+     Текст
+     ---------------------------------------------------------- */
+
+  /* Размер названия коллекции */
+  --featured-title-size: 3rem;
+
+  /* Размер подзаголовка */
+  --featured-subtitle-size: 1rem;
+
+
+  /* ----------------------------------------------------------
+     Служебные стили — не трогать
+     ---------------------------------------------------------- */
+  display: grid;
+  gap: var(--featured-gap);
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  padding: 64px var(--featured-side-padding) 72px;
+  background: var(--color-white);
+}
+
+
+/* ============================================================
+   БРЕЙКПОИНТЫ — переопределение переменных под разные экраны
+   ============================================================ */
+
+/* Планшет — от 640px */
+@media (min-width: 640px) {
+  .hero {
+    --hero-min-height: calc(100svh - 90px);
+
+    /* Фон: зеркалим и слегка увеличиваем для эффекта */
+    --hero-bg-scale: 1.15;
+    --hero-bg-scale-x: -1;
+    --hero-overlay-color: rgb(130 130 130 / 60%);  /* затемнение для читаемости */
+
+    --hero-content-padding-top: 40px;
+    --hero-content-padding-x: 32px;
+    --hero-content-padding-bottom: 64px;
+
+    --hero-title-size: 4rem;
+    --hero-title-letter-spacing: 0.02em;
+    --hero-title-align: center;          /* заголовок по центру */
+    --hero-title-text-align: center;
+  }
+}
+
+/* Планшет широкий — от 768px */
+@media (min-width: 768px) {
+  .hero {
+    --hero-title-size: 5.5rem;
+  }
+
+  .featured {
+    --featured-gap: 28px;
+    --featured-media-height: 273px;
+    --featured-title-size: 4.2rem;
+    --featured-subtitle-size: 1.1rem;
+    --featured-side-padding: 24px;
+  }
+}
+
+/* Десктоп — от 1024px */
+@media (min-width: 1024px) {
+  .hero {
+    --hero-content-padding-top: 260px;   /* большой отступ сверху — заголовок внизу */
+    --hero-content-padding-x: 48px;
+    --hero-content-padding-bottom: 96px;
+    --hero-title-size: 7rem;
+
+    --card-offset-y: -28px;
+    --card-image-width: 250px;
+    --card-button-padding-y: 15px;
+    --card-button-padding-x: 26px;
+    --card-button-font-size: 12px;
+  }
+
+  .featured {
+    --featured-gap: 40px;
+    --featured-media-height: 325px;
+    --featured-title-size: 5.4rem;
+    --featured-subtitle-size: 1.2rem;
+    --featured-side-padding: 40px;
+  }
+}
+
+/* Широкий десктоп — от 1280px */
+@media (min-width: 1280px) {
+  .hero {
+    --hero-title-size: 9rem;
+
+    --card-offset-y: -56px;
+    --card-image-width: 290px;
+    --card-button-padding-y: 17px;
+    --card-button-padding-x: 32px;
+    --card-button-font-size: 13px;
+  }
+
+  .featured {
+    --featured-media-height: 390px;
+    --featured-title-size: 6.6rem;
+    --featured-side-padding: 56px;
+  }
+}
+
+/* Очень широкий — от 1536px */
+@media (min-width: 1536px) {
+  .hero {
+    --hero-title-size: 18rem;            /* очень крупный заголовок на 4K */
+
+    --card-image-width: 360px;
+    --card-button-padding-y: 18px;
+    --card-button-padding-x: 36px;
+    --card-button-font-size: 14px;
+  }
+}
+
+
+/* ============================================================
+   СТИЛИ — не редактируй, если не знаешь зачем
+   ============================================================ */
+
+/* ── Hero: фон ───────────────────────────────────────────────────────────── */
+
+/* Мобайл использует mobile-переменные позиции, десктоп — основные */
 .bg {
   position: absolute;
   inset: 0;
@@ -59,7 +297,8 @@
   background: var(--hero-overlay-color);
 }
 
-/* Hero: контент */
+/* ── Hero: контент ───────────────────────────────────────────────────────── */
+
 .content {
   position: relative;
   z-index: 10;
@@ -83,7 +322,7 @@
   user-select: none;
 }
 
-/* Мобильный вариант — «Litiy» / «Sew» в две строки с лесенкой. */
+/* Мобильный вариант — «Litiy» / «Sew» в две строки с лесенкой */
 .titleMobile {
   display: flex;
   flex-direction: column;
@@ -99,7 +338,7 @@
   padding-left: 1.2em;
 }
 
-/* Десктопный вариант — «Litiy Sew» одной строкой по центру. */
+/* Десктопный вариант — «Litiy Sew» одной строкой по центру */
 .titleDesktop {
   display: none;
 }
@@ -116,7 +355,19 @@
   border: 0;
 }
 
-/* Hero: карточка коллекции (скрыта на мобилке, показывается с 640px). */
+@media (min-width: 640px) {
+  .title {
+    line-height: 1;
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+
+  .titleMobile { display: none; }
+  .titleDesktop { display: block; }
+}
+
+/* ── Hero: карточка коллекции (скрыта на мобайле) ────────────────────────── */
+
 .card {
   display: none;
   position: relative;
@@ -124,12 +375,12 @@
   flex-direction: column;
   align-items: center;
   width: fit-content;
-  margin: var(--card-offset-y, -18px) auto 0;
+  margin: var(--card-offset-y) auto 0;
 }
 
 .cardImageWrap {
   display: block;
-  width: var(--card-image-width, 210px);
+  width: var(--card-image-width);
   aspect-ratio: 4 / 5;
   overflow: hidden;
 }
@@ -145,107 +396,26 @@
 .btn {
   display: block;
   width: 100%;
-  padding: var(--card-button-padding-y, 13px) var(--card-button-padding-x, 22px);
-  background: var(--card-button-bg, var(--color-black));
-  color: var(--card-button-text-color, var(--color-white));
+  padding: var(--card-button-padding-y) var(--card-button-padding-x);
+  background: var(--card-button-bg);
+  color: var(--card-button-text-color);
   font-family: var(--font-sans);
-  font-size: var(--card-button-font-size, 11px);
+  font-size: var(--card-button-font-size);
   font-weight: 500;
-  letter-spacing: var(--card-button-letter-spacing, 0.15em);
+  letter-spacing: var(--card-button-letter-spacing);
   text-align: center;
   transition: background-color 0.2s;
 }
 
 .btn:hover {
-  background: var(--card-button-hover-bg, #333);
+  background: var(--card-button-hover-bg);
 }
 
 @media (min-width: 640px) {
-  .hero {
-    --hero-min-height: calc(100svh - 90px);
-    --hero-bg-scale: 1.15;
-    --hero-bg-scale-x: -1;
-    --hero-overlay-color: rgb(130 130 130 / 60%);
-
-    --hero-content-padding-top: 40px;
-    --hero-content-padding-x: 32px;
-    --hero-content-padding-bottom: 64px;
-
-    --hero-title-size: 4rem;
-    --hero-title-letter-spacing: 0.02em;
-    --hero-title-align: center;
-    --hero-title-text-align: center;
-
-    --card-offset-y: -18px;
-    --card-image-width: 210px;
-    --card-button-padding-y: 13px;
-    --card-button-padding-x: 22px;
-    --card-button-font-size: 11px;
-    --card-button-letter-spacing: 0.15em;
-    --card-button-bg: var(--color-black);
-    --card-button-text-color: var(--color-white);
-    --card-button-hover-bg: #333;
-  }
-
-  .title {
-    line-height: 1;
-    white-space: nowrap;
-    word-break: keep-all;
-  }
-
-  .titleMobile {
-    display: none;
-  }
-
-  .titleDesktop {
-    display: block;
-  }
-
-  .card {
-    display: flex;
-  }
+  .card { display: flex; }
 }
 
-@media (min-width: 768px) {
-  .hero {
-    --hero-title-size: 5.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero {
-    --hero-content-padding-top: 260px;
-    --hero-content-padding-x: 48px;
-    --hero-content-padding-bottom: 96px;
-    --hero-title-size: 7rem;
-    --card-offset-y: -28px;
-    --card-image-width: 250px;
-    --card-button-padding-y: 15px;
-    --card-button-padding-x: 26px;
-    --card-button-font-size: 12px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .hero {
-    --hero-title-size: 9rem;
-    --card-offset-y: -56px;
-    --card-image-width: 290px;
-    --card-button-padding-y: 17px;
-    --card-button-padding-x: 32px;
-    --card-button-font-size: 13px;
-  }
-}
-
-@media (min-width: 1536px) {
-  .hero {
-    --hero-title-size: 18rem;
-    --card-image-width: 460px;
-    --card-button-padding-y: 18px;
-    --card-button-padding-x: 36px;
-    --card-button-font-size: 14px;
-  }
-}
+/* ── Arrivals: новинки (только в режиме магазина) ────────────────────────── */
 
 .arrivals {
   max-width: 1280px;
@@ -288,6 +458,22 @@
   gap: 16px;
 }
 
+@media (min-width: 640px) {
+  .arrivals { padding: 56px 24px 72px; }
+  .arrivalsTitle { font-size: 1.75rem; }
+}
+
+@media (min-width: 1024px) {
+  .arrivals { padding: 72px 40px 96px; }
+  .arrivalsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .arrivalsTitle { font-size: 2rem; }
+}
+
+/* ── Tagline: текстовый блок (только в режиме магазина) ──────────────────── */
+
 .tagline {
   background: var(--color-black);
   color: var(--color-white);
@@ -304,66 +490,19 @@
   color: var(--color-white);
 }
 
-.taglineText:last-child {
-  margin-bottom: 0;
-}
+.taglineText:last-child { margin-bottom: 0; }
 
 @media (min-width: 640px) {
-  .arrivals {
-    padding: 56px 24px 72px;
-  }
-
-  .arrivalsTitle {
-    font-size: 1.75rem;
-  }
-
-  .tagline {
-    padding: 64px 32px;
-  }
-
-  .taglineText {
-    font-size: 16px;
-  }
+  .tagline { padding: 64px 32px; }
+  .taglineText { font-size: 16px; }
 }
 
 @media (min-width: 1024px) {
-  .arrivals {
-    padding: 72px 40px 96px;
-  }
-
-  .arrivalsGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px;
-  }
-
-  .arrivalsTitle {
-    font-size: 2rem;
-  }
-
-  .tagline {
-    padding: 80px 48px;
-  }
-
-  .taglineText {
-    font-size: 17px;
-  }
+  .tagline { padding: 80px 48px; }
+  .taglineText { font-size: 17px; }
 }
 
-.featured {
-  --featured-gap: 20px;
-  --featured-media-height: 208px;
-  --featured-media-radius: 28px;
-  --featured-title-size: 3rem;
-  --featured-subtitle-size: 1rem;
-  --featured-side-padding: 16px;
-
-  display: grid;
-  gap: var(--featured-gap);
-  width: min(100%, 1480px);
-  margin: 0 auto;
-  padding: 64px var(--featured-side-padding) 72px;
-  background: var(--color-white);
-}
+/* ── Featured: блок с коллекцией ─────────────────────────────────────────── */
 
 .featuredMedia {
   position: relative;
@@ -374,7 +513,7 @@
   background: linear-gradient(145deg, #bcb0b0 0%, #b5a7a7 48%, #cec4c4 100%);
 }
 
-/* Портфолио-режим: секция растягивается на всю высоту вьюпорта, раскладка не меняется. */
+/* Портфолио-режим: секция растягивается на всю высоту экрана */
 .featuredFullscreen {
   min-height: 100svh;
 }
@@ -390,8 +529,12 @@
 }
 
 @media (min-width: 1024px) {
-  .featuredFullscreen {
-    align-items: stretch;
+  .featuredFullscreen { align-items: stretch; }
+
+  .featured {
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    align-items: end;
+    padding: 96px var(--featured-side-padding);
   }
 }
 
@@ -401,6 +544,7 @@
   object-fit: cover;
 }
 
+/* Декоративное пятно света поверх фото */
 .featuredMedia::before {
   content: '';
   position: absolute;
@@ -443,36 +587,4 @@
   font-size: var(--featured-subtitle-size);
   line-height: 1.1;
   color: var(--color-black);
-}
-
-@media (min-width: 768px) {
-  .featured {
-    --featured-gap: 28px;
-    --featured-media-height: 273px;
-    --featured-title-size: 4.2rem;
-    --featured-subtitle-size: 1.1rem;
-    --featured-side-padding: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .featured {
-    --featured-gap: 40px;
-    --featured-media-height: 325px;
-    --featured-title-size: 5.4rem;
-    --featured-subtitle-size: 1.2rem;
-    --featured-side-padding: 40px;
-
-    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-    align-items: end;
-    padding: 96px var(--featured-side-padding);
-  }
-}
-
-@media (min-width: 1280px) {
-  .featured {
-    --featured-media-height: 390px;
-    --featured-title-size: 6.6rem;
-    --featured-side-padding: 56px;
-  }
 }

@@ -1,0 +1,178 @@
+---
+# Перенос данных с dev-машины на VPS: БД + медиафайлы.
+# Запускается один раз — при первом деплое или при переезде на новый сервер.
+#
+# Использование:
+#   ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass \
+#     -e "local_uploads_dir=/opt/litiy-sew/uploads local_postgres_port=5433"
+#
+# Обязательные переменные (можно задать в -e или прямо здесь):
+#   local_uploads_dir   — папка с медиафайлами на локальной машине
+#   local_postgres_port — порт PostgreSQL на локальной машине (default: 5433)
+
+- name: Перенос БД и медиафайлов на VPS
+  hosts: vps
+  become: yes
+
+  vars:
+    local_uploads_dir: "{{ lookup('env', 'MEDIA_UPLOAD_DIR') | default('/opt/litiy-sew/uploads', true) }}"
+    local_postgres_port: 5433
+    dump_file: /tmp/litiy_sew_migrate.sql
+
+  tasks:
+
+    # ── 1. Дамп БД на локальной машине ────────────────────────────────────────
+
+    - name: Создать дамп БД на локальной машине
+      delegate_to: localhost
+      become: no
+      command: >
+        docker compose -f {{ playbook_dir }}/../docker-compose.yml
+        exec -T postgres
+        pg_dump -U {{ postgres_user }} {{ postgres_db }}
+      register: pg_dump_result
+      changed_when: true
+
+    - name: Сохранить дамп во временный файл на локальной машине
+      delegate_to: localhost
+      become: no
+      copy:
+        content: "{{ pg_dump_result.stdout }}"
+        dest: "{{ dump_file }}"
+        mode: "0600"
+
+    # ── 2. Передать дамп на VPS ───────────────────────────────────────────────
+
+    - name: Скопировать дамп на VPS
+      copy:
+        src: "{{ dump_file }}"
+        dest: "{{ dump_file }}"
+        mode: "0600"
+
+    # ── 3. Восстановить БД на VPS ─────────────────────────────────────────────
+
+    - name: Убедиться что контейнеры запущены
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        files:
+          - docker-compose.yml
+        state: present
+      become_user: "{{ app_user }}"
+
+    - name: Подождать готовности PostgreSQL на VPS
+      command: >
+        docker compose -f {{ app_dir }}/docker-compose.yml
+        exec -T postgres
+        pg_isready -U {{ postgres_user }}
+      register: pg_ready
+      until: pg_ready.rc == 0
+      retries: 12
+      delay: 5
+      become_user: "{{ app_user }}"
+      changed_when: false
+
+    - name: Восстановить БД на VPS (psql < dump)
+      shell: >
+        docker compose -f {{ app_dir }}/docker-compose.yml
+        exec -T postgres
+        psql -U {{ postgres_user }} {{ postgres_db }}
+        < {{ dump_file }}
+      become_user: "{{ app_user }}"
+      changed_when: true
+
+    # ── 4. Обновить image_url в БД под домен VPS ──────────────────────────────
+    # После переноса URL картинок содержат старый хост (localhost:8080 или другой домен).
+    # Заменяем на prod-домен из vars.yml.
+
+    - name: Обновить MEDIA_PUBLIC_URL во всех таблицах
+      shell: |
+        docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres \
+          psql -U {{ postgres_user }} {{ postgres_db }} -c "
+            DO \$\$
+            DECLARE
+              old_prefix TEXT;
+            BEGIN
+              -- Определяем старый префикс из первой найденной записи
+              SELECT regexp_replace(image_url, '^(https?://[^/]+/media).*', '\1')
+              INTO old_prefix
+              FROM (
+                SELECT image_url FROM products          WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+                UNION ALL
+                SELECT image_url FROM pattern_items     WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+                UNION ALL
+                SELECT image_url FROM portfolio_photos  WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+                UNION ALL
+                SELECT image_url FROM hero_banners      WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+                UNION ALL
+                SELECT image_url FROM site_images       WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+                UNION ALL
+                SELECT image_url FROM dynamic_collection_photos WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
+              ) t LIMIT 1;
+
+              IF old_prefix IS NOT NULL AND old_prefix != '{{ media_public_url }}' THEN
+                RAISE NOTICE 'Заменяем % → {{ media_public_url }}', old_prefix;
+                UPDATE products                  SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+                UPDATE pattern_items             SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+                UPDATE portfolio_photos          SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+                UPDATE hero_banners              SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+                UPDATE site_images               SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+                UPDATE dynamic_collection_photos SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
+              ELSE
+                RAISE NOTICE 'URL уже корректны или таблицы пусты — пропускаем.';
+              END IF;
+            END
+            \$\$;
+          "
+      become_user: "{{ app_user }}"
+      changed_when: true
+
+    # ── 5. Перенести медиафайлы ───────────────────────────────────────────────
+
+    - name: Убедиться что папка uploads существует на VPS
+      file:
+        path: "{{ uploads_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Синхронизировать медиафайлы на VPS (rsync)
+      synchronize:
+        src: "{{ local_uploads_dir }}/"
+        dest: "{{ uploads_dir }}/"
+        recursive: yes
+        checksum: yes
+        rsync_opts:
+          - "--exclude=.DS_Store"
+          - "--exclude=Thumbs.db"
+
+    - name: Установить права на медиафайлы
+      file:
+        path: "{{ uploads_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: yes
+
+    # ── 6. Очистка ────────────────────────────────────────────────────────────
+
+    - name: Удалить временный дамп на VPS
+      file:
+        path: "{{ dump_file }}"
+        state: absent
+
+    - name: Удалить временный дамп на локальной машине
+      delegate_to: localhost
+      become: no
+      file:
+        path: "{{ dump_file }}"
+        state: absent
+
+    # ── 7. Итог ───────────────────────────────────────────────────────────────
+
+    - name: Результат переноса
+      debug:
+        msg:
+          - "✓ БД перенесена и восстановлена"
+          - "✓ URL картинок обновлены на {{ media_public_url }}"
+          - "✓ Медиафайлы синхронизированы в {{ uploads_dir }}"

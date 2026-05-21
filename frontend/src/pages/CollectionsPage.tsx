@@ -10,9 +10,8 @@ function cardPhoto(c: DynamicCollection) {
   return c.photos.find((p) => p.photoType === 'CARD') ?? c.photos[0] ?? null;
 }
 
-function CollectionCard({ collection, globalIndex }: { collection: DynamicCollection; globalIndex: number }) {
+function CollectionCard({ collection, globalIndex: _globalIndex }: { collection: DynamicCollection; globalIndex: number }) {
   const photo = cardPhoto(collection);
-  const badge = collection.eyebrow ?? `Look ${String(globalIndex + 1).padStart(2, '0')}`;
   return (
     <a
       href={getCollectionHref(collection.slug)}
@@ -21,9 +20,9 @@ function CollectionCard({ collection, globalIndex }: { collection: DynamicCollec
     >
       <article className={styles.card} data-tone={collection.tone}>
         <div className={styles.cardMedia}>
-          <div className={styles.cardBadge}>
-            {badge}
-          </div>
+          {collection.eyebrow && (
+            <div className={styles.cardBadge}>{collection.eyebrow}</div>
+          )}
           {photo ? (
             <img
               className={styles.cardImage}

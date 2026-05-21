@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -19,6 +19,7 @@ const PORTFOLIO_SLOT_KEYS: Record<string, string> = {
 export default function AboutPage() {
   const [activePortfolioId, setActivePortfolioId] = useState(PORTFOLIO_ITEMS[0].id);
   const activePortfolio = PORTFOLIO_ITEMS.find((item) => item.id === activePortfolioId) ?? PORTFOLIO_ITEMS[0];
+  const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
   const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
 
@@ -48,7 +49,25 @@ export default function AboutPage() {
       <Header />
 
       <main className={styles.page}>
-        <section className={styles.hero}>
+        <section
+          className={styles.hero}
+          style={(() => {
+            const desk = siteImages.get('about-hero');
+            const mob = siteImages.get('about-hero-mobile');
+            return {
+              ...(desk ? {
+                '--hero-desk-pos-x': `${desk.positionX}%`,
+                '--hero-desk-pos-y': `${desk.positionY}%`,
+                '--hero-desk-scale': `${(desk.scale ?? 100) / 100}`,
+              } : {}),
+              ...(mob ? {
+                '--hero-mobile-pos-x': `${mob.positionX}%`,
+                '--hero-mobile-pos-y': `${mob.positionY}%`,
+                '--hero-mobile-scale': `${(mob.scale ?? 100) / 100}`,
+              } : {}),
+            } as React.CSSProperties;
+          })()}
+        >
           <picture>
             {siteImages.get('about-hero-mobile') && (
               <source
@@ -60,7 +79,6 @@ export default function AboutPage() {
               className={styles.heroImage}
               src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
               alt={ABOUT_PAGE_DATA.hero.imageAlt}
-              style={imgStyle('about-hero')}
             />
           </picture>
           <div className={styles.heroOverlay} />
@@ -109,7 +127,14 @@ export default function AboutPage() {
                     aria-controls={`portfolio-panel-${item.id}`}
                     id={`portfolio-tab-${item.id}`}
                     className={`${styles.portfolioCard} ${isActive ? styles.portfolioCardActive : ''}`}
-                    onClick={() => setActivePortfolioId(item.id)}
+                    onClick={() => {
+                      setActivePortfolioId(item.id);
+                      if (window.innerWidth < 900) {
+                        setTimeout(() => {
+                          detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                      }
+                    }}
                   >
                     <span className={styles.portfolioCardEyebrow}>{item.eyebrow}</span>
                     <span className={styles.portfolioCardTitle}>{item.title}</span>
@@ -118,6 +143,7 @@ export default function AboutPage() {
 
                   {isActive && (
                     <article
+                      ref={detailRef}
                       className={styles.portfolioDetail}
                       id={`portfolio-panel-${activePortfolio.id}`}
                       role="tabpanel"

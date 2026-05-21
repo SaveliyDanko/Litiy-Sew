@@ -107,6 +107,7 @@
 .portfolio {
   width: min(100%, var(--about-max-width));
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .hero {
@@ -125,10 +126,20 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--about-hero-image-position-x) var(--about-hero-image-position-y);
+  object-position: var(--hero-desk-pos-x, var(--about-hero-image-position-x))
+                   var(--hero-desk-pos-y, var(--about-hero-image-position-y));
   transform: translate3d(var(--about-hero-image-offset-x), var(--about-hero-image-offset-y), 0)
-    scale(var(--about-hero-image-scale));
+    scale(var(--hero-desk-scale, var(--about-hero-image-scale)));
   transform-origin: center;
+}
+
+/* Мобильный слот: позиция и масштаб из --hero-mobile-* (заданы inline когда слот загружен) */
+@media (max-width: 639px) {
+  .heroImage {
+    object-position: var(--hero-mobile-pos-x, var(--hero-desk-pos-x, var(--about-hero-image-position-x)))
+                     var(--hero-mobile-pos-y, var(--hero-desk-pos-y, var(--about-hero-image-position-y)));
+    transform: scale(var(--hero-mobile-scale, var(--hero-desk-scale, var(--about-hero-image-scale))));
+  }
 }
 
 .heroOverlay {
@@ -290,6 +301,7 @@
 
 .portfolioDetail {
   grid-column: 1 / -1;
+  min-width: 0;
   display: grid;
   gap: var(--about-portfolio-detail-gap);
   padding: var(--about-portfolio-detail-padding);
@@ -332,10 +344,11 @@
 
 .portfolioDetailTitle {
   margin: 0;
-  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-size: clamp(1.4rem, 4vw, 3rem);
   font-weight: 600;
-  line-height: 0.95;
+  line-height: 1.05;
   text-transform: uppercase;
+  overflow-wrap: break-word;
 }
 
 .portfolioDetailLead,

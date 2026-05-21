@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --font-display: 'Sansita One', sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;

@@ -856,6 +856,16 @@ select.input {
   background: #f0f0f0;
 }
 
+.slotPreviewMobile {
+  width: 100%;
+  max-width: 140px;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+  box-shadow: 0 0 0 3px #d0d0d0;
+}
+
 .slotPreviewImg {
   width: 100%;
   height: 100%;

@@ -817,6 +817,7 @@ type SlotConfig = {
   label: string;
   hint: string;
   portrait?: boolean;
+  mobile?: boolean;
   hasContainerHeight?: boolean;
   heightOnly?: boolean;
 };
@@ -946,7 +947,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
           <div className={styles.slotBody}>
             {/* Preview */}
             <div
-              className={config.portrait ? styles.slotPreviewPortrait : styles.slotPreviewLandscape}
+              className={config.portrait ? styles.slotPreviewPortrait : config.mobile ? styles.slotPreviewMobile : styles.slotPreviewLandscape}
               style={config.hasContainerHeight && containerHeight > 0 ? { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' } : undefined}
             >
               {displayUrl ? (
@@ -1086,7 +1087,7 @@ function HomeSection() {
 
 const ABOUT_SLOTS: SlotConfig[] = [
   { key: 'about-hero',        label: 'Hero — Десктоп',          hint: 'Большое фоновое фото в шапке страницы «Обо мне» (десктоп / планшет)' },
-  { key: 'about-hero-mobile', label: 'Hero — Мобильный',        hint: 'Отдельное фото для мобильных устройств (до 640px). Если не загружено — используется десктопное' },
+  { key: 'about-hero-mobile', label: 'Hero — Мобильный',        hint: 'Отдельное фото для мобильных устройств (до 640px). Если не загружено — используется десктопное', mobile: true },
   { key: 'about-portrait',    label: 'Портрет в разделе Story', hint: 'Фото мастера рядом с текстом о себе', portrait: true },
 ];
 

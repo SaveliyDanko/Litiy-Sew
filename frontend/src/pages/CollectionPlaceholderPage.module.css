@@ -1,81 +1,156 @@
-/* ── Collection detail page ──────────────────────────────────────────────── */
-
-/*
- * ╔══════════════════════════════════════════════════════════════╗
- * ║           ПЕРЕМЕННЫЕ ДЛЯ НАСТРОЙКИ СТРАНИЦЫ КОЛЛЕКЦИИ        ║
- * ╚══════════════════════════════════════════════════════════════╝
- *
- * Все числа, которые влияют на внешний вид — здесь.
- * Остальной код не трогать.
- */
+/* ============================================================
+   НАСТРОЙКИ СТРАНИЦЫ КОЛЛЕКЦИИ (детальная страница)
+   Все визуальные параметры вынесены в CSS-переменные ниже.
+   Меняй только значения в блоках .page { } и @media { .page { } }.
+   Остальной код трогать не нужно.
+   ============================================================ */
 
 .page {
-  /* ── Фон страницы ─────────────────────────────────────────── */
+
+  /* ----------------------------------------------------------
+     СТРАНИЦА — общие параметры
+     ---------------------------------------------------------- */
+
+  /* Цвет фона всей страницы */
   --page-bg: #fff;
 
-  /* ── Hero (полноэкранный баннер) ──────────────────────────── */
-  --hero-min-height: 480px;          /* минимальная высота на маленьких экранах */
-  --hero-title-size: clamp(3rem, 10vw, 7rem);  /* размер заголовка «Lotus» */
-  --hero-title-bottom: 48px;         /* отступ заголовка от нижнего края */
-  --hero-overlay-top: 15%;           /* затемнение сверху (% непрозрачности) */
-  --hero-overlay-bottom: 40%;        /* затемнение снизу (% непрозрачности) */
 
-  /* ── Детальный блок (два фото + текст) ───────────────────── */
-  /* Мобильный (< 640px) */
-  --detail-padding-v-mobile: 64px;   /* вертикальный отступ */
-  --detail-padding-h-mobile: 16px;   /* горизонтальный отступ */
-  --detail-gap-mobile: 28px;         /* зазор между колонками */
+  /* ----------------------------------------------------------
+     HERO — полноэкранный баннер в самом верху страницы
+     ---------------------------------------------------------- */
 
-  /* Планшет (640px–1023px) */
-  --detail-padding-v-tablet: 80px;
-  --detail-padding-h-tablet: 48px;
-  --detail-gap-tablet: 32px;
-  --detail-cols-tablet: 1.4fr 1fr 1.4fr;   /* [фото] [текст] [фото] */
+  /* Минимальная высота баннера (на очень маленьких экранах).
+     Обычно баннер занимает 100% высоты экрана (100svh). */
+  --hero-min-height: 480px;
 
-  /* Десктоп (1024px–1439px) */
-  --detail-padding-v-desktop: 100px;
-  --detail-padding-h-desktop: 80px;
-  --detail-gap-desktop: 48px;
-  --detail-cols-desktop: 1.5fr 0.9fr 1.5fr;
+  /* Размер заголовка коллекции поверх баннера.
+     clamp(мин, адаптив, макс) — автоматически масштабируется. */
+  --hero-title-size: clamp(3rem, 10vw, 7rem);
 
-  /* Широкий экран (1440px+) */
-  --detail-padding-h-wide: 100px;
-  --detail-gap-wide: 56px;
-  --detail-cols-wide: 1.6fr 0.8fr 1.6fr;
+  /* Отступ заголовка от нижнего края баннера */
+  --hero-title-bottom: 48px;
 
-  --detail-photo-radius: 20px;       /* скругление углов боковых фото */
-  --detail-photo-radius-tablet: 24px;
-  --detail-photo-aspect: 3 / 4;      /* пропорция боковых фото (ширина / высота) */
-  --detail-text-size: 0.95rem;       /* размер текста описания */
+  /* Затемнение сверху баннера — процент непрозрачности (0%–100%).
+     Нужно чтобы header читался на светлых фото. */
+  --hero-overlay-top: 15%;
 
-  /* ── Мозаика (галерея) ────────────────────────────────────── */
-  /* Мобильный */
-  --mosaic-padding-h-mobile: 6px;    /* отступ по бокам */
-  --mosaic-padding-b-mobile: 80px;   /* отступ снизу */
-  --mosaic-gap-mobile: 8px;          /* зазор между фото */
-  --mosaic-cols-mobile: 2;           /* количество колонок */
+  /* Затемнение снизу баннера — процент непрозрачности (0%–100%).
+     Нужно чтобы заголовок читался поверх фото. */
+  --hero-overlay-bottom: 40%;
 
-  /* Планшет */
-  --mosaic-padding-h-tablet: 12px;
-  --mosaic-padding-b-tablet: 100px;
-  --mosaic-gap-tablet: 12px;
-  --mosaic-cols-tablet: 3;           /* количество колонок */
 
-  /* Десктоп */
-  --mosaic-padding-h-desktop: 100px;
-  --mosaic-padding-b-desktop: 120px;
-  --mosaic-gap-desktop: 16px;
+  /* ----------------------------------------------------------
+     DETAIL — блок с двумя фото и текстом под баннером
+     Раскладка: [фото слева] [текст по центру] [фото справа]
+     ---------------------------------------------------------- */
 
-  --mosaic-item-radius: 20px;         /* скругление углов ячеек мозаики */
-  --mosaic-item-aspect: 2 / 3;       /* пропорция каждого фото в мозаике */
+  /* Вертикальный отступ блока сверху и снизу (мобайл) */
+  --detail-padding-v: 64px;
 
+  /* Горизонтальный отступ блока от краёв экрана (мобайл) */
+  --detail-padding-h: 16px;
+
+  /* Зазор между фото и текстом (мобайл) */
+  --detail-gap: 28px;
+
+  /* Пропорции колонок: [левое фото] [текст] [правое фото].
+     На мобайле — одна колонка, переопределяется в @media. */
+  --detail-cols: 1fr;
+
+  /* Скругление углов боковых фото */
+  --detail-photo-radius: 20px;
+
+  /* Пропорция боковых фото (ширина / высота).
+     3/4 = вертикальный портрет. */
+  --detail-photo-aspect: 3 / 4;
+
+  /* Размер текста описания в центральной колонке */
+  --detail-text-size: 1.15rem;
+
+  /* Жирность текста описания */
+  --detail-text-weight: 500;
+
+
+  /* ----------------------------------------------------------
+     MOSAIC — галерея фото в нижней части страницы
+     ---------------------------------------------------------- */
+
+  /* Горизонтальный отступ галереи от краёв экрана (мобайл) */
+  --mosaic-padding-h: 6px;
+
+  /* Отступ галереи снизу (мобайл) */
+  --mosaic-padding-b: 80px;
+
+  /* Зазор между ячейками галереи (мобайл) */
+  --mosaic-gap: 8px;
+
+  /* Количество колонок в галерее (мобайл) */
+  --mosaic-cols: 2;
+
+  /* Скругление углов каждой ячейки галереи */
+  --mosaic-item-radius: 20px;
+
+  /* Пропорция каждого фото в галерее (ширина / высота).
+     2/3 = вертикальный портрет. */
+  --mosaic-item-aspect: 2 / 3;
+
+
+  /* ----------------------------------------------------------
+     Служебные стили — не трогать
+     ---------------------------------------------------------- */
   background: var(--page-bg);
   min-height: 100vh;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   Дальше — служебный код, менять не нужно
-   ══════════════════════════════════════════════════════════════ */
+
+/* ============================================================
+   БРЕЙКПОИНТЫ — переопределение переменных под разные экраны
+   ============================================================ */
+
+/* Планшет — от 640px */
+@media (min-width: 640px) {
+  .page {
+    --detail-padding-v: 80px;
+    --detail-padding-h: 48px;
+    --detail-gap: 32px;
+    /* Три колонки: левое фото шире текста, правое фото такое же */
+    --detail-cols: 1.4fr 1fr 1.4fr;
+    --detail-photo-radius: 24px;
+
+    --mosaic-padding-h: 12px;
+    --mosaic-padding-b: 100px;
+    --mosaic-gap: 12px;
+    --mosaic-cols: 3;                  /* три колонки в галерее */
+  }
+}
+
+/* Десктоп — от 1024px */
+@media (min-width: 1024px) {
+  .page {
+    --detail-padding-v: 100px;
+    --detail-padding-h: 80px;
+    --detail-gap: 48px;
+    --detail-cols: 1.5fr 0.9fr 1.5fr; /* текст чуть уже фото */
+
+    --mosaic-padding-h: 100px;
+    --mosaic-padding-b: 120px;
+    --mosaic-gap: 16px;
+  }
+}
+
+/* Широкий десктоп — от 1440px */
+@media (min-width: 1440px) {
+  .page {
+    --detail-padding-h: 100px;
+    --detail-gap: 56px;
+    --detail-cols: 1.6fr 0.8fr 1.6fr; /* текст ещё уже, фото шире */
+  }
+}
+
+
+/* ============================================================
+   СТИЛИ — не редактируй, если не знаешь зачем
+   ============================================================ */
 
 /* ── Not found ───────────────────────────────────────────────────────────── */
 
@@ -125,8 +200,8 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(17 17 17 / var(--hero-overlay-top))  0%,
-    rgb(17 17 17 / 0%)                        40%,
+    rgb(17 17 17 / var(--hero-overlay-top))    0%,
+    rgb(17 17 17 / 0%)                          40%,
     rgb(17 17 17 / var(--hero-overlay-bottom)) 100%
   );
 }
@@ -165,49 +240,16 @@
 /* ── Detail strip ────────────────────────────────────────────────────────── */
 
 .detail {
-  padding: var(--detail-padding-v-mobile) var(--detail-padding-h-mobile);
+  padding: var(--detail-padding-v) var(--detail-padding-h);
 }
 
 .detailInner {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--detail-gap-mobile);
+  grid-template-columns: var(--detail-cols);
+  gap: var(--detail-gap);
   width: 100%;
   margin: 0 auto;
   align-items: center;
-}
-
-@media (min-width: 640px) {
-  .detail {
-    padding: var(--detail-padding-v-tablet) var(--detail-padding-h-tablet);
-  }
-
-  .detailInner {
-    grid-template-columns: var(--detail-cols-tablet);
-    gap: var(--detail-gap-tablet);
-  }
-}
-
-@media (min-width: 1024px) {
-  .detail {
-    padding: var(--detail-padding-v-desktop) var(--detail-padding-h-desktop);
-  }
-
-  .detailInner {
-    grid-template-columns: var(--detail-cols-desktop);
-    gap: var(--detail-gap-desktop);
-  }
-}
-
-@media (min-width: 1440px) {
-  .detail {
-    padding: var(--detail-padding-v-desktop) var(--detail-padding-h-wide);
-  }
-
-  .detailInner {
-    grid-template-columns: var(--detail-cols-wide);
-    gap: var(--detail-gap-wide);
-  }
 }
 
 .detailPhoto {
@@ -216,12 +258,6 @@
   border-radius: var(--detail-photo-radius);
   aspect-ratio: var(--detail-photo-aspect);
   background: #ede9e6;
-}
-
-@media (min-width: 640px) {
-  .detailPhoto {
-    border-radius: var(--detail-photo-radius-tablet);
-  }
 }
 
 .detailImage {
@@ -243,6 +279,7 @@
 .detailFocus {
   margin: 0;
   font-size: var(--detail-text-size);
+  font-weight: var(--detail-text-weight, 400);
   line-height: 1.6;
   color: #3a3535;
 }
@@ -250,35 +287,14 @@
 /* ── Mosaic gallery ──────────────────────────────────────────────────────── */
 
 .mosaic {
-  padding: 0 var(--mosaic-padding-h-mobile) var(--mosaic-padding-b-mobile);
+  padding: 0 var(--mosaic-padding-h) var(--mosaic-padding-b);
 }
 
 .mosaicGrid {
   display: grid;
-  grid-template-columns: repeat(var(--mosaic-cols-mobile), 1fr);
-  gap: var(--mosaic-gap-mobile);
+  grid-template-columns: repeat(var(--mosaic-cols), 1fr);
+  gap: var(--mosaic-gap);
   width: 100%;
-}
-
-@media (min-width: 640px) {
-  .mosaic {
-    padding: 0 var(--mosaic-padding-h-tablet) var(--mosaic-padding-b-tablet);
-  }
-
-  .mosaicGrid {
-    grid-template-columns: repeat(var(--mosaic-cols-tablet), 1fr);
-    gap: var(--mosaic-gap-tablet);
-  }
-}
-
-@media (min-width: 1024px) {
-  .mosaic {
-    padding: 0 var(--mosaic-padding-h-desktop) var(--mosaic-padding-b-desktop);
-  }
-
-  .mosaicGrid {
-    gap: var(--mosaic-gap-desktop);
-  }
 }
 
 .mosaicItem {

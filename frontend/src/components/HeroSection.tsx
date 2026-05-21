@@ -168,16 +168,16 @@ export default function HeroSection() {
 
       {featured && (
         <section
-          className={`${styles.featured} ${!SHOP_ENABLED ? styles.featuredFullscreen : ''}`}
-          style={(() => {
-            const h = siteImages.get('home-featured-media')?.containerHeight;
-            return h ? ({ '--featured-media-height': `${h}px` } as React.CSSProperties) : undefined;
-          })()}
+          className={`${styles.featured} ${!SHOP_ENABLED && !siteImages.get('home-featured-media')?.containerHeight ? styles.featuredFullscreen : ''}`}
         >
           <a
             href={getCollectionHref(featured.slug)}
             className={styles.featuredMedia}
             aria-label={`Открыть коллекцию ${featured.title}`}
+            style={(() => {
+              const h = siteImages.get('home-featured-media')?.containerHeight;
+              return h ? { height: `${h}px` } : undefined;
+            })()}
           >
             {featuredCardPhoto ? (
               <img
