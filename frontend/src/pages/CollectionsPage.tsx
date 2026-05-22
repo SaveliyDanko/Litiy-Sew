@@ -39,11 +39,13 @@ function CollectionCard({ collection, globalIndex: _globalIndex }: { collection:
           <div className={styles.cardOverlay} />
         </div>
 
-        <div className={styles.cardBody}>
-          <p className={styles.cardSubtitle}>{collection.subtitle ?? ''}</p>
-          <h3 className={styles.cardTitle}>{collection.title}</h3>
-          <p className={styles.cardDescription}>{collection.description ?? ''}</p>
-        </div>
+        {!collection.hideCardLabel && (
+          <div className={styles.cardBody}>
+            <p className={styles.cardSubtitle}>{collection.subtitle ?? ''}</p>
+            <h3 className={styles.cardTitle}>{collection.title}</h3>
+            <p className={styles.cardDescription}>{collection.description ?? ''}</p>
+          </div>
+        )}
       </article>
     </a>
   );
@@ -57,9 +59,11 @@ function CollectionGroup({ title, collections, allCollections }: {
   if (collections.length === 0) return null;
   return (
     <section className={styles.group}>
-      <div className={styles.groupHeading}>
-        <h2 className={styles.groupTitle}>{title}:</h2>
-      </div>
+      {title && (
+        <div className={styles.groupHeading}>
+          <h2 className={styles.groupTitle}>{title}:</h2>
+        </div>
+      )}
       <div className={styles.soloGrid}>
         {collections.map((c) => (
           <CollectionCard key={c.slug} collection={c} globalIndex={allCollections.indexOf(c)} />
@@ -156,8 +160,8 @@ export default function CollectionsPage() {
           <CollectionGroup title="Коллекции" collections={collectionList} allCollections={collections} />
         )}
 
-        <CollectionGroup title="Одиночные модели" collections={soloList} allCollections={collections} />
-        <CollectionGroup title="Эскизные проекты" collections={sketchList} allCollections={collections} />
+        <CollectionGroup title={soloList[0]?.groupTitle ?? 'Одиночные модели'} collections={soloList} allCollections={collections} />
+        <CollectionGroup title={sketchList[0]?.groupTitle ?? 'Эскизные проекты'} collections={sketchList} allCollections={collections} />
       </main>
 
       <Footer />

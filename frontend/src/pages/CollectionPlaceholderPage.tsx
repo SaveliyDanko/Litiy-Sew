@@ -79,7 +79,7 @@ export default function CollectionPlaceholderPage() {
             <div className={styles.heroPlaceholder} />
           )}
           <div className={styles.heroOverlay} />
-          <div className={styles.heroContent}>
+          <div className={`${styles.heroContent} ${collection.heroTitlePosition === 'bottom-center' ? styles.heroContentCenter : ''} ${collection.heroTitlePosition === 'center' ? styles.heroContentMiddle : ''}`}>
             <p className={styles.heroEyebrow}>{collection.eyebrow ?? 'Collection'}</p>
             <h1 className={styles.heroTitle}>{collection.title}</h1>
           </div>

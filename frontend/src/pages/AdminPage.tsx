@@ -1472,6 +1472,9 @@ function DynCollectionCard({
   const [description, setDescription] = useState(collection.description ?? '');
   const [detailIntro, setDetailIntro] = useState(collection.detailIntro ?? '');
   const [detailFocus, setDetailFocus] = useState(collection.detailFocus ?? '');
+  const [groupTitle, setGroupTitle] = useState(collection.groupTitle ?? '');
+  const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
+  const [heroTitlePosition, setHeroTitlePosition] = useState<'bottom-left' | 'bottom-center' | 'center'>(collection.heroTitlePosition ?? 'bottom-left');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
   const [category, setCategory] = useState<'COLLECTION' | 'SOLO' | 'SKETCH'>(collection.category ?? 'COLLECTION');
   const [featured, setFeatured] = useState(collection.featured);
@@ -1491,6 +1494,9 @@ function DynCollectionCard({
     setDescription(collection.description ?? '');
     setDetailIntro(collection.detailIntro ?? '');
     setDetailFocus(collection.detailFocus ?? '');
+    setGroupTitle(collection.groupTitle ?? '');
+    setHideCardLabel(collection.hideCardLabel ?? false);
+    setHeroTitlePosition(collection.heroTitlePosition ?? 'bottom-left');
     setTone(collection.tone ?? 'neutral');
     setCategory(collection.category ?? 'COLLECTION');
     setFeatured(collection.featured);
@@ -1511,6 +1517,9 @@ function DynCollectionCard({
         description: description.trim() || undefined,
         detailIntro: detailIntro.trim() || undefined,
         detailFocus: detailFocus.trim() || undefined,
+        groupTitle: groupTitle.trim() || undefined,
+        hideCardLabel,
+        heroTitlePosition,
         tone,
         category,
         sortOrder: collection.sortOrder,
@@ -1669,6 +1678,22 @@ function DynCollectionCard({
               <label className={styles.field}>
                 <span className={styles.label}>Акцент (для страницы коллекции)</span>
                 <input className={styles.input} value={detailFocus} onChange={(e) => setDetailFocus(e.target.value)} />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Заголовок группы (для страницы /collections)</span>
+                <input className={styles.input} value={groupTitle} onChange={(e) => setGroupTitle(e.target.value)} placeholder="Оставьте пустым, чтобы скрыть заголовок" />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Позиция заголовка на Hero</span>
+                <select className={styles.input} value={heroTitlePosition} onChange={(e) => setHeroTitlePosition(e.target.value as 'bottom-left' | 'bottom-center' | 'center')}>
+                  <option value="bottom-left">Снизу слева</option>
+                  <option value="bottom-center">Снизу по центру</option>
+                  <option value="center">По центру экрана</option>
+                </select>
+              </label>
+              <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="checkbox" checked={hideCardLabel} onChange={(e) => setHideCardLabel(e.target.checked)} />
+                <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>Скрыть название под карточкой</span>
               </label>
               <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />

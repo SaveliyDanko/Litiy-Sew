@@ -48,7 +48,7 @@
   --detail-padding-v: 48px;
 
   /* Горизонтальный отступ блока от краёв экрана (мобайл) */
-  --detail-padding-h: 16px;
+  --detail-padding-h: 32px;
 
   /* Зазор между фото и текстом (мобайл) */
   --detail-gap: 28px;
@@ -59,10 +59,6 @@
 
   /* Скругление углов боковых фото */
   --detail-photo-radius: 20px;
-
-  /* Пропорция боковых фото (ширина / высота).
-     3/4 = вертикальный портрет. */
-  --detail-photo-aspect: 3 / 4;
 
   /* Размер текста описания в центральной колонке */
   --detail-text-size: 1.4rem;
@@ -108,7 +104,7 @@
 @media (min-width: 640px) {
   .page {
     --detail-padding-v: 56px;
-    --detail-padding-h: 48px;
+    --detail-padding-h: 60px;
     --detail-gap: 32px;
     /* Три колонки: фото узкие, текст широкий по центру */
     --detail-cols: 0.7fr 1.6fr 0.7fr;
@@ -127,7 +123,7 @@
 @media (min-width: 1024px) {
   .page {
     --detail-padding-v: 64px;
-    --detail-padding-h: 80px;
+    --detail-padding-h: 100px;
     --detail-gap: 48px;
     --detail-cols: 0.65fr 1.7fr 0.65fr;
     --detail-text-size: 1.7rem;
@@ -141,7 +137,7 @@
 /* Широкий десктоп — от 1440px */
 @media (min-width: 1440px) {
   .page {
-    --detail-padding-h: 100px;
+    --detail-padding-h: 120px;
     --detail-gap: 56px;
     --detail-cols: 0.6fr 1.8fr 0.6fr;
     --detail-text-size: 1.85rem;
@@ -214,11 +210,26 @@
   right: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  padding: 0 24px;
-  text-align: center;
+  padding: 0 40px;
+  text-align: left;
   color: #fff;
+}
+
+/* bottom-center: заголовок по центру снизу */
+.heroContentCenter {
+  align-items: center;
+  text-align: center;
+}
+
+/* center: заголовок по центру экрана */
+.heroContentMiddle {
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  align-items: center;
+  text-align: center;
 }
 
 .heroEyebrow {
@@ -254,17 +265,15 @@
 }
 
 .detailPhoto {
-  position: relative;
   overflow: hidden;
   border-radius: var(--detail-photo-radius);
-  aspect-ratio: var(--detail-photo-aspect);
   background: #ede9e6;
 }
 
 .detailImage {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   transform-origin: center center;
 }
 

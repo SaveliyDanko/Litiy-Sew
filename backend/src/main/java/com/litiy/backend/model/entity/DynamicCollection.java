@@ -48,6 +48,18 @@ public class DynamicCollection {
     @Column(length = 1024)
     private String detailFocus;
 
+    @Column(length = 256)
+    private String groupTitle;
+
+    @Column
+    @Builder.Default
+    private Boolean hideCardLabel = false;
+
+    /** 'bottom-left' | 'bottom-center' | 'center' */
+    @Column(length = 32)
+    @Builder.Default
+    private String heroTitlePosition = "bottom-left";
+
     /** 'warm' | 'cool' | 'neutral' */
     @Column(length = 16)
     @Builder.Default

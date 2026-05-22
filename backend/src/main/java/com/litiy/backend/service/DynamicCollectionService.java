@@ -58,6 +58,9 @@ public class DynamicCollectionService {
                 .description(req.description())
                 .detailIntro(req.detailIntro())
                 .detailFocus(req.detailFocus())
+                .groupTitle(req.groupTitle())
+                .hideCardLabel(Boolean.TRUE.equals(req.hideCardLabel()))
+                .heroTitlePosition(req.heroTitlePosition() != null ? req.heroTitlePosition() : "bottom-left")
                 .tone(req.tone() != null ? req.tone() : "neutral")
                 .category(req.category() != null ? req.category() : "COLLECTION")
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
@@ -82,6 +85,9 @@ public class DynamicCollectionService {
         c.setDescription(req.description());
         c.setDetailIntro(req.detailIntro());
         c.setDetailFocus(req.detailFocus());
+        c.setGroupTitle(req.groupTitle());
+        if (req.hideCardLabel() != null) c.setHideCardLabel(req.hideCardLabel());
+        if (req.heroTitlePosition() != null) c.setHeroTitlePosition(req.heroTitlePosition());
         if (req.tone() != null) c.setTone(req.tone());
         if (req.category() != null) c.setCategory(req.category());
         if (req.sortOrder() != null) c.setSortOrder(req.sortOrder());
