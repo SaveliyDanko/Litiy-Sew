@@ -73,7 +73,7 @@
      ---------------------------------------------------------- */
 
   /* Горизонтальный отступ галереи от краёв экрана (мобайл) */
-  --mosaic-padding-h: 6px;
+  --mosaic-padding-h: 32px;
 
   /* Отступ галереи снизу (мобайл) */
   --mosaic-padding-b: 80px;
@@ -111,7 +111,7 @@
     --detail-photo-radius: 24px;
     --detail-text-size: 1.55rem;
 
-    --mosaic-padding-h: 12px;
+    --mosaic-padding-h: 60px;
     --mosaic-padding-b: 100px;
     --mosaic-gap: 12px;
     --mosaic-cols: 3;
@@ -126,7 +126,7 @@
     --detail-padding-h: 100px;
     --detail-gap: 48px;
     --detail-cols: 0.65fr 1.7fr 0.65fr;
-    --detail-text-size: 1.7rem;
+    --detail-text-size: 2.55rem;
 
     --mosaic-padding-h: 100px;
     --mosaic-padding-b: 120px;
@@ -138,9 +138,10 @@
 @media (min-width: 1440px) {
   .page {
     --detail-padding-h: 120px;
+    --mosaic-padding-h: 120px;
     --detail-gap: 56px;
     --detail-cols: 0.6fr 1.8fr 0.6fr;
-    --detail-text-size: 1.85rem;
+    --detail-text-size: 2.78rem;
   }
 }
 
