@@ -190,7 +190,7 @@
     --hero-content-padding-x: 32px;
     --hero-content-padding-bottom: 64px;
 
-    --hero-title-size: 4rem;
+    --hero-title-size: 3.6rem;
     --hero-title-letter-spacing: 0.02em;
     --hero-title-align: center;          /* заголовок по центру */
     --hero-title-text-align: center;
@@ -200,7 +200,7 @@
 /* Планшет широкий — от 768px */
 @media (min-width: 768px) {
   .hero {
-    --hero-title-size: 5.5rem;
+    --hero-title-size: 5rem;
   }
 
   .featured {
@@ -218,7 +218,7 @@
     --hero-content-padding-top: 260px;   /* большой отступ сверху — заголовок внизу */
     --hero-content-padding-x: 48px;
     --hero-content-padding-bottom: 96px;
-    --hero-title-size: 7rem;
+    --hero-title-size: 6.3rem;
 
     --card-offset-y: -28px;
     --card-image-width: 250px;
