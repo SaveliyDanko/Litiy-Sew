@@ -184,20 +184,15 @@
   min-height: 320px;
 }
 
-/* heroHeightMode="auto" — fits image proportions */
+/* heroHeightMode="auto" — fits image proportions via aspect-ratio set by JS onLoad */
 .heroAuto {
-  height: auto;
-  min-height: 0;
-}
-
-.heroAuto .heroImage {
-  position: relative;
   height: auto;
   min-height: 320px;
 }
 
-.heroAuto .heroPlaceholder {
-  height: 480px;
+/* Before aspect-ratio is known — fallback height so overlay/title are visible */
+.heroAuto:not([style*='aspect-ratio']) {
+  height: 60svh;
 }
 
 .heroImage {

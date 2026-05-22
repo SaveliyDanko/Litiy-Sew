@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -10,6 +10,8 @@ export default function CollectionPlaceholderPage() {
   const slug = window.location.pathname.replace('/collections/', '').replace(/\/+$/, '');
   const [collection, setCollection] = useState<DynamicCollection | null | undefined>(undefined);
   const mosaicCols = useMemo(() => (window.innerWidth < 640 ? 2 : 3), []);
+  const [heroAspect, setHeroAspect] = useState<string | undefined>(undefined);
+  const heroImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (!slug) { setCollection(null); return; }
@@ -62,14 +64,24 @@ export default function CollectionPlaceholderPage() {
 
       <main className={styles.page}>
         {/* ── Full-screen hero ─────────────────────────────────────────── */}
-        <section className={`${styles.hero} ${collection.heroHeightMode === 'half' ? styles.heroHalf : ''} ${collection.heroHeightMode === 'auto' ? styles.heroAuto : ''}`}>
+        <section
+          className={`${styles.hero} ${collection.heroHeightMode === 'half' ? styles.heroHalf : ''} ${collection.heroHeightMode === 'auto' ? styles.heroAuto : ''}`}
+          style={collection.heroHeightMode === 'auto' && heroAspect ? { aspectRatio: heroAspect } : undefined}
+        >
           {heroDisplay ? (
             <img
+              ref={heroImgRef}
               className={styles.heroImage}
               src={heroDisplay.imageUrl}
               {...imgSrcSetProps(heroDisplay.imageSrcSet, '100vw')}
               alt={collection.title}
               fetchPriority="high"
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                if (img.naturalWidth && img.naturalHeight) {
+                  setHeroAspect(`${img.naturalWidth} / ${img.naturalHeight}`);
+                }
+              }}
               style={{
                 objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%`,
                 transform: `scale(${(heroDisplay.scale ?? 100) / 100})`,
