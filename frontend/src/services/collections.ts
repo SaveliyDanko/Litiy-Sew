@@ -132,3 +132,10 @@ export async function updateCollectionPhotoPosition(photoId: number, positionX: 
 export async function deleteCollectionPhoto(photoId: number): Promise<void> {
   return adminRequest<void>(`/admin/collections/photos/${photoId}`, { method: 'DELETE' });
 }
+
+export async function reorderCollectionPhoto(photoId: number, sortOrder: number): Promise<void> {
+  return adminRequest<void>(`/admin/collections/photos/${photoId}/order`, {
+    method: 'PATCH',
+    body: JSON.stringify({ sortOrder }),
+  });
+}

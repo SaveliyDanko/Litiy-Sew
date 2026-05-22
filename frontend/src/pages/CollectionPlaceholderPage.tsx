@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -8,6 +8,7 @@ import styles from './CollectionPlaceholderPage.module.css';
 export default function CollectionPlaceholderPage() {
   const slug = window.location.pathname.replace('/collections/', '').replace(/\/+$/, '');
   const [collection, setCollection] = useState<DynamicCollection | null | undefined>(undefined);
+  const mosaicCols = useMemo(() => (window.innerWidth < 640 ? 2 : 3), []);
 
   useEffect(() => {
     if (!slug) { setCollection(null); return; }
@@ -128,18 +129,20 @@ export default function CollectionPlaceholderPage() {
         {mosaicPhotos.length > 0 && (
           <section className={styles.mosaic}>
             <div className={styles.mosaicGrid}>
-              {mosaicPhotos.map((photo, index) => (
-                <div key={photo.id} className={styles.mosaicItem}>
-                  <img
-                    className={styles.mosaicImage}
-                    src={photo.imageUrl}
-                    alt={`${collection.title} — ${index + 1}`}
-                    loading="lazy"
-                    style={{
-                      objectPosition: `${photo.positionX}% ${photo.positionY}%`,
-                      transform: `scale(${(photo.scale ?? 100) / 100})`,
-                    }}
-                  />
+              {Array.from({ length: mosaicCols }, (_, colIdx) => (
+                <div key={colIdx} className={styles.mosaicCol}>
+                  {mosaicPhotos
+                    .filter((_, i) => i % mosaicCols === colIdx)
+                    .map((photo, index) => (
+                      <div key={photo.id} className={styles.mosaicItem}>
+                        <img
+                          className={styles.mosaicImage}
+                          src={photo.imageUrl}
+                          alt={`${collection.title} — ${colIdx + index * mosaicCols + 1}`}
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
                 </div>
               ))}
             </div>

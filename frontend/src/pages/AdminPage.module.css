@@ -470,6 +470,14 @@ select.input {
   cursor: not-allowed;
 }
 
+.dynPhotoActions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ── Settings cards ──────────────────────────────────────────────────────── */
 
 .settingsCard {

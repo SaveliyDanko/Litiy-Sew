@@ -94,6 +94,14 @@ public class DynamicCollectionController {
         ));
     }
 
+    @PatchMapping("/api/admin/collections/photos/{photoId}/order")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> reorderPhoto(@PathVariable Long photoId,
+                                              @RequestBody Map<String, Integer> body) {
+        service.reorderPhoto(photoId, body.get("sortOrder"));
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/api/admin/collections/photos/{photoId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePhoto(@PathVariable Long photoId) {

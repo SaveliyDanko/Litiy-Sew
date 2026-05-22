@@ -42,6 +42,7 @@ import {
   deleteCollectionPhoto,
   fetchCollections,
   reorderCollection,
+  reorderCollectionPhoto,
   updateCollection,
   updateCollectionPhotoPosition,
   type DynamicCollection,
@@ -1169,11 +1170,15 @@ function DynPhotoRow({
   label,
   onDelete,
   onUpdate,
+  onMoveUp,
+  onMoveDown,
 }: {
   photo: DynamicCollectionPhoto;
   label?: string;
   onDelete: (id: number) => void;
   onUpdate: (p: DynamicCollectionPhoto) => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }) {
   const [posX, setPosX] = useState(photo.positionX);
   const [posY, setPosY] = useState(photo.positionY);
@@ -1239,7 +1244,11 @@ function DynPhotoRow({
           </label>
         </div>
       </div>
-      <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить фото">×</button>
+      <div className={styles.dynPhotoActions}>
+        {onMoveUp && <button className={styles.orderBtn} onClick={onMoveUp} aria-label="Вверх">↑</button>}
+        {onMoveDown && <button className={styles.orderBtn} onClick={onMoveDown} aria-label="Вниз">↓</button>}
+        <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить фото">×</button>
+      </div>
     </div>
   );
 }
@@ -1262,11 +1271,29 @@ function CollectionPhotoGroups({
   photos,
   onDelete,
   onUpdate,
+  onReorder,
 }: {
   photos: DynamicCollectionPhoto[];
   onDelete: (id: number) => void;
   onUpdate: (p: DynamicCollectionPhoto) => void;
+  onReorder: (photos: DynamicCollectionPhoto[]) => void;
 }) {
+  async function handleMove(groupPhotos: DynamicCollectionPhoto[], idx: number, dir: -1 | 1) {
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= groupPhotos.length) return;
+    const normalized = groupPhotos.map((p, i) => ({ ...p, sortOrder: i }));
+    await reorderCollectionPhoto(normalized[idx].id, swapIdx);
+    await reorderCollectionPhoto(normalized[swapIdx].id, idx);
+    const updated = [...normalized];
+    updated[idx] = { ...normalized[idx], sortOrder: swapIdx };
+    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: idx };
+    updated.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+    onReorder([
+      ...photos.filter((p) => p.photoType !== groupPhotos[0].photoType),
+      ...updated,
+    ]);
+  }
+
   return (
     <div className={styles.photoGroupsList}>
       {PHOTO_GROUPS.map((group) => {
@@ -1297,6 +1324,8 @@ function CollectionPhotoGroups({
                     }
                     onDelete={onDelete}
                     onUpdate={onUpdate}
+                    onMoveUp={group.type === 'GALLERY' && i > 0 ? () => handleMove(groupPhotos, i, -1) : undefined}
+                    onMoveDown={group.type === 'GALLERY' && i < groupPhotos.length - 1 ? () => handleMove(groupPhotos, i, 1) : undefined}
                   />
                 ))}
               </div>
@@ -1430,6 +1459,10 @@ function DynCollectionCard({
 
   function handlePhotoDelete(photoId: number) {
     onChange({ ...collection, photos: collection.photos.filter((p) => p.id !== photoId) });
+  }
+
+  function handlePhotoReorder(reordered: DynamicCollectionPhoto[]) {
+    onChange({ ...collection, photos: reordered });
   }
 
   const cardPhoto = collection.photos.find((p) => p.photoType === 'CARD');
@@ -1593,6 +1626,7 @@ function DynCollectionCard({
                 photos={collection.photos}
                 onDelete={handlePhotoDelete}
                 onUpdate={handlePhotoUpdate}
+                onReorder={handlePhotoReorder}
               />
             )}
           </div>
