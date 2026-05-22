@@ -27,6 +27,8 @@ export type DynamicCollection = {
   hideCardLabel: boolean;
   heroTitlePosition: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   heroHeightMode: 'full' | 'half' | 'auto';
+  heroHeightMobile: number | null;
+  heroHeightDesktop: number | null;
   cardHeightMobile: number | null;
   cardHeightDesktop: number | null;
   tone: 'warm' | 'cool' | 'neutral';
@@ -49,6 +51,8 @@ export type CreateCollectionData = {
   hideCardLabel?: boolean;
   heroTitlePosition?: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   heroHeightMode?: 'full' | 'half' | 'auto';
+  heroHeightMobile?: number | null;
+  heroHeightDesktop?: number | null;
   cardHeightMobile?: number | null;
   cardHeightDesktop?: number | null;
   tone?: 'warm' | 'cool' | 'neutral';

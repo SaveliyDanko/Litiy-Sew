@@ -1477,6 +1477,8 @@ function DynCollectionCard({
   const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
   const [heroTitlePosition, setHeroTitlePosition] = useState<HeroTitlePosition>(collection.heroTitlePosition ?? 'bottom-left');
   const [heroHeightMode, setHeroHeightMode] = useState<'full' | 'half' | 'auto'>(collection.heroHeightMode ?? 'full');
+  const [heroHeightMobile, setHeroHeightMobile] = useState<string>(collection.heroHeightMobile != null ? String(collection.heroHeightMobile) : '');
+  const [heroHeightDesktop, setHeroHeightDesktop] = useState<string>(collection.heroHeightDesktop != null ? String(collection.heroHeightDesktop) : '');
   const [cardHeightMobile, setCardHeightMobile] = useState<string>(collection.cardHeightMobile != null ? String(collection.cardHeightMobile) : '');
   const [cardHeightDesktop, setCardHeightDesktop] = useState<string>(collection.cardHeightDesktop != null ? String(collection.cardHeightDesktop) : '');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
@@ -1502,6 +1504,8 @@ function DynCollectionCard({
     setHideCardLabel(collection.hideCardLabel ?? false);
     setHeroTitlePosition((collection.heroTitlePosition ?? 'bottom-left') as HeroTitlePosition);
     setHeroHeightMode(collection.heroHeightMode ?? 'full');
+    setHeroHeightMobile(collection.heroHeightMobile != null ? String(collection.heroHeightMobile) : '');
+    setHeroHeightDesktop(collection.heroHeightDesktop != null ? String(collection.heroHeightDesktop) : '');
     setCardHeightMobile(collection.cardHeightMobile != null ? String(collection.cardHeightMobile) : '');
     setCardHeightDesktop(collection.cardHeightDesktop != null ? String(collection.cardHeightDesktop) : '');
     setTone(collection.tone ?? 'neutral');
@@ -1528,6 +1532,8 @@ function DynCollectionCard({
         hideCardLabel,
         heroTitlePosition,
         heroHeightMode,
+        heroHeightMobile: heroHeightMobile !== '' ? Number(heroHeightMobile) : null,
+        heroHeightDesktop: heroHeightDesktop !== '' ? Number(heroHeightDesktop) : null,
         cardHeightMobile: cardHeightMobile !== '' ? Number(cardHeightMobile) : null,
         cardHeightDesktop: cardHeightDesktop !== '' ? Number(cardHeightDesktop) : null,
         tone,
@@ -1718,6 +1724,34 @@ function DynCollectionCard({
                   <option value="auto">По пропорциям фото</option>
                 </select>
               </label>
+              <div className={styles.createCollectionGrid}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Высота Hero — мобайл (%)</span>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={10}
+                    max={100}
+                    step={5}
+                    value={heroHeightMobile}
+                    onChange={(e) => setHeroHeightMobile(e.target.value)}
+                    placeholder="по режиму выше"
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Высота Hero — десктоп (%)</span>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={10}
+                    max={100}
+                    step={5}
+                    value={heroHeightDesktop}
+                    onChange={(e) => setHeroHeightDesktop(e.target.value)}
+                    placeholder="по режиму выше"
+                  />
+                </label>
+              </div>
               <div className={styles.createCollectionGrid}>
                 <label className={styles.field}>
                   <span className={styles.label}>Высота карточки — мобайл (px)</span>

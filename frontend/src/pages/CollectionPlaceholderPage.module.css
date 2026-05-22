@@ -184,6 +184,18 @@
   min-height: 320px;
 }
 
+/* кастомная высота в % — мобайл, перекрывается на десктопе */
+.heroCustomVh {
+  height: var(--hero-h-mobile, var(--hero-h-desktop, 100svh));
+  min-height: 320px;
+}
+
+@media (min-width: 960px) {
+  .heroCustomVh {
+    height: var(--hero-h-desktop, var(--hero-h-mobile, 100svh));
+  }
+}
+
 /* heroHeightMode="auto" — fits image proportions via aspect-ratio set by JS onLoad */
 .heroAuto {
   height: auto;
