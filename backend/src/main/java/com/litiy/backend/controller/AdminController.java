@@ -163,7 +163,7 @@ public class AdminController {
         String url = body.get("imageUrl");
         String key = body.get("imageKey");
         if (url == null || key == null) return ResponseEntity.badRequest().build();
-        return heroBannerAdminService.replaceMobileImage(url, key)
+        return heroBannerAdminService.replaceMobileImage(url, key, body.get("imageSrcSet"))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -180,7 +180,7 @@ public class AdminController {
         String url = body.get("imageUrl");
         String key = body.get("imageKey");
         if (url == null || key == null) return ResponseEntity.badRequest().build();
-        return heroBannerAdminService.replaceTabletImage(url, key)
+        return heroBannerAdminService.replaceTabletImage(url, key, body.get("imageSrcSet"))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }

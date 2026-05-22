@@ -34,6 +34,7 @@ public class ProductAdminService {
                 .price(req.price())
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
+                .imageSrcSet(req.imageSrcSet())
                 .createdAt(Instant.now())
                 .build();
         return ProductResponse.from(productRepository.save(product));

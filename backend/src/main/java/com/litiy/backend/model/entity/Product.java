@@ -42,6 +42,9 @@ public class Product {
     @Column(nullable = false, length = 512)
     private String imageKey;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageSrcSet;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 }

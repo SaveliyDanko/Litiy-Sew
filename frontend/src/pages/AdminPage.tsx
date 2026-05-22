@@ -80,13 +80,14 @@ function ProductsSection() {
     if (!form.title.trim()) { showToast('Введите название'); return; }
     setUploading(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const created = await createProduct({
         title: form.title.trim(),
         price: Number(form.price) || 0,
         description: form.description.trim() || undefined,
         imageUrl: publicUrl,
         imageKey: key,
+        imageSrcSet: srcset,
       });
       setItems((prev) => [created, ...prev]);
       setForm({ title: '', price: '', description: '' });
@@ -213,7 +214,7 @@ function PatternsSection() {
     if (!form.title.trim()) { showToast('Введите название'); return; }
     setUploading(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const created = await createPattern({
         title: form.title.trim(),
         category: form.category,
@@ -221,6 +222,7 @@ function PatternsSection() {
         description: form.description.trim() || undefined,
         previewUrl: publicUrl,
         previewKey: key,
+        previewSrcSet: srcset,
         sizes: form.sizes.trim(),
         heights: form.heights.trim(),
       });
@@ -461,11 +463,12 @@ function PortfolioSection() {
     if (!file) { showToast('Выберите фото'); return; }
     setUploading(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const maxOrder = items.length > 0 ? Math.max(...items.map((i) => i.sortOrder)) : -1;
       const created = await createPortfolioPhoto({
         photoUrl: publicUrl,
         photoKey: key,
+        photoSrcSet: srcset,
         caption: caption.trim() || undefined,
         sortOrder: maxOrder + 1,
       });
@@ -643,13 +646,15 @@ function HeroSection() {
     if (!file) { showToast('Выберите изображение'); return; }
     setUploadingD(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const updated = await replaceHero({
-        imageUrl: publicUrl, imageKey: key,
+        imageUrl: publicUrl, imageKey: key, imageSrcSet: srcset,
         imageUrlMobile: current?.imageUrlMobile ?? undefined,
         imageKeyMobile: current?.imageKeyMobile ?? undefined,
+        imageSrcSetMobile: current?.imageSrcSetMobile ?? undefined,
         imageUrlTablet: current?.imageUrlTablet ?? undefined,
         imageKeyTablet: current?.imageKeyTablet ?? undefined,
+        imageSrcSetTablet: current?.imageSrcSetTablet ?? undefined,
         positionX: posX, positionY: posY,
         positionXMobile: posXM, positionYMobile: posYM,
         positionXTablet: posXT, positionYTablet: posYT,
@@ -673,8 +678,8 @@ function HeroSection() {
     if (!file) { showToast('Выберите изображение'); return; }
     setUploadingM(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
-      const updated = await replaceHeroMobile(publicUrl, key);
+      const { publicUrl, key, srcset } = await uploadFile(file);
+      const updated = await replaceHeroMobile(publicUrl, key, srcset);
       if (updated) setCurrent(updated);
       setPreviewM(null);
       setFileNameM(null);
@@ -702,8 +707,8 @@ function HeroSection() {
     if (!file) { showToast('Выберите изображение'); return; }
     setUploadingT(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
-      const updated = await replaceHeroTablet(publicUrl, key);
+      const { publicUrl, key, srcset } = await uploadFile(file);
+      const updated = await replaceHeroTablet(publicUrl, key, srcset);
       if (updated) setCurrent(updated);
       setPreviewT(null);
       setFileNameT(null);
@@ -996,11 +1001,12 @@ function SiteImageSlot({ config, data, onUpdate }: {
     if (!file) { showToast('Выберите изображение'); return; }
     setUploading(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const updated = await upsertSiteImage({
         slotKey: config.key,
         imageUrl: publicUrl,
         imageKey: key,
+        imageSrcSet: srcset,
         positionX: posX,
         positionY: posY,
         scale,
@@ -1540,12 +1546,13 @@ function DynCollectionCard({
     }
     setUploading(true);
     try {
-      const { publicUrl, key } = await uploadFile(file);
+      const { publicUrl, key, srcset } = await uploadFile(file);
       const galleryPhotos = collection.photos.filter((p) => p.photoType === 'GALLERY');
       const maxOrder = galleryPhotos.length > 0 ? Math.max(...galleryPhotos.map((p) => p.sortOrder)) : -1;
       const photo = await addCollectionPhoto(collection.id, {
         imageUrl: publicUrl,
         imageKey: key,
+        imageSrcSet: srcset,
         photoType,
         sortOrder: photoType === 'GALLERY' ? maxOrder + 1 : 0,
       });

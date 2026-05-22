@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { fetchPortfolioPhotos, type PortfolioPhoto } from '../services/portfolio';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
+import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { ABOUT_PAGE_DATA, PORTFOLIO_ITEMS } from './aboutData';
 import styles from './AboutPage.module.css';
 
@@ -44,6 +45,10 @@ export default function AboutPage() {
     };
   }
 
+  function slotSrcSet(slotKey: string, sizes = '100vw') {
+    return imgSrcSetProps(siteImages.get(slotKey)?.imageSrcSet, sizes);
+  }
+
   return (
     <>
       <Header />
@@ -72,13 +77,16 @@ export default function AboutPage() {
             {siteImages.get('about-hero-mobile') && (
               <source
                 media="(max-width: 639px)"
-                srcSet={siteImages.get('about-hero-mobile')!.imageUrl}
+                srcSet={siteImages.get('about-hero-mobile')!.imageSrcSet ?? siteImages.get('about-hero-mobile')!.imageUrl}
+                sizes="100vw"
               />
             )}
             <img
               className={styles.heroImage}
               src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
+              {...slotSrcSet('about-hero', '100vw')}
               alt={ABOUT_PAGE_DATA.hero.imageAlt}
+              fetchPriority="high"
             />
           </picture>
           <div className={styles.heroOverlay} />
@@ -92,7 +100,9 @@ export default function AboutPage() {
             <img
               className={styles.storyImage}
               src={imgUrl('about-portrait', ABOUT_PAGE_DATA.story.imageUrl)}
+              {...slotSrcSet('about-portrait', '(min-width: 1024px) 40vw, 100vw')}
               alt={ABOUT_PAGE_DATA.story.imageAlt}
+              loading="lazy"
               style={imgStyle('about-portrait')}
             />
           </div>
@@ -153,7 +163,9 @@ export default function AboutPage() {
                         <img
                           className={styles.portfolioPreviewImage}
                           src={imgUrl(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '', activePortfolio.imageUrl)}
+                          {...slotSrcSet(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '', '(min-width: 1024px) 50vw, 100vw')}
                           alt={activePortfolio.imageAlt}
+                          loading="lazy"
                           style={imgStyle(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '')}
                         />
                       </div>
@@ -184,8 +196,10 @@ export default function AboutPage() {
                 <div key={photo.id} className={styles.galleryItem}>
                   <img
                     src={photo.photoUrl}
+                    {...imgSrcSetProps(photo.photoSrcSet, '(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw')}
                     alt={photo.caption ?? ''}
                     className={styles.galleryImg}
+                    loading="lazy"
                     style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%`, transform: `scale(${(photo.scale ?? 100) / 100})` }}
                   />
                   {photo.caption && <p className={styles.galleryCaption}>{photo.caption}</p>}

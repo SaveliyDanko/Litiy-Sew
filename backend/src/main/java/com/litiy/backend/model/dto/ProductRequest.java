@@ -9,5 +9,6 @@ public record ProductRequest(
         @NotNull @Min(0) Integer price,
         String description,
         @NotBlank String imageUrl,
-        @NotBlank String imageKey
+        @NotBlank String imageKey,
+        String imageSrcSet
 ) {}

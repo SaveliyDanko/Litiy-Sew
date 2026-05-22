@@ -12,6 +12,7 @@ public record PatternItemResponse(
         String description,
         String previewUrl,
         String previewKey,
+        String previewSrcSet,
         String sizes,
         String heights,
         Instant createdAt
@@ -25,6 +26,7 @@ public record PatternItemResponse(
                 p.getDescription(),
                 p.getPreviewUrl(),
                 p.getPreviewKey(),
+                p.getPreviewSrcSet(),
                 p.getSizes(),
                 p.getHeights(),
                 p.getCreatedAt()

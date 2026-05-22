@@ -3,6 +3,7 @@ export type SiteImage = {
   slotKey: string;
   imageUrl: string;
   imageKey: string;
+  imageSrcSet: string | null;
   positionX: number;
   positionY: number;
   scale: number;
@@ -25,6 +26,7 @@ export async function upsertSiteImage(data: {
   slotKey: string;
   imageUrl: string;
   imageKey: string;
+  imageSrcSet?: string | null;
   positionX?: number;
   positionY?: number;
   scale?: number;

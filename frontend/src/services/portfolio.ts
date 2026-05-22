@@ -1,6 +1,7 @@
 export type PortfolioPhoto = {
   id: number;
   photoUrl: string;
+  photoSrcSet: string | null;
   caption: string | null;
   sortOrder: number;
   positionX: number;

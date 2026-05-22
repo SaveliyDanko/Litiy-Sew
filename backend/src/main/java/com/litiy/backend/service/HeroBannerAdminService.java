@@ -35,10 +35,13 @@ public class HeroBannerAdminService {
         HeroBanner banner = HeroBanner.builder()
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
+                .imageSrcSet(req.imageSrcSet())
                 .imageUrlMobile(req.imageUrlMobile())
                 .imageKeyMobile(req.imageKeyMobile())
+                .imageSrcSetMobile(req.imageSrcSetMobile())
                 .imageUrlTablet(req.imageUrlTablet())
                 .imageKeyTablet(req.imageKeyTablet())
+                .imageSrcSetTablet(req.imageSrcSetTablet())
                 .positionX(req.positionX()       != null ? req.positionX()       : 50)
                 .positionY(req.positionY()       != null ? req.positionY()       : 50)
                 .positionXMobile(req.positionXMobile() != null ? req.positionXMobile() : 50)
@@ -68,11 +71,12 @@ public class HeroBannerAdminService {
         });
     }
 
-    public Optional<HeroBannerResponse> replaceMobileImage(String imageUrl, String imageKey) {
+    public Optional<HeroBannerResponse> replaceMobileImage(String imageUrl, String imageKey, String srcSet) {
         return heroBannerRepository.findTopByOrderByCreatedAtDesc().map(banner -> {
             if (banner.getImageKeyMobile() != null) mediaService.deleteFile(banner.getImageKeyMobile());
             banner.setImageUrlMobile(imageUrl);
             banner.setImageKeyMobile(imageKey);
+            banner.setImageSrcSetMobile(srcSet);
             return HeroBannerResponse.from(heroBannerRepository.save(banner));
         });
     }
@@ -82,15 +86,17 @@ public class HeroBannerAdminService {
             if (banner.getImageKeyMobile() != null) mediaService.deleteFile(banner.getImageKeyMobile());
             banner.setImageUrlMobile(null);
             banner.setImageKeyMobile(null);
+            banner.setImageSrcSetMobile(null);
             return HeroBannerResponse.from(heroBannerRepository.save(banner));
         });
     }
 
-    public Optional<HeroBannerResponse> replaceTabletImage(String imageUrl, String imageKey) {
+    public Optional<HeroBannerResponse> replaceTabletImage(String imageUrl, String imageKey, String srcSet) {
         return heroBannerRepository.findTopByOrderByCreatedAtDesc().map(banner -> {
             if (banner.getImageKeyTablet() != null) mediaService.deleteFile(banner.getImageKeyTablet());
             banner.setImageUrlTablet(imageUrl);
             banner.setImageKeyTablet(imageKey);
+            banner.setImageSrcSetTablet(srcSet);
             return HeroBannerResponse.from(heroBannerRepository.save(banner));
         });
     }
@@ -100,6 +106,7 @@ public class HeroBannerAdminService {
             if (banner.getImageKeyTablet() != null) mediaService.deleteFile(banner.getImageKeyTablet());
             banner.setImageUrlTablet(null);
             banner.setImageKeyTablet(null);
+            banner.setImageSrcSetTablet(null);
             return HeroBannerResponse.from(heroBannerRepository.save(banner));
         });
     }

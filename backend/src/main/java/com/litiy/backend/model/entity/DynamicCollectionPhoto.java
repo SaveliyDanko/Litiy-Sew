@@ -40,6 +40,9 @@ public class DynamicCollectionPhoto {
     @Column(nullable = false, length = 512)
     private String imageKey;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageSrcSet;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer positionX = 50;

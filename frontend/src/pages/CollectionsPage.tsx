@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { fetchCollections, type DynamicCollection } from '../services/collections';
+import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { getCollectionHref } from './collectionsData';
 import styles from './CollectionsPage.module.css';
 
@@ -27,6 +28,7 @@ function CollectionCard({ collection, globalIndex: _globalIndex }: { collection:
             <img
               className={styles.cardImage}
               src={photo.imageUrl}
+              {...imgSrcSetProps(photo.imageSrcSet, '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw')}
               alt={collection.title}
               loading="lazy"
               style={{ objectPosition: `${photo.positionX}% ${photo.positionY}%`, transform: `scale(${(photo.scale ?? 100) / 100})` }}
@@ -131,6 +133,7 @@ export default function CollectionsPage() {
                 <img
                   className={styles.featuredImage}
                   src={featuredCard.imageUrl}
+                  {...imgSrcSetProps(featuredCard.imageSrcSet, '100vw')}
                   alt={featured.title}
                   fetchPriority="high"
                   style={{ objectPosition: `${featuredCard.positionX}% ${featuredCard.positionY}%`, transform: `scale(${(featuredCard.scale ?? 100) / 100})` }}

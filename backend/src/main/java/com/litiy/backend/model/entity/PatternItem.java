@@ -45,6 +45,9 @@ public class PatternItem {
     @Column(nullable = false, length = 512)
     private String previewKey;
 
+    @Column(columnDefinition = "TEXT")
+    private String previewSrcSet;
+
     /** Comma-separated available sizes, e.g. "38,40,42,44" */
     @Column(nullable = false, length = 255)
     private String sizes;

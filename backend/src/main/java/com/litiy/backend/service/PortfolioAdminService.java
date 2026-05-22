@@ -31,6 +31,7 @@ public class PortfolioAdminService {
         PortfolioPhoto photo = PortfolioPhoto.builder()
                 .photoUrl(req.photoUrl())
                 .photoKey(req.photoKey())
+                .photoSrcSet(req.photoSrcSet())
                 .caption(req.caption())
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
                 .positionX(req.positionX() != null ? req.positionX() : 50)

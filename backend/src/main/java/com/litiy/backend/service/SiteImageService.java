@@ -41,6 +41,7 @@ public class SiteImageService {
             }
             existing.setImageUrl(req.imageUrl());
             existing.setImageKey(req.imageKey());
+            existing.setImageSrcSet(req.imageSrcSet());
             existing.setPositionX(req.positionX() != null ? req.positionX() : existing.getPositionX());
             existing.setPositionY(req.positionY() != null ? req.positionY() : existing.getPositionY());
             existing.setScale(req.scale() != null ? req.scale() : existing.getScale());
@@ -52,6 +53,7 @@ public class SiteImageService {
                 .slotKey(req.slotKey())
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
+                .imageSrcSet(req.imageSrcSet())
                 .positionX(req.positionX() != null ? req.positionX() : 50)
                 .positionY(req.positionY() != null ? req.positionY() : 50)
                 .scale(req.scale() != null ? req.scale() : 100)

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { fetchCollection, type DynamicCollection } from '../services/collections';
+import { imgSrcSetProps } from '../utils/imgSrcSet';
 import styles from './CollectionPlaceholderPage.module.css';
 
 export default function CollectionPlaceholderPage() {
@@ -66,6 +67,7 @@ export default function CollectionPlaceholderPage() {
             <img
               className={styles.heroImage}
               src={heroDisplay.imageUrl}
+              {...imgSrcSetProps(heroDisplay.imageSrcSet, '100vw')}
               alt={collection.title}
               fetchPriority="high"
               style={{
@@ -92,6 +94,7 @@ export default function CollectionPlaceholderPage() {
                   <img
                     className={styles.detailImage}
                     src={detailPhotos[0].imageUrl}
+                    {...imgSrcSetProps(detailPhotos[0].imageSrcSet, '(min-width: 1024px) 40vw, 100vw')}
                     alt={collection.title}
                     loading="lazy"
                     style={{
@@ -112,6 +115,7 @@ export default function CollectionPlaceholderPage() {
                   <img
                     className={styles.detailImage}
                     src={detailPhotos[1].imageUrl}
+                    {...imgSrcSetProps(detailPhotos[1].imageSrcSet, '(min-width: 1024px) 40vw, 100vw')}
                     alt={collection.title}
                     loading="lazy"
                     style={{
@@ -138,6 +142,7 @@ export default function CollectionPlaceholderPage() {
                         <img
                           className={styles.mosaicImage}
                           src={photo.imageUrl}
+                          {...imgSrcSetProps(photo.imageSrcSet, '(min-width: 640px) 33vw, 50vw')}
                           alt={`${collection.title} — ${colIdx + index * mosaicCols + 1}`}
                           loading="lazy"
                         />

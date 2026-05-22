@@ -11,6 +11,7 @@ public record ProductResponse(
         String description,
         String imageUrl,
         String imageKey,
+        String imageSrcSet,
         Instant createdAt
 ) {
     public static ProductResponse from(Product p) {
@@ -21,6 +22,7 @@ public record ProductResponse(
                 p.getDescription(),
                 p.getImageUrl(),
                 p.getImageKey(),
+                p.getImageSrcSet(),
                 p.getCreatedAt()
         );
     }

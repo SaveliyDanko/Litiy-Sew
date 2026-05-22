@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 public record DynamicCollectionPhotoRequest(
         @NotBlank @Size(max = 512) String imageUrl,
         @NotBlank @Size(max = 512) String imageKey,
+        String imageSrcSet,
         @NotBlank @Pattern(regexp = "^(CARD|HERO|GALLERY)$") String photoType,
         Integer positionX,
         Integer positionY,

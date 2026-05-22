@@ -4,6 +4,7 @@ export type DynamicCollectionPhoto = {
   photoType: 'CARD' | 'HERO' | 'GALLERY';
   imageUrl: string;
   imageKey: string;
+  imageSrcSet: string | null;
   positionX: number;
   positionY: number;
   scale: number;
@@ -49,6 +50,7 @@ export type UpdateCollectionData = CreateCollectionData;
 export type AddPhotoData = {
   imageUrl: string;
   imageKey: string;
+  imageSrcSet?: string | null;
   photoType: 'CARD' | 'HERO' | 'GALLERY';
   positionX?: number;
   positionY?: number;

@@ -26,6 +26,7 @@ export type AdminProduct = {
   description: string | null;
   imageUrl: string;
   imageKey: string;
+  imageSrcSet: string | null;
   createdAt: string;
 };
 
@@ -37,6 +38,7 @@ export type AdminPatternItem = {
   description: string | null;
   previewUrl: string;
   previewKey: string;
+  previewSrcSet: string | null;
   sizes: string;
   heights: string;
   createdAt: string;
@@ -46,6 +48,7 @@ export type AdminPortfolioPhoto = {
   id: number;
   photoUrl: string;
   photoKey: string;
+  photoSrcSet: string | null;
   caption: string | null;
   sortOrder: number;
   positionX: number;
@@ -58,10 +61,13 @@ export type AdminHeroBanner = {
   id: number;
   imageUrl: string;
   imageKey: string;
+  imageSrcSet: string | null;
   imageUrlMobile: string | null;
   imageKeyMobile: string | null;
+  imageSrcSetMobile: string | null;
   imageUrlTablet: string | null;
   imageKeyTablet: string | null;
+  imageSrcSetTablet: string | null;
   positionX: number;
   positionY: number;
   positionXMobile: number;
@@ -77,6 +83,7 @@ export type AdminHeroBanner = {
 export type UploadResult = {
   publicUrl: string;
   key: string;
+  srcset: string | null;
 };
 
 // --- Media ---
@@ -108,6 +115,7 @@ export async function createProduct(data: {
   description?: string;
   imageUrl: string;
   imageKey: string;
+  imageSrcSet?: string | null;
 }): Promise<AdminProduct> {
   return request<AdminProduct>('/admin/products', {
     method: 'POST',
@@ -132,6 +140,7 @@ export async function createPattern(data: {
   description?: string;
   previewUrl: string;
   previewKey: string;
+  previewSrcSet?: string | null;
   sizes: string;
   heights: string;
 }): Promise<AdminPatternItem> {
@@ -154,6 +163,7 @@ export async function listPortfolio(): Promise<AdminPortfolioPhoto[]> {
 export async function createPortfolioPhoto(data: {
   photoUrl: string;
   photoKey: string;
+  photoSrcSet?: string | null;
   caption?: string;
   sortOrder?: number;
 }): Promise<AdminPortfolioPhoto> {
@@ -190,7 +200,7 @@ export async function getHero(): Promise<AdminHeroBanner | null> {
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHero(data: { imageUrl: string; imageKey: string; imageUrlMobile?: string; imageKeyMobile?: string; imageUrlTablet?: string; imageKeyTablet?: string; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number; positionXTablet?: number; positionYTablet?: number; scale?: number; scaleMobile?: number; scaleTablet?: number }): Promise<AdminHeroBanner> {
+export async function replaceHero(data: { imageUrl: string; imageKey: string; imageSrcSet?: string | null; imageUrlMobile?: string; imageKeyMobile?: string; imageSrcSetMobile?: string | null; imageUrlTablet?: string; imageKeyTablet?: string; imageSrcSetTablet?: string | null; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number; positionXTablet?: number; positionYTablet?: number; scale?: number; scaleMobile?: number; scaleTablet?: number }): Promise<AdminHeroBanner> {
   return request<AdminHeroBanner>('/admin/hero', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -209,12 +219,12 @@ export async function updateHeroPosition(positionX: number, positionY: number, p
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHeroMobile(imageUrl: string, imageKey: string): Promise<AdminHeroBanner | null> {
+export async function replaceHeroMobile(imageUrl: string, imageKey: string, imageSrcSet?: string | null): Promise<AdminHeroBanner | null> {
   const res = await fetch('/api/admin/hero/mobile', {
     method: 'PUT',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageUrl, imageKey }),
+    body: JSON.stringify({ imageUrl, imageKey, imageSrcSet }),
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -231,12 +241,12 @@ export async function deleteHeroMobile(): Promise<AdminHeroBanner | null> {
   return res.json() as Promise<AdminHeroBanner>;
 }
 
-export async function replaceHeroTablet(imageUrl: string, imageKey: string): Promise<AdminHeroBanner | null> {
+export async function replaceHeroTablet(imageUrl: string, imageKey: string, imageSrcSet?: string | null): Promise<AdminHeroBanner | null> {
   const res = await fetch('/api/admin/hero/tablet', {
     method: 'PUT',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageUrl, imageKey }),
+    body: JSON.stringify({ imageUrl, imageKey, imageSrcSet }),
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -33,6 +33,9 @@ public class PortfolioPhoto {
     @Column(nullable = false, length = 512)
     private String photoKey;
 
+    @Column(columnDefinition = "TEXT")
+    private String photoSrcSet;
+
     @Column(length = 255)
     private String caption;
 

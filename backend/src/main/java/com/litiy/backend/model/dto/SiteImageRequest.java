@@ -7,6 +7,7 @@ public record SiteImageRequest(
         @NotBlank String slotKey,
         @NotNull String imageUrl,
         @NotNull String imageKey,
+        String imageSrcSet,
         Integer positionX,
         Integer positionY,
         Integer scale,

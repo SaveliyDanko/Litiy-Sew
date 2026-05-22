@@ -123,6 +123,7 @@ public class DynamicCollectionService {
                 .photoType(req.photoType())
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
+                .imageSrcSet(req.imageSrcSet())
                 .positionX(req.positionX() != null ? req.positionX() : 50)
                 .positionY(req.positionY() != null ? req.positionY() : 50)
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)

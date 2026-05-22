@@ -11,6 +11,7 @@ public record PatternItemRequest(
         String description,
         @NotBlank String previewUrl,
         @NotBlank String previewKey,
+        String previewSrcSet,
         @NotBlank String sizes,
         @NotBlank String heights
 ) {}

@@ -43,6 +43,7 @@ public class PatternAdminService {
                 .description(req.description())
                 .previewUrl(req.previewUrl())
                 .previewKey(req.previewKey())
+                .previewSrcSet(req.previewSrcSet())
                 .sizes(req.sizes())
                 .heights(req.heights())
                 .createdAt(Instant.now())

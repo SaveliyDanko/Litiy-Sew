@@ -33,17 +33,26 @@ public class HeroBanner {
     @Column(nullable = false, length = 512)
     private String imageKey;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageSrcSet;
+
     @Column(length = 512)
     private String imageUrlMobile;
 
     @Column(length = 512)
     private String imageKeyMobile;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageSrcSetMobile;
+
     @Column(length = 512)
     private String imageUrlTablet;
 
     @Column(length = 512)
     private String imageKeyTablet;
+
+    @Column(columnDefinition = "TEXT")
+    private String imageSrcSetTablet;
 
     @Column(nullable = false)
     @Builder.Default

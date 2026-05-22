@@ -4,6 +4,7 @@ import { getCollectionHref } from '../pages/collectionsData';
 import { fetchCollections, type DynamicCollection } from '../services/collections';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { SHOP_ENABLED } from '../utils/featureFlags';
+import { imgSrcSetProps } from '../utils/imgSrcSet';
 import ProductCard from './ProductCard';
 import styles from './HeroSection.module.css';
 
@@ -11,8 +12,11 @@ const NEW_ARRIVALS = PRODUCTS_BY_CATEGORY.all.slice(0, 4);
 
 type HeroData = {
   imageUrl: string;
+  imageSrcSet: string | null;
   imageUrlMobile: string | null;
+  imageSrcSetMobile: string | null;
   imageUrlTablet: string | null;
+  imageSrcSetTablet: string | null;
   positionX: number;
   positionY: number;
   positionXMobile: number;
@@ -29,8 +33,11 @@ async function fetchHeroBanner(): Promise<HeroData> {
   if (res.status === 204 || !res.ok) return null;
   const data = await res.json() as {
     imageUrl: string;
+    imageSrcSet?: string | null;
     imageUrlMobile?: string | null;
+    imageSrcSetMobile?: string | null;
     imageUrlTablet?: string | null;
+    imageSrcSetTablet?: string | null;
     positionX?: number;
     positionY?: number;
     positionXMobile?: number;
@@ -43,8 +50,11 @@ async function fetchHeroBanner(): Promise<HeroData> {
   };
   return {
     imageUrl: data.imageUrl,
+    imageSrcSet: data.imageSrcSet ?? null,
     imageUrlMobile: data.imageUrlMobile ?? null,
+    imageSrcSetMobile: data.imageSrcSetMobile ?? null,
     imageUrlTablet: data.imageUrlTablet ?? null,
+    imageSrcSetTablet: data.imageSrcSetTablet ?? null,
     positionX: data.positionX ?? 50,
     positionY: data.positionY ?? 50,
     positionXMobile: data.positionXMobile ?? 50,
@@ -109,15 +119,25 @@ export default function HeroSection() {
         {hero && (
           <picture>
             {hero.imageUrlMobile && (
-              <source media="(max-width: 639px)" srcSet={hero.imageUrlMobile} />
+              <source
+                media="(max-width: 639px)"
+                srcSet={hero.imageSrcSetMobile ?? hero.imageUrlMobile}
+                sizes="100vw"
+              />
             )}
             {hero.imageUrlTablet && (
-              <source media="(min-width: 640px) and (max-width: 1023px)" srcSet={hero.imageUrlTablet} />
+              <source
+                media="(min-width: 640px) and (max-width: 1023px)"
+                srcSet={hero.imageSrcSetTablet ?? hero.imageUrlTablet}
+                sizes="100vw"
+              />
             )}
             <img
               className={styles.bg}
               src={hero.imageUrl}
+              {...imgSrcSetProps(hero.imageSrcSet, '100vw')}
               alt="Litiy Sew hero"
+              fetchPriority="high"
             />
           </picture>
         )}
@@ -201,7 +221,9 @@ export default function HeroSection() {
               <img
                 className={styles.featuredImage}
                 src={featuredCardPhoto.imageUrl}
+                {...imgSrcSetProps(featuredCardPhoto.imageSrcSet, '(min-width: 1024px) 50vw, 100vw')}
                 alt={featured.title}
+                loading="lazy"
                 style={{ objectPosition: `${featuredCardPhoto.positionX}% ${featuredCardPhoto.positionY}%`, transform: `scale(${(featuredCardPhoto.scale ?? 100) / 100})` }}
               />
             ) : (
