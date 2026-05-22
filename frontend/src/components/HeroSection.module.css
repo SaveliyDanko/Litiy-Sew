@@ -179,7 +179,7 @@
 /* Планшет — от 640px */
 @media (min-width: 640px) {
   .hero {
-    --hero-min-height: calc(100svh - 90px);
+    --hero-min-height: 100svh;
 
     /* Фон: зеркалим и слегка увеличиваем для эффекта */
     --hero-bg-scale: 1.15;
