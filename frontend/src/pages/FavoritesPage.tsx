@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import { useFavorites } from '../hooks/useFavorites';
 import styles from './FavoritesPage.module.css';
 
-const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+const MEDIA_BASE_URL = '';
 
 export default function FavoritesPage() {
   const { items } = useFavorites();

@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import styles from './CartPage.module.css';
 
-const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+const MEDIA_BASE_URL = '';
 const RUB = new Intl.NumberFormat('ru-RU');
 const BONUS_RATE = 0.1;
 

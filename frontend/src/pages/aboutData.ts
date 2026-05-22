@@ -1,4 +1,4 @@
-const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+const MEDIA_BASE_URL = '';
 
 export type PortfolioItem = {
   id: string;

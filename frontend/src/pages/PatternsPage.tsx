@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import PatternCard from '../components/PatternCard';
 import styles from './PatternsPage.module.css';
 
-const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+const MEDIA_BASE_URL = '';
 const COLLECTION_IMAGE_URL = `${MEDIA_BASE_URL}/patterns/collection.png`;
 
 type PatternCategory = {

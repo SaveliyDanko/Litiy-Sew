@@ -9,7 +9,7 @@ import type { Product } from '../types/product';
 import { CATEGORIES, PRODUCTS_BY_CATEGORY } from './patternsData';
 import styles from './PatternDetailPage.module.css';
 
-const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+const MEDIA_BASE_URL = '';
 const RUB_FORMATTER = new Intl.NumberFormat('ru-RU');
 
 const HEIGHTS = ['149-154', '155-160', '161-166', '167-172', '173-178', '179-184'];

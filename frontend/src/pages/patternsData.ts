@@ -99,4 +99,4 @@ PRODUCTS_BY_CATEGORY.all = [
   ...PRODUCTS_BY_CATEGORY.accessories,
 ];
 
-export const MEDIA_BASE_URL = 'http://localhost:9000/litiy-sew-media';
+export const MEDIA_BASE_URL = '';
