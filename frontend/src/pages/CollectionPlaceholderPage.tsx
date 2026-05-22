@@ -65,10 +65,20 @@ export default function CollectionPlaceholderPage() {
       <main className={styles.page}>
         {/* ── Full-screen hero ─────────────────────────────────────────── */}
         <section
-          className={`${styles.hero} ${collection.heroHeightMode === 'half' ? styles.heroHalf : ''} ${collection.heroHeightMode === 'auto' ? styles.heroAuto : ''} ${(collection.heroHeightMobile != null || collection.heroHeightDesktop != null) ? styles.heroCustomVh : ''}`}
+          className={(() => {
+            const hasCustomVh = collection.heroHeightMobile != null || collection.heroHeightDesktop != null;
+            return [
+              styles.hero,
+              hasCustomVh                                    ? styles.heroCustomVh : '',
+              !hasCustomVh && collection.heroHeightMode === 'half' ? styles.heroHalf    : '',
+              !hasCustomVh && collection.heroHeightMode === 'auto' ? styles.heroAuto    : '',
+            ].filter(Boolean).join(' ');
+          })()}
           style={{
-            ...(collection.heroHeightMode === 'auto' && heroAspect ? { aspectRatio: heroAspect } : {}),
-            ...(collection.heroHeightMobile != null ? { '--hero-h-mobile': `${collection.heroHeightMobile}svh` } as React.CSSProperties : {}),
+            ...(!( collection.heroHeightMobile != null || collection.heroHeightDesktop != null) && collection.heroHeightMode === 'auto' && heroAspect
+              ? { aspectRatio: heroAspect }
+              : {}),
+            ...(collection.heroHeightMobile  != null ? { '--hero-h-mobile':  `${collection.heroHeightMobile}svh`  } as React.CSSProperties : {}),
             ...(collection.heroHeightDesktop != null ? { '--hero-h-desktop': `${collection.heroHeightDesktop}svh` } as React.CSSProperties : {}),
           }}
         >
