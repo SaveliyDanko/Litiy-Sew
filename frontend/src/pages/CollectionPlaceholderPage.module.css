@@ -240,19 +240,33 @@
   color: #fff;
 }
 
-/* bottom-center: заголовок по центру снизу */
-.heroContentCenter {
+/* ── Vertical position modifiers ─────────────────────────────────────────── */
+
+.heroVTop {
+  bottom: auto;
+  top: var(--hero-title-bottom);
+}
+
+.heroVMiddle {
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* bottom is the default — no extra class needed */
+
+/* ── Horizontal alignment modifiers ──────────────────────────────────────── */
+
+/* left is the default — no extra class needed */
+
+.heroHCenter {
   align-items: center;
   text-align: center;
 }
 
-/* center: заголовок по центру экрана */
-.heroContentMiddle {
-  bottom: auto;
-  top: 50%;
-  transform: translateY(-50%);
-  align-items: center;
-  text-align: center;
+.heroHRight {
+  align-items: flex-end;
+  text-align: right;
 }
 
 .heroEyebrow {

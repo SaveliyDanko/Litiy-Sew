@@ -53,6 +53,7 @@ import {
 import styles from './AdminPage.module.css';
 
 type Tab = 'products' | 'patterns' | 'portfolio' | 'home' | 'about' | 'collections' | 'settings';
+type HeroTitlePosition = 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -1474,7 +1475,7 @@ function DynCollectionCard({
   const [detailFocus, setDetailFocus] = useState(collection.detailFocus ?? '');
   const [groupTitle, setGroupTitle] = useState(collection.groupTitle ?? '');
   const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
-  const [heroTitlePosition, setHeroTitlePosition] = useState<'bottom-left' | 'bottom-center' | 'center'>(collection.heroTitlePosition ?? 'bottom-left');
+  const [heroTitlePosition, setHeroTitlePosition] = useState<HeroTitlePosition>(collection.heroTitlePosition ?? 'bottom-left');
   const [heroHeightMode, setHeroHeightMode] = useState<'full' | 'half' | 'auto'>(collection.heroHeightMode ?? 'full');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
   const [category, setCategory] = useState<'COLLECTION' | 'SOLO' | 'SKETCH'>(collection.category ?? 'COLLECTION');
@@ -1497,7 +1498,7 @@ function DynCollectionCard({
     setDetailFocus(collection.detailFocus ?? '');
     setGroupTitle(collection.groupTitle ?? '');
     setHideCardLabel(collection.hideCardLabel ?? false);
-    setHeroTitlePosition(collection.heroTitlePosition ?? 'bottom-left');
+    setHeroTitlePosition((collection.heroTitlePosition ?? 'bottom-left') as HeroTitlePosition);
     setHeroHeightMode(collection.heroHeightMode ?? 'full');
     setTone(collection.tone ?? 'neutral');
     setCategory(collection.category ?? 'COLLECTION');
@@ -1686,14 +1687,23 @@ function DynCollectionCard({
                 <span className={styles.label}>Заголовок группы (для страницы /collections)</span>
                 <input className={styles.input} value={groupTitle} onChange={(e) => setGroupTitle(e.target.value)} placeholder="Оставьте пустым, чтобы скрыть заголовок" />
               </label>
-              <label className={styles.field}>
+              <div className={styles.field}>
                 <span className={styles.label}>Позиция заголовка на Hero</span>
-                <select className={styles.input} value={heroTitlePosition} onChange={(e) => setHeroTitlePosition(e.target.value as 'bottom-left' | 'bottom-center' | 'center')}>
-                  <option value="bottom-left">Снизу слева</option>
-                  <option value="bottom-center">Снизу по центру</option>
-                  <option value="center">По центру экрана</option>
-                </select>
-              </label>
+                <div className={styles.heroTitlePositionGrid}>
+                  {(['top-left','top-center','top-right','middle-left','middle-center','middle-right','bottom-left','bottom-center','bottom-right'] as HeroTitlePosition[]).map((pos) => (
+                    <button
+                      key={pos}
+                      type="button"
+                      data-pos={pos}
+                      className={`${styles.heroTitlePositionCell} ${heroTitlePosition === pos ? styles.heroTitlePositionCellActive : ''}`}
+                      onClick={() => setHeroTitlePosition(pos)}
+                      title={pos}
+                    >
+                      <span className={styles.heroTitlePositionDot} />
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className={styles.field}>
                 <span className={styles.label}>Высота Hero-секции</span>
                 <select className={styles.input} value={heroHeightMode} onChange={(e) => setHeroHeightMode(e.target.value as 'full' | 'half' | 'auto')}>

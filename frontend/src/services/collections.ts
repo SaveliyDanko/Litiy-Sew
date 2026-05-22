@@ -25,7 +25,7 @@ export type DynamicCollection = {
   detailFocus: string | null;
   groupTitle: string | null;
   hideCardLabel: boolean;
-  heroTitlePosition: 'bottom-left' | 'bottom-center' | 'center';
+  heroTitlePosition: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   heroHeightMode: 'full' | 'half' | 'auto';
   tone: 'warm' | 'cool' | 'neutral';
   category: CollectionCategory;
@@ -45,7 +45,7 @@ export type CreateCollectionData = {
   detailFocus?: string;
   groupTitle?: string;
   hideCardLabel?: boolean;
-  heroTitlePosition?: 'bottom-left' | 'bottom-center' | 'center';
+  heroTitlePosition?: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   heroHeightMode?: 'full' | 'half' | 'auto';
   tone?: 'warm' | 'cool' | 'neutral';
   category?: CollectionCategory;

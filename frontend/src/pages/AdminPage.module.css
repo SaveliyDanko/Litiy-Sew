@@ -313,6 +313,70 @@ select.input {
   cursor: pointer;
 }
 
+/* ── Hero title position grid ────────────────────────────────────────────── */
+
+.heroTitlePositionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 108px;
+}
+
+.heroTitlePositionCell {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #d8d3d0;
+  border-radius: 6px;
+  background: #faf9f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  padding: 4px;
+  position: relative;
+}
+
+.heroTitlePositionCell:hover {
+  border-color: #999;
+  background: #f0eeec;
+}
+
+.heroTitlePositionCellActive {
+  border-color: #111;
+  background: #111;
+}
+
+.heroTitlePositionDot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #bbb;
+  transition: background 0.12s;
+}
+
+/* vertical positioning */
+.heroTitlePositionCell[data-pos^='top-']    .heroTitlePositionDot { top: 5px;    bottom: auto; }
+.heroTitlePositionCell[data-pos^='middle-'] .heroTitlePositionDot { top: 50%; transform: translateY(-50%); }
+.heroTitlePositionCell[data-pos^='bottom-'] .heroTitlePositionDot { bottom: 5px; top: auto; }
+
+/* horizontal positioning */
+.heroTitlePositionCell[data-pos$='-left']   .heroTitlePositionDot { left: 5px;   right: auto; }
+.heroTitlePositionCell[data-pos$='-center'] .heroTitlePositionDot { left: 50%;  right: auto; transform: translateX(-50%); }
+.heroTitlePositionCell[data-pos$='-right']  .heroTitlePositionDot { right: 5px; left: auto; }
+
+/* combined transform for middle-center */
+.heroTitlePositionCell[data-pos='middle-center'] .heroTitlePositionDot {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.heroTitlePositionCellActive .heroTitlePositionDot {
+  background: #fff;
+}
+
 .submit {
   background: #111;
   color: #fff;

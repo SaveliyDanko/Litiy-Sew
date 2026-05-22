@@ -16,7 +16,7 @@ public record DynamicCollectionRequest(
         @Size(max = 1024) String detailFocus,
         @Size(max = 256) String groupTitle,
         Boolean hideCardLabel,
-        @Pattern(regexp = "^(bottom-left|bottom-center|center)$") String heroTitlePosition,
+        @Pattern(regexp = "^(top|middle|bottom)-(left|center|right)$") String heroTitlePosition,
         @Pattern(regexp = "^(full|half|auto)$") String heroHeightMode,
         @Pattern(regexp = "^(warm|cool|neutral)$") String tone,
         @Pattern(regexp = "^(COLLECTION|SOLO|SKETCH)$") String category,
