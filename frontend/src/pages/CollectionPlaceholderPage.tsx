@@ -108,7 +108,10 @@ export default function CollectionPlaceholderPage() {
           <div className={[
             styles.heroContent,
             collection.heroTitlePosition?.startsWith('top-')    ? styles.heroVTop    : '',
-            collection.heroTitlePosition?.startsWith('middle-') ? styles.heroVMiddle : '',
+            collection.heroTitlePosition?.startsWith('upper-')  ? styles.heroVUpper  : '',
+            collection.heroTitlePosition?.startsWith('lower-')  ? styles.heroVLower  : '',
+            collection.heroTitlePosition?.endsWith('-center-left')  ? styles.heroHCenterLeft  : '',
+            collection.heroTitlePosition?.endsWith('-center-right') ? styles.heroHCenterRight : '',
             collection.heroTitlePosition?.endsWith('-center')   ? styles.heroHCenter : '',
             collection.heroTitlePosition?.endsWith('-right')    ? styles.heroHRight  : '',
           ].filter(Boolean).join(' ')}>

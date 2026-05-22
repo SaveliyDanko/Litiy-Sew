@@ -313,13 +313,13 @@ select.input {
   cursor: pointer;
 }
 
-/* ── Hero title position grid ────────────────────────────────────────────── */
+/* ── Hero title position grid (4×4) ──────────────────────────────────────── */
 
 .heroTitlePositionGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
-  width: 108px;
+  width: 144px;
 }
 
 .heroTitlePositionCell {
@@ -356,22 +356,17 @@ select.input {
   transition: background 0.12s;
 }
 
-/* vertical positioning */
-.heroTitlePositionCell[data-pos^='top-']    .heroTitlePositionDot { top: 5px;    bottom: auto; }
-.heroTitlePositionCell[data-pos^='middle-'] .heroTitlePositionDot { top: 50%; transform: translateY(-50%); }
-.heroTitlePositionCell[data-pos^='bottom-'] .heroTitlePositionDot { bottom: 5px; top: auto; }
+/* vertical positioning — 4 rows */
+.heroTitlePositionCell[data-pos^='top-']    .heroTitlePositionDot { top: 5px;              bottom: auto; left: auto; right: auto; }
+.heroTitlePositionCell[data-pos^='upper-']  .heroTitlePositionDot { top: calc(33% - 3px);  bottom: auto; left: auto; right: auto; }
+.heroTitlePositionCell[data-pos^='lower-']  .heroTitlePositionDot { top: calc(66% - 3px);  bottom: auto; left: auto; right: auto; }
+.heroTitlePositionCell[data-pos^='bottom-'] .heroTitlePositionDot { bottom: 5px;           top: auto;    left: auto; right: auto; }
 
-/* horizontal positioning */
-.heroTitlePositionCell[data-pos$='-left']   .heroTitlePositionDot { left: 5px;   right: auto; }
-.heroTitlePositionCell[data-pos$='-center'] .heroTitlePositionDot { left: 50%;  right: auto; transform: translateX(-50%); }
-.heroTitlePositionCell[data-pos$='-right']  .heroTitlePositionDot { right: 5px; left: auto; }
-
-/* combined transform for middle-center */
-.heroTitlePositionCell[data-pos='middle-center'] .heroTitlePositionDot {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+/* horizontal positioning — 4 columns */
+.heroTitlePositionCell[data-pos$='-left']         .heroTitlePositionDot { left: 5px;              right: auto; }
+.heroTitlePositionCell[data-pos$='-center-left']  .heroTitlePositionDot { left: calc(33% - 3px);  right: auto; }
+.heroTitlePositionCell[data-pos$='-center-right'] .heroTitlePositionDot { left: calc(66% - 3px);  right: auto; }
+.heroTitlePositionCell[data-pos$='-right']        .heroTitlePositionDot { right: 5px;             left: auto; }
 
 .heroTitlePositionCellActive .heroTitlePositionDot {
   background: #fff;

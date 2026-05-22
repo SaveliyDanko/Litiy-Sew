@@ -53,7 +53,11 @@ import {
 import styles from './AdminPage.module.css';
 
 type Tab = 'products' | 'patterns' | 'portfolio' | 'home' | 'about' | 'collections' | 'settings';
-type HeroTitlePosition = 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+type HeroTitlePosition =
+  | 'top-left'          | 'top-center-left'    | 'top-center-right'    | 'top-right'
+  | 'upper-left'        | 'upper-center-left'  | 'upper-center-right'  | 'upper-right'
+  | 'lower-left'        | 'lower-center-left'  | 'lower-center-right'  | 'lower-right'
+  | 'bottom-left'       | 'bottom-center-left' | 'bottom-center-right' | 'bottom-right';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -1702,7 +1706,12 @@ function DynCollectionCard({
               <div className={styles.field}>
                 <span className={styles.label}>Позиция заголовка на Hero</span>
                 <div className={styles.heroTitlePositionGrid}>
-                  {(['top-left','top-center','top-right','middle-left','middle-center','middle-right','bottom-left','bottom-center','bottom-right'] as HeroTitlePosition[]).map((pos) => (
+                  {([
+                    'top-left',    'top-center-left',    'top-center-right',    'top-right',
+                    'upper-left',  'upper-center-left',  'upper-center-right',  'upper-right',
+                    'lower-left',  'lower-center-left',  'lower-center-right',  'lower-right',
+                    'bottom-left', 'bottom-center-left', 'bottom-center-right', 'bottom-right',
+                  ] as HeroTitlePosition[]).map((pos) => (
                     <button
                       key={pos}
                       type="button"

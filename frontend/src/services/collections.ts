@@ -25,7 +25,11 @@ export type DynamicCollection = {
   detailFocus: string | null;
   groupTitle: string | null;
   hideCardLabel: boolean;
-  heroTitlePosition: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  heroTitlePosition:
+    | 'top-left'    | 'top-center-left'    | 'top-center-right'    | 'top-right'
+    | 'upper-left'  | 'upper-center-left'  | 'upper-center-right'  | 'upper-right'
+    | 'lower-left'  | 'lower-center-left'  | 'lower-center-right'  | 'lower-right'
+    | 'bottom-left' | 'bottom-center-left' | 'bottom-center-right' | 'bottom-right';
   heroHeightMode: 'full' | 'half' | 'auto';
   heroHeightMobile: number | null;
   heroHeightDesktop: number | null;
@@ -49,7 +53,11 @@ export type CreateCollectionData = {
   detailFocus?: string;
   groupTitle?: string;
   hideCardLabel?: boolean;
-  heroTitlePosition?: 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'middle-center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  heroTitlePosition?:
+    | 'top-left'    | 'top-center-left'    | 'top-center-right'    | 'top-right'
+    | 'upper-left'  | 'upper-center-left'  | 'upper-center-right'  | 'upper-right'
+    | 'lower-left'  | 'lower-center-left'  | 'lower-center-right'  | 'lower-right'
+    | 'bottom-left' | 'bottom-center-left' | 'bottom-center-right' | 'bottom-right';
   heroHeightMode?: 'full' | 'half' | 'auto';
   heroHeightMobile?: number | null;
   heroHeightDesktop?: number | null;

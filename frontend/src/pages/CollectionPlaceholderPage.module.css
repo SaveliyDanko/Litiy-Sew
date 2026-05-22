@@ -254,26 +254,53 @@
   top: var(--hero-title-bottom);
 }
 
-.heroVMiddle {
+.heroVUpper {
   bottom: auto;
-  top: 50%;
+  top: 30%;
+  transform: translateY(-50%);
+}
+
+.heroVLower {
+  bottom: auto;
+  top: 65%;
   transform: translateY(-50%);
 }
 
 /* bottom is the default — no extra class needed */
 
-/* ── Horizontal alignment modifiers ──────────────────────────────────────── */
+/* ── Horizontal alignment modifiers ─────────────────────────────────────────
+   .heroContent is position:absolute left:0 right:0 — we shift it by changing
+   left/right and max-width so the text column sits at the right horizontal band.
+   ──────────────────────────────────────────────────────────────────────────── */
 
-/* left is the default — no extra class needed */
+/* left is the default (left:0 right:0, align-items:flex-start) */
 
-.heroHCenter {
-  align-items: center;
-  text-align: center;
+.heroHCenterLeft {
+  left: 25%;
+  right: 0;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.heroHCenterRight {
+  left: 58%;
+  right: 0;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .heroHRight {
+  left: 0;
+  right: 0;
   align-items: flex-end;
   text-align: right;
+}
+
+.heroHCenter {
+  left: 0;
+  right: 0;
+  align-items: center;
+  text-align: center;
 }
 
 .heroEyebrow {
