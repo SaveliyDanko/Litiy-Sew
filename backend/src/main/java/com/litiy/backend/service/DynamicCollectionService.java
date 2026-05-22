@@ -62,6 +62,8 @@ public class DynamicCollectionService {
                 .hideCardLabel(Boolean.TRUE.equals(req.hideCardLabel()))
                 .heroTitlePosition(req.heroTitlePosition() != null ? req.heroTitlePosition() : "bottom-left")
                 .heroHeightMode(req.heroHeightMode() != null ? req.heroHeightMode() : "full")
+                .cardHeightMobile(req.cardHeightMobile())
+                .cardHeightDesktop(req.cardHeightDesktop())
                 .tone(req.tone() != null ? req.tone() : "neutral")
                 .category(req.category() != null ? req.category() : "COLLECTION")
                 .sortOrder(req.sortOrder() != null ? req.sortOrder() : 0)
@@ -90,6 +92,8 @@ public class DynamicCollectionService {
         if (req.hideCardLabel() != null) c.setHideCardLabel(req.hideCardLabel());
         if (req.heroTitlePosition() != null) c.setHeroTitlePosition(req.heroTitlePosition());
         if (req.heroHeightMode() != null) c.setHeroHeightMode(req.heroHeightMode());
+        c.setCardHeightMobile(req.cardHeightMobile());
+        c.setCardHeightDesktop(req.cardHeightDesktop());
         if (req.tone() != null) c.setTone(req.tone());
         if (req.category() != null) c.setCategory(req.category());
         if (req.sortOrder() != null) c.setSortOrder(req.sortOrder());

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -20,7 +20,13 @@ function CollectionCard({ collection, globalIndex: _globalIndex }: { collection:
       aria-label={`Открыть коллекцию ${collection.title}`}
     >
       <article className={styles.card} data-tone={collection.tone}>
-        <div className={styles.cardMedia}>
+        <div
+          className={styles.cardMedia}
+          style={{
+            ...(collection.cardHeightMobile != null ? { '--card-h-mobile': `${collection.cardHeightMobile}px` } as React.CSSProperties : {}),
+            ...(collection.cardHeightDesktop != null ? { '--card-h-desktop': `${collection.cardHeightDesktop}px` } as React.CSSProperties : {}),
+          }}
+        >
           {collection.eyebrow && (
             <div className={styles.cardBadge}>{collection.eyebrow}</div>
           )}

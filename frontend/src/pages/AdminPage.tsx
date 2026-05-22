@@ -1477,6 +1477,8 @@ function DynCollectionCard({
   const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
   const [heroTitlePosition, setHeroTitlePosition] = useState<HeroTitlePosition>(collection.heroTitlePosition ?? 'bottom-left');
   const [heroHeightMode, setHeroHeightMode] = useState<'full' | 'half' | 'auto'>(collection.heroHeightMode ?? 'full');
+  const [cardHeightMobile, setCardHeightMobile] = useState<string>(collection.cardHeightMobile != null ? String(collection.cardHeightMobile) : '');
+  const [cardHeightDesktop, setCardHeightDesktop] = useState<string>(collection.cardHeightDesktop != null ? String(collection.cardHeightDesktop) : '');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
   const [category, setCategory] = useState<'COLLECTION' | 'SOLO' | 'SKETCH'>(collection.category ?? 'COLLECTION');
   const [featured, setFeatured] = useState(collection.featured);
@@ -1500,6 +1502,8 @@ function DynCollectionCard({
     setHideCardLabel(collection.hideCardLabel ?? false);
     setHeroTitlePosition((collection.heroTitlePosition ?? 'bottom-left') as HeroTitlePosition);
     setHeroHeightMode(collection.heroHeightMode ?? 'full');
+    setCardHeightMobile(collection.cardHeightMobile != null ? String(collection.cardHeightMobile) : '');
+    setCardHeightDesktop(collection.cardHeightDesktop != null ? String(collection.cardHeightDesktop) : '');
     setTone(collection.tone ?? 'neutral');
     setCategory(collection.category ?? 'COLLECTION');
     setFeatured(collection.featured);
@@ -1524,6 +1528,8 @@ function DynCollectionCard({
         hideCardLabel,
         heroTitlePosition,
         heroHeightMode,
+        cardHeightMobile: cardHeightMobile !== '' ? Number(cardHeightMobile) : null,
+        cardHeightDesktop: cardHeightDesktop !== '' ? Number(cardHeightDesktop) : null,
         tone,
         category,
         sortOrder: collection.sortOrder,
@@ -1712,6 +1718,34 @@ function DynCollectionCard({
                   <option value="auto">По пропорциям фото</option>
                 </select>
               </label>
+              <div className={styles.createCollectionGrid}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Высота карточки — мобайл (px)</span>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={100}
+                    max={1200}
+                    step={10}
+                    value={cardHeightMobile}
+                    onChange={(e) => setCardHeightMobile(e.target.value)}
+                    placeholder="авто"
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.label}>Высота карточки — десктоп (px)</span>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={100}
+                    max={1200}
+                    step={10}
+                    value={cardHeightDesktop}
+                    onChange={(e) => setCardHeightDesktop(e.target.value)}
+                    placeholder="авто"
+                  />
+                </label>
+              </div>
               <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" checked={hideCardLabel} onChange={(e) => setHideCardLabel(e.target.checked)} />
                 <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>Скрыть название под карточкой</span>

@@ -273,8 +273,14 @@
 .cardMedia {
   position: relative;
   overflow: hidden;
-  height: var(--collections-card-media-height);
+  height: var(--card-h-mobile, var(--collections-card-media-height));
   border-radius: var(--collections-card-radius);
+}
+
+@media (min-width: 960px) {
+  .cardMedia {
+    height: var(--card-h-desktop, var(--collections-card-media-height));
+  }
 }
 
 .cardPlaceholder {

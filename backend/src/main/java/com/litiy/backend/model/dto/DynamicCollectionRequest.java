@@ -18,6 +18,8 @@ public record DynamicCollectionRequest(
         Boolean hideCardLabel,
         @Pattern(regexp = "^(top|middle|bottom)-(left|center|right)$") String heroTitlePosition,
         @Pattern(regexp = "^(full|half|auto)$") String heroHeightMode,
+        @jakarta.validation.constraints.Min(100) @jakarta.validation.constraints.Max(1200) Integer cardHeightMobile,
+        @jakarta.validation.constraints.Min(100) @jakarta.validation.constraints.Max(1200) Integer cardHeightDesktop,
         @Pattern(regexp = "^(warm|cool|neutral)$") String tone,
         @Pattern(regexp = "^(COLLECTION|SOLO|SKETCH)$") String category,
         Integer sortOrder,

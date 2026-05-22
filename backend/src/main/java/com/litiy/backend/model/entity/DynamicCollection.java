@@ -65,6 +65,14 @@ public class DynamicCollection {
     @Builder.Default
     private String heroHeightMode = "full";
 
+    /** Card media height in px for mobile (null = CSS default) */
+    @Column
+    private Integer cardHeightMobile;
+
+    /** Card media height in px for desktop (null = CSS default) */
+    @Column
+    private Integer cardHeightDesktop;
+
     /** 'warm' | 'cool' | 'neutral' */
     @Column(length = 16)
     @Builder.Default
