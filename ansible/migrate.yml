@@ -88,8 +88,9 @@
         cat <<'PGSQL' | docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }}
         UPDATE products                  SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
         UPDATE pattern_items             SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
-        UPDATE portfolio_photos          SET photo_url   = regexp_replace(photo_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE photo_url   ~ '^https?://';
-        UPDATE hero_banners              SET photo_url   = regexp_replace(photo_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE photo_url   ~ '^https?://';
+        UPDATE portfolio_photos          SET photo_url        = regexp_replace(photo_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE photo_url        ~ '^https?://';
+        UPDATE hero_banners              SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE hero_banners              SET image_url_mobile = regexp_replace(image_url_mobile, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url_mobile ~ '^https?://';
         UPDATE site_images               SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
         UPDATE dynamic_collection_photos SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
         PGSQL
