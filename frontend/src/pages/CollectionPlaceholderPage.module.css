@@ -178,6 +178,28 @@
   background: #1a1a1a;
 }
 
+/* heroHeightMode="half" — ~50% viewport */
+.heroHalf {
+  height: 50svh;
+  min-height: 320px;
+}
+
+/* heroHeightMode="auto" — fits image proportions */
+.heroAuto {
+  height: auto;
+  min-height: 0;
+}
+
+.heroAuto .heroImage {
+  position: relative;
+  height: auto;
+  min-height: 320px;
+}
+
+.heroAuto .heroPlaceholder {
+  height: 480px;
+}
+
 .heroImage {
   position: absolute;
   inset: 0;

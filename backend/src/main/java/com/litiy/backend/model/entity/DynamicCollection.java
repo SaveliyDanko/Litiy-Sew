@@ -60,6 +60,11 @@ public class DynamicCollection {
     @Builder.Default
     private String heroTitlePosition = "bottom-left";
 
+    /** 'full' | 'half' | 'auto' */
+    @Column(length = 16)
+    @Builder.Default
+    private String heroHeightMode = "full";
+
     /** 'warm' | 'cool' | 'neutral' */
     @Column(length = 16)
     @Builder.Default

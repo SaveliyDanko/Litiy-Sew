@@ -62,7 +62,7 @@ export default function CollectionPlaceholderPage() {
 
       <main className={styles.page}>
         {/* ── Full-screen hero ─────────────────────────────────────────── */}
-        <section className={styles.hero}>
+        <section className={`${styles.hero} ${collection.heroHeightMode === 'half' ? styles.heroHalf : ''} ${collection.heroHeightMode === 'auto' ? styles.heroAuto : ''}`}>
           {heroDisplay ? (
             <img
               className={styles.heroImage}

@@ -26,6 +26,7 @@ export type DynamicCollection = {
   groupTitle: string | null;
   hideCardLabel: boolean;
   heroTitlePosition: 'bottom-left' | 'bottom-center' | 'center';
+  heroHeightMode: 'full' | 'half' | 'auto';
   tone: 'warm' | 'cool' | 'neutral';
   category: CollectionCategory;
   sortOrder: number;
@@ -45,6 +46,7 @@ export type CreateCollectionData = {
   groupTitle?: string;
   hideCardLabel?: boolean;
   heroTitlePosition?: 'bottom-left' | 'bottom-center' | 'center';
+  heroHeightMode?: 'full' | 'half' | 'auto';
   tone?: 'warm' | 'cool' | 'neutral';
   category?: CollectionCategory;
   sortOrder?: number;

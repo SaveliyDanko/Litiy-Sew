@@ -1299,17 +1299,17 @@ function DynPhotoRow({
   const [scale, setScale] = useState(photo.scale ?? 100);
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const posRef = useRef({ x: photo.positionX, y: photo.positionY, s: photo.scale ?? 100 });
 
   function handlePos(axis: 'x' | 'y' | 's', val: number) {
-    if (axis === 'x') setPosX(val); else if (axis === 'y') setPosY(val); else setScale(val);
+    if (axis === 'x') { setPosX(val); posRef.current.x = val; }
+    else if (axis === 'y') { setPosY(val); posRef.current.y = val; }
+    else { setScale(val); posRef.current.s = val; }
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
-        const nx = axis === 'x' ? val : posX;
-        const ny = axis === 'y' ? val : posY;
-        const ns = axis === 's' ? val : scale;
-        const updated = await updateCollectionPhotoPosition(photo.id, nx, ny, ns);
+        const updated = await updateCollectionPhotoPosition(photo.id, posRef.current.x, posRef.current.y, posRef.current.s);
         onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -1475,6 +1475,7 @@ function DynCollectionCard({
   const [groupTitle, setGroupTitle] = useState(collection.groupTitle ?? '');
   const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
   const [heroTitlePosition, setHeroTitlePosition] = useState<'bottom-left' | 'bottom-center' | 'center'>(collection.heroTitlePosition ?? 'bottom-left');
+  const [heroHeightMode, setHeroHeightMode] = useState<'full' | 'half' | 'auto'>(collection.heroHeightMode ?? 'full');
   const [tone, setTone] = useState<'warm' | 'cool' | 'neutral'>(collection.tone ?? 'neutral');
   const [category, setCategory] = useState<'COLLECTION' | 'SOLO' | 'SKETCH'>(collection.category ?? 'COLLECTION');
   const [featured, setFeatured] = useState(collection.featured);
@@ -1497,6 +1498,7 @@ function DynCollectionCard({
     setGroupTitle(collection.groupTitle ?? '');
     setHideCardLabel(collection.hideCardLabel ?? false);
     setHeroTitlePosition(collection.heroTitlePosition ?? 'bottom-left');
+    setHeroHeightMode(collection.heroHeightMode ?? 'full');
     setTone(collection.tone ?? 'neutral');
     setCategory(collection.category ?? 'COLLECTION');
     setFeatured(collection.featured);
@@ -1520,6 +1522,7 @@ function DynCollectionCard({
         groupTitle: groupTitle.trim() || undefined,
         hideCardLabel,
         heroTitlePosition,
+        heroHeightMode,
         tone,
         category,
         sortOrder: collection.sortOrder,
@@ -1689,6 +1692,14 @@ function DynCollectionCard({
                   <option value="bottom-left">Снизу слева</option>
                   <option value="bottom-center">Снизу по центру</option>
                   <option value="center">По центру экрана</option>
+                </select>
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Высота Hero-секции</span>
+                <select className={styles.input} value={heroHeightMode} onChange={(e) => setHeroHeightMode(e.target.value as 'full' | 'half' | 'auto')}>
+                  <option value="full">На весь экран (100vh)</option>
+                  <option value="half">Полэкрана (50vh)</option>
+                  <option value="auto">По пропорциям фото</option>
                 </select>
               </label>
               <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
