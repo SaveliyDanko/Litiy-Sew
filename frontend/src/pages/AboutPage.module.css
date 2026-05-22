@@ -320,6 +320,59 @@
   background: #d8d2cd;
 }
 
+.sliderArrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 70%);
+  color: #1a1a1a;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.sliderArrow:hover {
+  background: rgb(255 255 255 / 92%);
+}
+
+.sliderArrowPrev { left: 10px; }
+.sliderArrowNext { right: 10px; }
+
+.sliderDots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+}
+
+.sliderDot {
+  width: 7px;
+  height: 7px;
+  border: none;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 55%);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.18s, scale 0.18s;
+}
+
+.sliderDotActive {
+  background: #fff;
+  scale: 1.25;
+}
+
 .portfolioPreviewImage {
   width: 100%;
   height: 100%;

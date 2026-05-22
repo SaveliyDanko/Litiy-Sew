@@ -4,11 +4,13 @@ import com.litiy.backend.model.dto.CollectionMetaResponse;
 import com.litiy.backend.model.dto.HeroBannerResponse;
 import com.litiy.backend.model.dto.PatternItemResponse;
 import com.litiy.backend.model.dto.PortfolioPhotoResponse;
+import com.litiy.backend.model.dto.PortfolioProjectResponse;
 import com.litiy.backend.model.dto.ProductResponse;
 import com.litiy.backend.service.CollectionMetaService;
 import com.litiy.backend.service.HeroBannerAdminService;
 import com.litiy.backend.service.PatternAdminService;
 import com.litiy.backend.service.PortfolioAdminService;
+import com.litiy.backend.service.PortfolioProjectService;
 import com.litiy.backend.service.ProductAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ public class PublicContentController {
     private final ProductAdminService productAdminService;
     private final PatternAdminService patternAdminService;
     private final PortfolioAdminService portfolioAdminService;
+    private final PortfolioProjectService portfolioProjectService;
     private final HeroBannerAdminService heroBannerAdminService;
     private final CollectionMetaService collectionMetaService;
 
@@ -42,6 +45,11 @@ public class PublicContentController {
     @GetMapping("/api/portfolio")
     public ResponseEntity<List<PortfolioPhotoResponse>> getPortfolio() {
         return ResponseEntity.ok(portfolioAdminService.listAll());
+    }
+
+    @GetMapping("/api/portfolio-projects")
+    public ResponseEntity<List<PortfolioProjectResponse>> getPortfolioProjects() {
+        return ResponseEntity.ok(portfolioProjectService.listAll());
     }
 
     @GetMapping("/api/hero")

@@ -9,12 +9,16 @@ import com.litiy.backend.model.dto.PatternItemRequest;
 import com.litiy.backend.model.dto.PatternItemResponse;
 import com.litiy.backend.model.dto.PortfolioPhotoRequest;
 import com.litiy.backend.model.dto.PortfolioPhotoResponse;
+import com.litiy.backend.model.dto.PortfolioProjectPhotoResponse;
+import com.litiy.backend.model.dto.PortfolioProjectRequest;
+import com.litiy.backend.model.dto.PortfolioProjectResponse;
 import com.litiy.backend.model.dto.ProductRequest;
 import com.litiy.backend.model.dto.ProductResponse;
 import com.litiy.backend.service.CollectionMetaService;
 import com.litiy.backend.service.HeroBannerAdminService;
 import com.litiy.backend.service.PatternAdminService;
 import com.litiy.backend.service.PortfolioAdminService;
+import com.litiy.backend.service.PortfolioProjectService;
 import com.litiy.backend.service.ProductAdminService;
 import com.litiy.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -45,6 +49,7 @@ public class AdminController {
     private final ProductAdminService productAdminService;
     private final PatternAdminService patternAdminService;
     private final PortfolioAdminService portfolioAdminService;
+    private final PortfolioProjectService portfolioProjectService;
     private final HeroBannerAdminService heroBannerAdminService;
     private final CollectionMetaService collectionMetaService;
     private final UserService userService;
@@ -127,6 +132,81 @@ public class AdminController {
         int y = body.getOrDefault("positionY", 50);
         int scale = body.getOrDefault("scale", 100);
         return ResponseEntity.ok(portfolioAdminService.updatePosition(id, x, y, scale));
+    }
+
+    // --- Portfolio Projects (Избранные проекты на странице "Обо мне") ---
+
+    @GetMapping("/portfolio-projects")
+    public ResponseEntity<List<PortfolioProjectResponse>> listPortfolioProjects() {
+        return ResponseEntity.ok(portfolioProjectService.listAll());
+    }
+
+    @PostMapping("/portfolio-projects")
+    public ResponseEntity<PortfolioProjectResponse> createPortfolioProject(@Valid @RequestBody PortfolioProjectRequest req) {
+        return ResponseEntity.status(201).body(portfolioProjectService.create(req));
+    }
+
+    @PutMapping("/portfolio-projects/{id}")
+    public ResponseEntity<PortfolioProjectResponse> updatePortfolioProject(@PathVariable Long id,
+                                                                            @Valid @RequestBody PortfolioProjectRequest req) {
+        return ResponseEntity.ok(portfolioProjectService.update(id, req));
+    }
+
+    @DeleteMapping("/portfolio-projects/{id}")
+    public ResponseEntity<Void> deletePortfolioProject(@PathVariable Long id) {
+        portfolioProjectService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/portfolio-projects/{id}/order")
+    public ResponseEntity<Void> reorderPortfolioProject(@PathVariable Long id,
+                                                         @RequestBody Map<String, Integer> body) {
+        portfolioProjectService.reorder(id, body.get("sortOrder"));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/portfolio-projects/{id}/position")
+    public ResponseEntity<Void> updatePortfolioProjectPosition(@PathVariable Long id,
+                                                                @RequestBody Map<String, Integer> body) {
+        int x = body.getOrDefault("positionX", 50);
+        int y = body.getOrDefault("positionY", 50);
+        int scale = body.getOrDefault("scale", 100);
+        portfolioProjectService.updatePosition(id, x, y, scale);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/portfolio-projects/{id}/photos")
+    public ResponseEntity<PortfolioProjectPhotoResponse> addPortfolioProjectPhoto(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        String imageUrl = body.get("imageUrl");
+        String imageKey = body.get("imageKey");
+        if (imageUrl == null || imageKey == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(201).body(
+                portfolioProjectService.addPhoto(id, imageUrl, imageKey, body.get("imageSrcSet")));
+    }
+
+    @DeleteMapping("/portfolio-projects/photos/{photoId}")
+    public ResponseEntity<Void> deletePortfolioProjectPhoto(@PathVariable Long photoId) {
+        portfolioProjectService.deletePhoto(photoId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/portfolio-projects/photos/{photoId}/order")
+    public ResponseEntity<Void> reorderPortfolioProjectPhoto(@PathVariable Long photoId,
+                                                              @RequestBody Map<String, Integer> body) {
+        portfolioProjectService.reorderPhoto(photoId, body.get("sortOrder"));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/portfolio-projects/photos/{photoId}/position")
+    public ResponseEntity<PortfolioProjectPhotoResponse> updatePortfolioProjectPhotoPosition(
+            @PathVariable Long photoId,
+            @RequestBody Map<String, Integer> body) {
+        int x = body.getOrDefault("positionX", 50);
+        int y = body.getOrDefault("positionY", 50);
+        int scale = body.getOrDefault("scale", 100);
+        return ResponseEntity.ok(portfolioProjectService.updatePhotoPosition(photoId, x, y, scale));
     }
 
     // --- Hero Banner ---

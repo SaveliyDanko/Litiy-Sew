@@ -1,25 +1,138 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { fetchPortfolioPhotos, type PortfolioPhoto } from '../services/portfolio';
+import { fetchPortfolioProjects, type PortfolioProject, type ProjectPhoto } from '../services/portfolioProjects';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
-import { ABOUT_PAGE_DATA, PORTFOLIO_ITEMS } from './aboutData';
+import { ABOUT_PAGE_DATA } from './aboutData';
 import styles from './AboutPage.module.css';
 
-const PORTFOLIO_SLOT_KEYS: Record<string, string> = {
-  problonde:     'portfolio-problonde',
-  melon:         'portfolio-melon',
-  'spring-breath': 'portfolio-spring',
-  'zigzag-diplom': 'portfolio-zigzag',
-  'prize-diploma': 'portfolio-prize',
-  diplom:        'portfolio-diplom',
-};
+function ProjectPhotoSlider({ photos, coverPhoto, coverSrcSet, coverPosX, coverPosY, coverScale, title }: {
+  photos: ProjectPhoto[];
+  coverPhoto: string | null;
+  coverSrcSet: string | null;
+  coverPosX: number;
+  coverPosY: number;
+  coverScale: number;
+  title: string;
+}) {
+  const allPhotos: Array<{ url: string; srcSet: string | null; posX: number; posY: number; scale: number }> = [];
+
+  if (photos.length > 0) {
+    for (const p of photos) {
+      allPhotos.push({ url: p.imageUrl, srcSet: p.imageSrcSet, posX: p.positionX, posY: p.positionY, scale: p.scale });
+    }
+  } else if (coverPhoto) {
+    allPhotos.push({ url: coverPhoto, srcSet: coverSrcSet, posX: coverPosX, posY: coverPosY, scale: coverScale });
+  }
+
+  const [idx, setIdx] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const goTo = useCallback((next: number) => {
+    setIdx(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setIdx((i) => (i + 1) % allPhotos.length);
+    }, 4000);
+  }, [allPhotos.length]);
+
+  useEffect(() => {
+    setIdx(0);
+    if (allPhotos.length <= 1) return;
+    timerRef.current = setTimeout(() => setIdx(1), 4000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [photos, coverPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (allPhotos.length === 0) return null;
+
+  const current = allPhotos[idx] ?? allPhotos[0];
+
+  return (
+    <div className={styles.portfolioPreview}>
+      <img
+        key={current.url}
+        className={styles.portfolioPreviewImage}
+        src={current.url}
+        {...imgSrcSetProps(current.srcSet, '(min-width: 1024px) 50vw, 100vw')}
+        alt={title}
+        loading="lazy"
+        style={{
+          objectPosition: `${current.posX}% ${current.posY}%`,
+          transform: `scale(${current.scale / 100})`,
+        }}
+      />
+      {allPhotos.length > 1 && (
+        <>
+          <button
+            className={`${styles.sliderArrow} ${styles.sliderArrowPrev}`}
+            onClick={() => goTo((idx - 1 + allPhotos.length) % allPhotos.length)}
+            aria-label="Предыдущее фото"
+          >‹</button>
+          <button
+            className={`${styles.sliderArrow} ${styles.sliderArrowNext}`}
+            onClick={() => goTo((idx + 1) % allPhotos.length)}
+            aria-label="Следующее фото"
+          >›</button>
+          <div className={styles.sliderDots}>
+            {allPhotos.map((_, i) => (
+              <button
+                key={i}
+                className={`${styles.sliderDot} ${i === idx ? styles.sliderDotActive : ''}`}
+                onClick={() => goTo(i)}
+                aria-label={`Фото ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ActiveProjectDetail({
+  project,
+  detailRef,
+}: {
+  project: PortfolioProject;
+  detailRef: React.RefObject<HTMLElement | null>;
+}) {
+  const hasMedia = project.photos.length > 0 || !!project.imageUrl;
+  return (
+    <article
+      ref={detailRef}
+      className={styles.portfolioDetail}
+      id={`portfolio-panel-${project.id}`}
+      role="tabpanel"
+      aria-labelledby={`portfolio-tab-${project.id}`}
+    >
+      {hasMedia && (
+        <ProjectPhotoSlider
+          photos={project.photos}
+          coverPhoto={project.imageUrl}
+          coverSrcSet={project.imageSrcSet}
+          coverPosX={project.positionX}
+          coverPosY={project.positionY}
+          coverScale={project.scale ?? 100}
+          title={project.title}
+        />
+      )}
+      <div className={styles.portfolioDetailCopy}>
+        {project.eyebrow && <p className={styles.portfolioDetailEyebrow}>{project.eyebrow}</p>}
+        <h3 className={styles.portfolioDetailTitle}>{project.title}</h3>
+        {project.lead && <p className={styles.portfolioDetailLead}>{project.lead}</p>}
+        {project.paragraph1 && <p className={styles.portfolioDetailText}>{project.paragraph1}</p>}
+        {project.paragraph2 && <p className={styles.portfolioDetailText}>{project.paragraph2}</p>}
+      </div>
+    </article>
+  );
+}
 
 export default function AboutPage() {
-  const [activePortfolioId, setActivePortfolioId] = useState(PORTFOLIO_ITEMS[0].id);
-  const activePortfolio = PORTFOLIO_ITEMS.find((item) => item.id === activePortfolioId) ?? PORTFOLIO_ITEMS[0];
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
   const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
   const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
@@ -29,7 +142,15 @@ export default function AboutPage() {
     fetchAllSiteImages()
       .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
       .catch(() => {});
+    fetchPortfolioProjects()
+      .then((list) => {
+        setProjects(list);
+        if (list.length > 0) setActiveProjectId(list[0].id);
+      })
+      .catch(() => {});
   }, []);
+
+  const activePortfolio = projects.find((p) => p.id === activeProjectId) ?? null;
 
   function imgUrl(slotKey: string, fallback: string) {
     const si = siteImages.get(slotKey);
@@ -125,8 +246,8 @@ export default function AboutPage() {
             role="tablist"
             aria-label={ABOUT_PAGE_DATA.portfolio.tablistLabel}
           >
-            {PORTFOLIO_ITEMS.map((item) => {
-              const isActive = item.id === activePortfolio.id;
+            {projects.map((item) => {
+              const isActive = item.id === activeProjectId;
 
               return (
                 <Fragment key={item.id}>
@@ -138,7 +259,7 @@ export default function AboutPage() {
                     id={`portfolio-tab-${item.id}`}
                     className={`${styles.portfolioCard} ${isActive ? styles.portfolioCardActive : ''}`}
                     onClick={() => {
-                      setActivePortfolioId(item.id);
+                      setActiveProjectId(item.id);
                       if (window.innerWidth < 900) {
                         setTimeout(() => {
                           detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -151,34 +272,11 @@ export default function AboutPage() {
                     <span className={styles.portfolioCardMeta}>{item.meta}</span>
                   </button>
 
-                  {isActive && (
-                    <article
-                      ref={detailRef}
-                      className={styles.portfolioDetail}
-                      id={`portfolio-panel-${activePortfolio.id}`}
-                      role="tabpanel"
-                      aria-labelledby={`portfolio-tab-${activePortfolio.id}`}
-                    >
-                      <div className={styles.portfolioPreview}>
-                        <img
-                          className={styles.portfolioPreviewImage}
-                          src={imgUrl(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '', activePortfolio.imageUrl)}
-                          {...slotSrcSet(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '', '(min-width: 1024px) 50vw, 100vw')}
-                          alt={activePortfolio.imageAlt}
-                          loading="lazy"
-                          style={imgStyle(PORTFOLIO_SLOT_KEYS[activePortfolio.id] ?? '')}
-                        />
-                      </div>
-
-                      <div className={styles.portfolioDetailCopy}>
-                        <p className={styles.portfolioDetailEyebrow}>{activePortfolio.eyebrow}</p>
-                        <h3 className={styles.portfolioDetailTitle}>{activePortfolio.title}</h3>
-                        <p className={styles.portfolioDetailLead}>{activePortfolio.lead}</p>
-                        {activePortfolio.paragraphs.map((paragraph) => (
-                          <p key={paragraph} className={styles.portfolioDetailText}>{paragraph}</p>
-                        ))}
-                      </div>
-                    </article>
+                  {isActive && activePortfolio && (
+                    <ActiveProjectDetail
+                      project={activePortfolio}
+                      detailRef={detailRef}
+                    />
                   )}
                 </Fragment>
               );

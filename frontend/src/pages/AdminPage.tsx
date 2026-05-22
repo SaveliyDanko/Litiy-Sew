@@ -38,6 +38,19 @@ import {
   type AdminProduct,
 } from '../services/admin';
 import {
+  adminListPortfolioProjects,
+  addProjectPhoto,
+  createPortfolioProject,
+  deletePortfolioProject,
+  deleteProjectPhoto,
+  reorderPortfolioProject,
+  reorderProjectPhoto,
+  updatePortfolioProject,
+  updateProjectPhotoPosition,
+  type PortfolioProject,
+  type ProjectPhoto,
+} from '../services/portfolioProjects';
+import {
   addCollectionPhoto,
   createCollection,
   deleteCollection,
@@ -1211,14 +1224,384 @@ const ABOUT_SLOTS: SlotConfig[] = [
   { key: 'about-portrait',    label: 'Портрет в разделе Story', hint: 'Фото мастера рядом с текстом о себе', portrait: true },
 ];
 
-const PORTFOLIO_SLOTS: SlotConfig[] = [
-  { key: 'portfolio-problonde',   label: 'Problonde',         hint: 'Практика в бренде', portrait: true },
-  { key: 'portfolio-melon',       label: 'Melon Fashion Group', hint: 'Преддипломная практика', portrait: true },
-  { key: 'portfolio-spring',      label: 'Дыхание весны',     hint: 'Конкурс', portrait: true },
-  { key: 'portfolio-zigzag',      label: 'Диплом победителя', hint: 'Техно-Зигзаг', portrait: true },
-  { key: 'portfolio-prize',       label: 'Диплом призёра',    hint: 'Большая Перемена', portrait: true },
-  { key: 'portfolio-diplom',      label: 'Диплом об образовании', hint: 'СПбГУПТД', portrait: true },
-];
+// ─── Portfolio Projects (избранные проекты на «Обо мне») ─────────────────────
+
+function ProjectPhotoAdminRow({
+  photo,
+  idx,
+  total,
+  onUpdate,
+  onDelete,
+  onMove,
+}: {
+  photo: ProjectPhoto;
+  idx: number;
+  total: number;
+  onUpdate: (p: ProjectPhoto) => void;
+  onDelete: (id: number) => void;
+  onMove: (id: number, dir: 'up' | 'down') => void;
+}) {
+  const [posX, setPosX] = useState(photo.positionX);
+  const [posY, setPosY] = useState(photo.positionY);
+  const [scale, setScale] = useState(photo.scale ?? 100);
+  const [saving, setSaving] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const posRef = useRef({ x: photo.positionX, y: photo.positionY, s: photo.scale ?? 100 });
+
+  useEffect(() => {
+    setPosX(photo.positionX);
+    setPosY(photo.positionY);
+    setScale(photo.scale ?? 100);
+    posRef.current = { x: photo.positionX, y: photo.positionY, s: photo.scale ?? 100 };
+  }, [photo]);
+
+  function handlePos(axis: 'x' | 'y' | 's', val: number) {
+    if (axis === 'x') { setPosX(val); posRef.current.x = val; }
+    else if (axis === 'y') { setPosY(val); posRef.current.y = val; }
+    else { setScale(val); posRef.current.s = val; }
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        const updated = await updateProjectPhotoPosition(photo.id, posRef.current.x, posRef.current.y, posRef.current.s);
+        onUpdate(updated);
+      } catch {
+        showToast('Ошибка сохранения позиции');
+      } finally {
+        setSaving(false);
+      }
+    }, 600);
+  }
+
+  async function handleDelete() {
+    if (!confirm('Удалить фото?')) return;
+    await deleteProjectPhoto(photo.id);
+    onDelete(photo.id);
+    showToast('Удалено');
+  }
+
+  return (
+    <div className={styles.dynPhotoRow}>
+      <div className={styles.dynPhotoThumb}>
+        <img src={photo.imageUrl} alt="" style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }} />
+      </div>
+      <div className={styles.dynPhotoMeta}>
+        {saving && <span className={styles.dynPhotoSaving}>сохраняется…</span>}
+        <div className={styles.dynPhotoSliders}>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Гориз.</span>
+            <input type="range" min={0} max={100} value={posX} className={styles.slider}
+              onChange={(e) => handlePos('x', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posX}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Верт.</span>
+            <input type="range" min={0} max={100} value={posY} className={styles.slider}
+              onChange={(e) => handlePos('y', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{posY}%</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Масштаб</span>
+            <input type="range" min={100} max={200} value={scale} className={styles.slider}
+              onChange={(e) => handlePos('s', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{scale}%</span>
+          </label>
+        </div>
+        <div className={styles.cardActions} style={{ paddingLeft: 0, paddingBottom: 0, borderTop: 'none' }}>
+          <button className={styles.orderBtn} onClick={() => onMove(photo.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
+          <button className={styles.orderBtn} onClick={() => onMove(photo.id, 'down')} disabled={idx === total - 1} aria-label="Вниз">↓</button>
+        </div>
+      </div>
+      <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить">×</button>
+    </div>
+  );
+}
+
+function PortfolioProjectRow({
+  project,
+  idx,
+  total,
+  onUpdate,
+  onDelete,
+  onMove,
+}: {
+  project: PortfolioProject;
+  idx: number;
+  total: number;
+  onUpdate: (p: PortfolioProject) => void;
+  onDelete: (id: number) => void;
+  onMove: (id: number, dir: 'up' | 'down') => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoFileRef = useRef<HTMLInputElement>(null);
+
+  const [eyebrow, setEyebrow] = useState(project.eyebrow ?? '');
+  const [title, setTitle] = useState(project.title);
+  const [meta, setMeta] = useState(project.meta ?? '');
+  const [lead, setLead] = useState(project.lead ?? '');
+  const [paragraph1, setParagraph1] = useState(project.paragraph1 ?? '');
+  const [paragraph2, setParagraph2] = useState(project.paragraph2 ?? '');
+
+  useEffect(() => {
+    setEyebrow(project.eyebrow ?? '');
+    setTitle(project.title);
+    setMeta(project.meta ?? '');
+    setLead(project.lead ?? '');
+    setParagraph1(project.paragraph1 ?? '');
+    setParagraph2(project.paragraph2 ?? '');
+  }, [project]);
+
+  async function handleSaveText(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const updated = await updatePortfolioProject(project.id, {
+        eyebrow: eyebrow.trim() || undefined,
+        title: title.trim(),
+        meta: meta.trim() || undefined,
+        lead: lead.trim() || undefined,
+        paragraph1: paragraph1.trim() || undefined,
+        paragraph2: paragraph2.trim() || undefined,
+        imageUrl: project.imageUrl ?? undefined,
+        imageKey: project.imageKey ?? undefined,
+        imageSrcSet: project.imageSrcSet ?? undefined,
+      });
+      onUpdate(updated);
+      showToast('Сохранено');
+    } catch {
+      showToast('Ошибка сохранения');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleAddPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { publicUrl, key, srcset } = await uploadFile(file);
+      const newPhoto = await addProjectPhoto(project.id, publicUrl, key, srcset);
+      onUpdate({ ...project, photos: [...project.photos, newPhoto] });
+      showToast('Фото добавлено');
+    } catch {
+      showToast('Ошибка загрузки');
+    } finally {
+      setUploadingPhoto(false);
+      if (photoFileRef.current) photoFileRef.current.value = '';
+    }
+  }
+
+  async function handleMovePhoto(id: number, dir: 'up' | 'down') {
+    const photos = project.photos;
+    const photoIdx = photos.findIndex((p) => p.id === id);
+    const swapIdx = dir === 'up' ? photoIdx - 1 : photoIdx + 1;
+    if (swapIdx < 0 || swapIdx >= photos.length) return;
+    const normalized = photos.map((p, i) => ({ ...p, sortOrder: i }));
+    await reorderProjectPhoto(normalized[photoIdx].id, swapIdx);
+    await reorderProjectPhoto(normalized[swapIdx].id, photoIdx);
+    const updated = [...normalized];
+    updated[photoIdx] = { ...normalized[photoIdx], sortOrder: swapIdx };
+    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: photoIdx };
+    updated.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
+    onUpdate({ ...project, photos: updated });
+  }
+
+  async function handleDelete() {
+    if (!confirm(`Удалить проект «${project.title}»?`)) return;
+    await deletePortfolioProject(project.id);
+    onDelete(project.id);
+    showToast('Удалено');
+  }
+
+  const thumbPhoto = project.photos[0] ?? null;
+  const thumbUrl = thumbPhoto?.imageUrl ?? project.imageUrl ?? null;
+  const thumbPosX = thumbPhoto?.positionX ?? project.positionX;
+  const thumbPosY = thumbPhoto?.positionY ?? project.positionY;
+  const thumbScale = thumbPhoto?.scale ?? project.scale ?? 100;
+
+  return (
+    <div className={styles.projectRow}>
+      <div className={styles.projectRowHeader}>
+        <div className={styles.projectRowInfo}>
+          {thumbUrl && (
+            <div className={styles.projectThumb}>
+              <img
+                src={thumbUrl}
+                alt={project.title}
+                style={{ objectPosition: `${thumbPosX}% ${thumbPosY}%`, transform: `scale(${thumbScale / 100})` }}
+              />
+            </div>
+          )}
+          <div>
+            {project.eyebrow && <span className={styles.projectEyebrow}>{project.eyebrow}</span>}
+            <span className={styles.projectTitle}>{project.title}</span>
+            {project.photos.length > 0 && (
+              <span className={styles.projectEyebrow}> · {project.photos.length} фото</span>
+            )}
+          </div>
+        </div>
+        <div className={styles.projectRowActions}>
+          <button className={styles.orderBtn} onClick={() => onMove(project.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
+          <button className={styles.orderBtn} onClick={() => onMove(project.id, 'down')} disabled={idx === total - 1} aria-label="Вниз">↓</button>
+          <button className={styles.editBtn} onClick={() => setExpanded((v) => !v)}>
+            {expanded ? 'Свернуть' : 'Изменить'}
+          </button>
+          <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Удалить">×</button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className={styles.projectEditor}>
+          <form className={styles.form} onSubmit={handleSaveText}>
+            <label className={styles.field}>
+              <span className={styles.label}>Надпись над заголовком (eyebrow)</span>
+              <input className={styles.input} value={eyebrow} onChange={(e) => setEyebrow(e.target.value)} placeholder="Конкурс" />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Заголовок *</span>
+              <input className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Дыхание весны" />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Мета (под заголовком в карточке)</span>
+              <input className={styles.input} value={meta} onChange={(e) => setMeta(e.target.value)} placeholder="Всероссийский конкурс" />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Вступление (lead)</span>
+              <textarea className={styles.textarea} value={lead} onChange={(e) => setLead(e.target.value)} rows={3} placeholder="Краткое описание проекта…" />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Абзац 1</span>
+              <textarea className={styles.textarea} value={paragraph1} onChange={(e) => setParagraph1(e.target.value)} rows={3} />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Абзац 2 (необязательно)</span>
+              <textarea className={styles.textarea} value={paragraph2} onChange={(e) => setParagraph2(e.target.value)} rows={3} />
+            </label>
+            <button className={styles.submit} type="submit" disabled={saving}>
+              {saving ? 'Сохраняется…' : 'Сохранить текст'}
+            </button>
+          </form>
+
+          <div className={styles.projectImageSection}>
+            <p className={styles.label}>Фото галереи проекта</p>
+            <p className={styles.formHint}>Фотографии листаются слайдером на странице «Обо мне»</p>
+            {project.photos.length > 0 && (
+              <div className={styles.dynPhotoList}>
+                {project.photos.map((photo, photoIdx) => (
+                  <ProjectPhotoAdminRow
+                    key={photo.id}
+                    photo={photo}
+                    idx={photoIdx}
+                    total={project.photos.length}
+                    onUpdate={(updated) => onUpdate({
+                      ...project,
+                      photos: project.photos.map((ph) => ph.id === updated.id ? updated : ph),
+                    })}
+                    onDelete={(id) => onUpdate({ ...project, photos: project.photos.filter((ph) => ph.id !== id) })}
+                    onMove={handleMovePhoto}
+                  />
+                ))}
+              </div>
+            )}
+            <div className={styles.fileInputRow} style={{ marginTop: 8 }}>
+              <label className={`${styles.fileBtn} ${uploadingPhoto ? styles.fileBtnDisabled : ''}`}>
+                {uploadingPhoto ? 'Загрузка…' : '+ Добавить фото'}
+                <input ref={photoFileRef} type="file" accept="image/*" className={styles.fileInputHidden}
+                  disabled={uploadingPhoto}
+                  onChange={handleAddPhoto} />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PortfolioProjectsSection() {
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+
+  useEffect(() => {
+    adminListPortfolioProjects().then(setProjects).finally(() => setLoading(false));
+  }, []);
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+    setCreating(true);
+    try {
+      const maxOrder = projects.length > 0 ? Math.max(...projects.map((p) => p.sortOrder)) : -1;
+      const created = await createPortfolioProject({ title: newTitle.trim(), sortOrder: maxOrder + 1 });
+      setProjects((prev) => [...prev, created]);
+      setNewTitle('');
+      showToast('Проект создан');
+    } catch {
+      showToast('Ошибка создания');
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleMove(id: number, dir: 'up' | 'down') {
+    const idx = projects.findIndex((p) => p.id === id);
+    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= projects.length) return;
+    const normalized = projects.map((p, i) => ({ ...p, sortOrder: i }));
+    await reorderPortfolioProject(normalized[idx].id, swapIdx);
+    await reorderPortfolioProject(normalized[swapIdx].id, idx);
+    const updated = [...normalized];
+    updated[idx] = { ...normalized[idx], sortOrder: swapIdx };
+    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: idx };
+    updated.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
+    setProjects(updated);
+  }
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.formHeader}>
+        <h2 className={styles.sectionTitle}>Избранные проекты</h2>
+        <p className={styles.formHint}>Карточки в разделе «Portfolio» на странице «Обо мне». Порядок меняется стрелками.</p>
+      </div>
+
+      <form className={styles.form} onSubmit={handleCreate} style={{ marginBottom: 24 }}>
+        <label className={styles.field}>
+          <span className={styles.label}>Заголовок нового проекта</span>
+          <input className={styles.input} value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Название проекта" required />
+        </label>
+        <button className={styles.submit} type="submit" disabled={creating}>
+          {creating ? 'Создание…' : 'Создать проект'}
+        </button>
+      </form>
+
+      {loading ? (
+        <p className={styles.hint}>Загрузка…</p>
+      ) : projects.length === 0 ? (
+        <p className={styles.hint}>Проектов пока нет</p>
+      ) : (
+        <div className={styles.projectList}>
+          {projects.map((p, idx) => (
+            <PortfolioProjectRow
+              key={p.id}
+              project={p}
+              idx={idx}
+              total={projects.length}
+              onUpdate={(updated) => setProjects((prev) => prev.map((i) => i.id === updated.id ? updated : i))}
+              onDelete={(id) => setProjects((prev) => prev.filter((i) => i.id !== id))}
+              onMove={handleMove}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AboutSection() {
   const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
@@ -1263,19 +1646,7 @@ function AboutSection() {
         ))}
       </div>
 
-      <div className={styles.slotGroup}>
-        <p className={styles.slotGroupTitle}>Карточки портфолио</p>
-        <div className={styles.slotGrid}>
-          {PORTFOLIO_SLOTS.map((cfg) => (
-            <SiteImageSlot
-              key={cfg.key}
-              config={cfg}
-              data={images.get(cfg.key) ?? null}
-              onUpdate={(img) => handleUpdate(cfg.key, img)}
-            />
-          ))}
-        </div>
-      </div>
+      <PortfolioProjectsSection />
     </div>
   );
 }
