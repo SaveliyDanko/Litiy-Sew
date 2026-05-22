@@ -533,9 +533,15 @@
   position: relative;
   display: block;
   overflow: hidden;
-  height: var(--featured-media-height);
+  height: var(--featured-media-height-mobile, var(--featured-media-height));
   border-radius: var(--featured-media-radius);
   background: linear-gradient(145deg, #bcb0b0 0%, #b5a7a7 48%, #cec4c4 100%);
+}
+
+@media (min-width: 768px) {
+  .featuredMedia {
+    height: var(--featured-media-height-desktop, var(--featured-media-height));
+  }
 }
 
 /* Портфолио-режим: секция растягивается на всю высоту экрана (только десктоп) */

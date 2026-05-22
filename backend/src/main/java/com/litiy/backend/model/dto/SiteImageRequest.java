@@ -11,5 +11,6 @@ public record SiteImageRequest(
         Integer positionX,
         Integer positionY,
         Integer scale,
-        Integer containerHeight
+        Integer containerHeight,
+        Integer containerHeightMobile
 ) {}

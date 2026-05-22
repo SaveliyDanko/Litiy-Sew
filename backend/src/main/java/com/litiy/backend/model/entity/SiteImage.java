@@ -56,6 +56,11 @@ public class SiteImage {
     @Builder.Default
     private Integer containerHeight = 0;
 
+    /** px высота контейнера для мобайла; 0 = использовать containerHeight */
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer containerHeightMobile = 0;
+
     @Column(nullable = false, updatable = false)
     private Instant updatedAt;
 }

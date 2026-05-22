@@ -966,6 +966,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
   const [posY, setPosY] = useState(data?.positionY ?? 50);
   const [scale, setScale] = useState(data?.scale ?? 100);
   const [containerHeight, setContainerHeight] = useState(data?.containerHeight ?? 0);
+  const [containerHeightMobile, setContainerHeightMobile] = useState(data?.containerHeightMobile ?? 0);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -976,6 +977,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
       setPosY(data.positionY);
       setScale(data.scale ?? 100);
       setContainerHeight(data.containerHeight ?? 0);
+      setContainerHeightMobile(data.containerHeightMobile ?? 0);
     }
   }, [data]);
 
@@ -985,11 +987,12 @@ function SiteImageSlot({ config, data, onUpdate }: {
     setFileName(file ? file.name : null);
   }
 
-  function handlePositionChange(axis: 'x' | 'y' | 's' | 'h', val: number) {
+  function handlePositionChange(axis: 'x' | 'y' | 's' | 'h' | 'hm', val: number) {
     if (axis === 'x') setPosX(val);
     else if (axis === 'y') setPosY(val);
     else if (axis === 's') setScale(val);
-    else setContainerHeight(val);
+    else if (axis === 'h') setContainerHeight(val);
+    else setContainerHeightMobile(val);
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true);
@@ -998,11 +1001,12 @@ function SiteImageSlot({ config, data, onUpdate }: {
         const newY = axis === 'y' ? val : posY;
         const newS = axis === 's' ? val : scale;
         const newH = axis === 'h' ? val : containerHeight;
+        const newHm = axis === 'hm' ? val : containerHeightMobile;
         let updated;
         if (config.heightOnly && !data) {
-          updated = await upsertSiteImage({ slotKey: config.key, imageUrl: '', imageKey: '', containerHeight: newH });
+          updated = await upsertSiteImage({ slotKey: config.key, imageUrl: '', imageKey: '', containerHeight: newH, containerHeightMobile: newHm });
         } else {
-          updated = await updateSiteImagePosition(config.key, newX, newY, newS, newH);
+          updated = await updateSiteImagePosition(config.key, newX, newY, newS, newH, newHm);
         }
         if (updated) onUpdate(updated);
       } catch {
@@ -1029,6 +1033,7 @@ function SiteImageSlot({ config, data, onUpdate }: {
         positionY: posY,
         scale,
         containerHeight,
+        containerHeightMobile,
       });
       onUpdate(updated);
       setPreview(null);
@@ -1069,10 +1074,16 @@ function SiteImageSlot({ config, data, onUpdate }: {
             Высота {saving && <span className={styles.heroSaving}>сохраняется…</span>}
           </p>
           <label className={styles.sliderField}>
-            <span className={styles.sliderName}>Высота, px</span>
+            <span className={styles.sliderName}>Десктоп, px</span>
             <input type="range" min={200} max={1200} value={containerHeight || 500} className={styles.slider}
               onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
             <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
+          </label>
+          <label className={styles.sliderField}>
+            <span className={styles.sliderName}>Мобайл, px</span>
+            <input type="range" min={100} max={800} value={containerHeightMobile || 300} className={styles.slider}
+              onChange={(e) => handlePositionChange('hm', Number(e.target.value))} />
+            <span className={styles.sliderValue}>{containerHeightMobile > 0 ? `${containerHeightMobile}px` : 'авто'}</span>
           </label>
         </div>
       ) : (
@@ -1120,12 +1131,20 @@ function SiteImageSlot({ config, data, onUpdate }: {
                   <span className={styles.sliderValue}>{scale}%</span>
                 </label>
                 {config.hasContainerHeight && (
-                  <label className={styles.sliderField}>
-                    <span className={styles.sliderName}>Высота, px</span>
-                    <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
-                      onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
-                    <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
-                  </label>
+                  <>
+                    <label className={styles.sliderField}>
+                      <span className={styles.sliderName}>Высота десктоп, px</span>
+                      <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
+                        onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
+                      <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
+                    </label>
+                    <label className={styles.sliderField}>
+                      <span className={styles.sliderName}>Высота мобайл, px</span>
+                      <input type="range" min={100} max={800} value={containerHeightMobile || 300} className={styles.slider}
+                        onChange={(e) => handlePositionChange('hm', Number(e.target.value))} />
+                      <span className={styles.sliderValue}>{containerHeightMobile > 0 ? `${containerHeightMobile}px` : 'авто'}</span>
+                    </label>
+                  </>
                 )}
               </div>
             )}

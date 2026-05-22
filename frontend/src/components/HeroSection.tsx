@@ -213,8 +213,13 @@ export default function HeroSection() {
             className={styles.featuredMedia}
             aria-label={`Открыть коллекцию ${featured.title}`}
             style={(() => {
-              const h = siteImages.get('home-featured-media')?.containerHeight;
-              return h ? { height: `${h}px` } : undefined;
+              const si = siteImages.get('home-featured-media');
+              if (!si) return undefined;
+              const s = {
+                ...(si.containerHeight ? { '--featured-media-height-desktop': `${si.containerHeight}px` } : {}),
+                ...(si.containerHeightMobile ? { '--featured-media-height-mobile': `${si.containerHeightMobile}px` } : {}),
+              } as React.CSSProperties;
+              return Object.keys(s).length ? s : undefined;
             })()}
           >
             {featuredCardPhoto ? (

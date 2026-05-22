@@ -46,6 +46,7 @@ public class SiteImageService {
             existing.setPositionY(req.positionY() != null ? req.positionY() : existing.getPositionY());
             existing.setScale(req.scale() != null ? req.scale() : existing.getScale());
             existing.setContainerHeight(req.containerHeight() != null ? req.containerHeight() : existing.getContainerHeight());
+            existing.setContainerHeightMobile(req.containerHeightMobile() != null ? req.containerHeightMobile() : existing.getContainerHeightMobile());
             existing.setUpdatedAt(Instant.now());
             return SiteImageResponse.from(repo.save(existing));
         }
@@ -58,17 +59,19 @@ public class SiteImageService {
                 .positionY(req.positionY() != null ? req.positionY() : 50)
                 .scale(req.scale() != null ? req.scale() : 100)
                 .containerHeight(req.containerHeight() != null ? req.containerHeight() : 0)
+                .containerHeightMobile(req.containerHeightMobile() != null ? req.containerHeightMobile() : 0)
                 .updatedAt(Instant.now())
                 .build();
         return SiteImageResponse.from(repo.save(created));
     }
 
-    public Optional<SiteImageResponse> updatePosition(String slotKey, int positionX, int positionY, int scale, int containerHeight) {
+    public Optional<SiteImageResponse> updatePosition(String slotKey, int positionX, int positionY, int scale, int containerHeight, int containerHeightMobile) {
         return repo.findBySlotKey(slotKey).map(img -> {
             img.setPositionX(positionX);
             img.setPositionY(positionY);
             img.setScale(scale);
             img.setContainerHeight(containerHeight);
+            img.setContainerHeightMobile(containerHeightMobile);
             img.setUpdatedAt(Instant.now());
             return SiteImageResponse.from(repo.save(img));
         });

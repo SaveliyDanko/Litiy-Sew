@@ -8,6 +8,7 @@ export type SiteImage = {
   positionY: number;
   scale: number;
   containerHeight: number;
+  containerHeightMobile: number;
 };
 
 export async function fetchAllSiteImages(): Promise<SiteImage[]> {
@@ -31,6 +32,7 @@ export async function upsertSiteImage(data: {
   positionY?: number;
   scale?: number;
   containerHeight?: number;
+  containerHeightMobile?: number;
 }): Promise<SiteImage> {
   const res = await fetch('/api/admin/site-images', {
     method: 'POST',
@@ -48,12 +50,13 @@ export async function updateSiteImagePosition(
   positionY: number,
   scale: number,
   containerHeight: number,
+  containerHeightMobile: number,
 ): Promise<SiteImage | null> {
   const res = await fetch(`/api/admin/site-images/${slotKey}/position`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ positionX, positionY, scale, containerHeight }),
+    body: JSON.stringify({ positionX, positionY, scale, containerHeight, containerHeightMobile }),
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

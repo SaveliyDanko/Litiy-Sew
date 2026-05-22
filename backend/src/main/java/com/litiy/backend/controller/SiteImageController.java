@@ -50,7 +50,8 @@ public class SiteImageController {
                 body.getOrDefault("positionX", 50),
                 body.getOrDefault("positionY", 50),
                 body.getOrDefault("scale", 100),
-                body.getOrDefault("containerHeight", 0)
+                body.getOrDefault("containerHeight", 0),
+                body.getOrDefault("containerHeightMobile", 0)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
