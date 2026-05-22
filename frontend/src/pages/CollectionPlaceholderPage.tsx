@@ -113,7 +113,7 @@ export default function CollectionPlaceholderPage() {
             collection.heroTitlePosition?.endsWith('-center-left')  ? styles.heroHCenterLeft  : '',
             collection.heroTitlePosition?.endsWith('-center-right') ? styles.heroHCenterRight : '',
             collection.heroTitlePosition?.endsWith('-center')   ? styles.heroHCenter : '',
-            collection.heroTitlePosition?.endsWith('-right')    ? styles.heroHRight  : '',
+            (collection.heroTitlePosition?.endsWith('-right') && !collection.heroTitlePosition.endsWith('-center-right')) ? styles.heroHRight : '',
           ].filter(Boolean).join(' ')}>
             <p className={styles.heroEyebrow}>{collection.eyebrow ?? 'Collection'}</p>
             <h1 className={styles.heroTitle}>{collection.title}</h1>
