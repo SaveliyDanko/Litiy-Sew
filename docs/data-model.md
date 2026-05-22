@@ -86,6 +86,10 @@
 | `slug` | UNIQUE — используется в URL `/collections/:slug` |
 | `eyebrow` | надпись над заголовком |
 | `detail_intro`, `detail_focus` | тексты в детальном блоке страницы коллекции |
+| `group_title` | заголовок группы на странице /collections (если NULL — заголовок не показывается) |
+| `hide_card_label` | BOOLEAN — скрыть название/подзаголовок под карточкой в каталоге |
+| `hero_title_position` | `bottom-left` / `bottom-center` / `center` — положение заголовка на hero-баннере коллекции |
+| `hero_height_mode` | `full` (100svh) / `half` (50svh) / `auto` (по пропорциям фото) — высота hero-секции |
 | `tone` | `warm` / `cool` / `neutral` — цвет плейсхолдера карточки |
 | `category` | `COLLECTION` / `SOLO` / `SKETCH` — раздел на странице /collections |
 | `featured` | BOOLEAN — отображается как главная карточка на /collections |

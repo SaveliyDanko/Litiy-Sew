@@ -36,7 +36,7 @@ React 19 SPA с ручным роутингом (без React Router). Entrypoin
 | `HomePage.tsx` | Главная: hero-баннер, карточка коллекции |
 | `AboutPage.tsx` | О мастере: текст, отзывы |
 | `CollectionsPage.tsx` | Список коллекций, разделённых по категориям (COLLECTION / SOLO / SKETCH) |
-| `CollectionPlaceholderPage.tsx` | Страница конкретной коллекции: hero → детальный блок (2 фото + текст) → мозаика |
+| `CollectionPlaceholderPage.tsx` | Страница конкретной коллекции: hero (высота по `heroHeightMode`) → детальный блок (2 фото + текст) → мозаика |
 | `PatternsPage.tsx` | Каталог выкроек |
 | `PatternCategoryPage.tsx` | Выкройки одной категории |
 | `PatternDetailPage.tsx` | Карточка выкройки, выбор размера/роста |
@@ -79,7 +79,7 @@ React 19 SPA с ручным роутингом (без React Router). Entrypoin
 | `cart.ts` | CRUD корзины |
 | `favorites.ts` | CRUD избранного |
 | `measurements.ts` | Мерки пользователя |
-| `collections.ts` | Публичный список и детали коллекций; типы `DynamicCollection`, `DynamicCollectionPhoto` |
+| `collections.ts` | Публичный список и детали коллекций; типы `DynamicCollection` (включает `heroTitlePosition`, `heroHeightMode`, `groupTitle`, `hideCardLabel`), `DynamicCollectionPhoto` |
 | `portfolio.ts` | Публичный список портфолио |
 | `siteImages.ts` | Слоты изображений сайта (`site-images`) |
 | `admin.ts` | Все admin-операции: загрузка файлов, CRUD товаров / выкроек / портфолио / hero / коллекций |

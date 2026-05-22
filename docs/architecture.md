@@ -78,8 +78,11 @@ Spring (ResourceHandler)  → отдаёт файл из MEDIA_UPLOAD_DIR
 ### Denormalized cart и favorites
 `cart_items` и `favorite_items` хранят `title`, `price`, `image` прямо в строке — чтобы список восстанавливался без обращения к каталогу, даже если товар удалён из БД.
 
-### `ddl-auto: update` — только для новых таблиц
-Hibernate автоматически создаёт **новые** таблицы и добавляет **новые** колонки в **пустые** таблицы. Если таблица уже содержит строки и нужно добавить колонку — обязателен ручной `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...` на VPS перед деплоем.
+### `ddl-auto: update` — добавление колонок
+Hibernate автоматически создаёт новые таблицы и добавляет новые колонки. Колонка добавляется **без DEFAULT**, поэтому:
+- `@Column(nullable = false)` на новом поле в заполненной таблице → строки нарушают NOT NULL constraint → приложение не стартует.
+- Всегда добавляй новые поля как nullable (`@Column` без `nullable = false`) или делай ручной `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ... DEFAULT ...` на VPS **до деплоя**.
+- `Boolean.TRUE.equals(field)` — безопасный способ читать nullable Boolean (возвращает `false` для `null`).
 
 ### Feature flags через Vite
 `VITE_SHOP_ENABLED` считывается в `frontend/src/utils/featureFlags.ts` через `import.meta.env`. Значение подставляется на этапе сборки — изменение требует пересборки (`npm run build`) или перезапуска dev-сервера.

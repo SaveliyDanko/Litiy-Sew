@@ -45,7 +45,7 @@
      ---------------------------------------------------------- */
 
   /* Вертикальный отступ блока сверху и снизу (мобайл) */
-  --detail-padding-v: 48px;
+  --detail-padding-v: 61px;
 
   /* Горизонтальный отступ блока от краёв экрана (мобайл) */
   --detail-padding-h: 32px;
@@ -103,7 +103,7 @@
 /* Планшет — от 640px */
 @media (min-width: 640px) {
   .page {
-    --detail-padding-v: 56px;
+    --detail-padding-v: 71px;
     --detail-padding-h: 60px;
     --detail-gap: 32px;
     /* Три колонки: фото узкие, текст широкий по центру */
@@ -122,7 +122,7 @@
 /* Десктоп — от 1024px */
 @media (min-width: 1024px) {
   .page {
-    --detail-padding-v: 64px;
+    --detail-padding-v: 81px;
     --detail-padding-h: 100px;
     --detail-gap: 48px;
     --detail-cols: 0.65fr 1.7fr 0.65fr;
