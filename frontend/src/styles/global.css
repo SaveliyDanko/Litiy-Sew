@@ -11,6 +11,7 @@ html {
 :root {
   --font-display: 'Sansita One', sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-editorial: 'Cormorant Garamond', Georgia, serif;
   --color-black: #111111;
   --color-white: #ffffff;
 }
