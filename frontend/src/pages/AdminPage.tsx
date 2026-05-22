@@ -16,6 +16,8 @@ import {
   createProduct,
   deleteHero,
   deleteHeroMobile,
+  replaceHeroTablet,
+  deleteHeroTablet,
   deletePattern,
   updateHeroPosition,
   deletePortfolioPhoto,
@@ -571,6 +573,15 @@ function HeroSection() {
   const [posYM, setPosYM] = useState(50);
   const [scaleM, setScaleM] = useState(100);
 
+  // Tablet
+  const [uploadingT, setUploadingT] = useState(false);
+  const fileRefT = useRef<HTMLInputElement>(null);
+  const [fileNameT, setFileNameT] = useState<string | null>(null);
+  const [previewT, setPreviewT] = useState<string | null>(null);
+  const [posXT, setPosXT] = useState(50);
+  const [posYT, setPosYT] = useState(50);
+  const [scaleT, setScaleT] = useState(100);
+
   const [saving, setSaving] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -583,32 +594,41 @@ function HeroSection() {
           setPosY(hero.positionY ?? 50);
           setPosXM(hero.positionXMobile ?? 50);
           setPosYM(hero.positionYMobile ?? 50);
+          setPosXT(hero.positionXTablet ?? 50);
+          setPosYT(hero.positionYTablet ?? 50);
           setScaleD(hero.scale ?? 100);
           setScaleM(hero.scaleMobile ?? 100);
+          setScaleT(hero.scaleTablet ?? 100);
         }
       })
       .catch(() => setCurrent(null));
   }, []);
 
-  function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym' | 'sd' | 'sm', val: number) {
+  function handlePositionChange(field: 'x' | 'y' | 'xm' | 'ym' | 'xt' | 'yt' | 'sd' | 'sm' | 'st', val: number) {
     if (field === 'x') setPosX(val);
     else if (field === 'y') setPosY(val);
     else if (field === 'xm') setPosXM(val);
     else if (field === 'ym') setPosYM(val);
+    else if (field === 'xt') setPosXT(val);
+    else if (field === 'yt') setPosYT(val);
     else if (field === 'sd') setScaleD(val);
-    else setScaleM(val);
+    else if (field === 'sm') setScaleM(val);
+    else setScaleT(val);
 
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
-        const nx = field === 'x' ? val : posX;
-        const ny = field === 'y' ? val : posY;
+        const nx  = field === 'x'  ? val : posX;
+        const ny  = field === 'y'  ? val : posY;
         const nxm = field === 'xm' ? val : posXM;
         const nym = field === 'ym' ? val : posYM;
+        const nxt = field === 'xt' ? val : posXT;
+        const nyt = field === 'yt' ? val : posYT;
         const nsd = field === 'sd' ? val : scaleD;
         const nsm = field === 'sm' ? val : scaleM;
-        await updateHeroPosition(nx, ny, nxm, nym, nsd, nsm);
+        const nst = field === 'st' ? val : scaleT;
+        await updateHeroPosition(nx, ny, nxm, nym, nxt, nyt, nsd, nsm, nst);
       } catch {
         showToast('Ошибка сохранения позиции');
       } finally {
@@ -628,9 +648,12 @@ function HeroSection() {
         imageUrl: publicUrl, imageKey: key,
         imageUrlMobile: current?.imageUrlMobile ?? undefined,
         imageKeyMobile: current?.imageKeyMobile ?? undefined,
+        imageUrlTablet: current?.imageUrlTablet ?? undefined,
+        imageKeyTablet: current?.imageKeyTablet ?? undefined,
         positionX: posX, positionY: posY,
         positionXMobile: posXM, positionYMobile: posYM,
-        scale: scaleD, scaleMobile: scaleM,
+        positionXTablet: posXT, positionYTablet: posYT,
+        scale: scaleD, scaleMobile: scaleM, scaleTablet: scaleT,
       });
       setCurrent(updated);
       setPreviewD(null);
@@ -673,6 +696,35 @@ function HeroSection() {
     showToast('Мобильный баннер удалён');
   }
 
+  async function handleSubmitTablet(e: React.FormEvent) {
+    e.preventDefault();
+    const file = fileRefT.current?.files?.[0];
+    if (!file) { showToast('Выберите изображение'); return; }
+    setUploadingT(true);
+    try {
+      const { publicUrl, key } = await uploadFile(file);
+      const updated = await replaceHeroTablet(publicUrl, key);
+      if (updated) setCurrent(updated);
+      setPreviewT(null);
+      setFileNameT(null);
+      if (fileRefT.current) fileRefT.current.value = '';
+      showToast('Планшетный баннер обновлён');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ошибка загрузки');
+    } finally {
+      setUploadingT(false);
+    }
+  }
+
+  async function handleDeleteTablet() {
+    if (!confirm('Удалить планшетный баннер?')) return;
+    const updated = await deleteHeroTablet();
+    if (updated) setCurrent(updated);
+    setPreviewT(null);
+    setFileNameT(null);
+    showToast('Планшетный баннер удалён');
+  }
+
   async function handleDelete() {
     if (!confirm('Удалить баннер полностью?')) return;
     await deleteHero();
@@ -684,6 +736,7 @@ function HeroSection() {
 
   const displayUrlD = previewD ?? current?.imageUrl ?? null;
   const displayUrlM = previewM ?? current?.imageUrlMobile ?? displayUrlD;
+  const displayUrlT = previewT ?? current?.imageUrlTablet ?? displayUrlD;
 
   return (
     <div className={styles.section}>
@@ -800,6 +853,61 @@ function HeroSection() {
             {current?.imageUrlMobile && (
               <button className={styles.deleteBannerBtn} onClick={handleDeleteMobile}>
                 Удалить мобильное фото
+              </button>
+            )}
+            {!current && <p className={styles.hint}>Сначала загрузите десктоп-баннер</p>}
+          </div>
+
+          {/* Tablet block */}
+          <div className={styles.heroBannerBlock}>
+            <p className={styles.heroBannerBlockTitle}>Планшет (640–1023px)</p>
+            <div className={styles.heroPreviewWrap}>
+              {displayUrlT
+                ? <img src={displayUrlT} alt="Планшет" className={styles.heroPreviewImg} style={{ objectPosition: `${posXT}% ${posYT}%`, transform: `scale(${scaleT / 100})` }} />
+                : <div className={styles.heroPreviewEmpty}>Не установлен</div>
+              }
+            </div>
+            {current && (
+              <>
+                <p className={styles.heroPositionLabel}>
+                  Кадрировка {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+                </p>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Горизонталь</span>
+                  <input type="range" min={0} max={100} value={posXT} className={styles.slider}
+                    onChange={(e) => handlePositionChange('xt', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posXT}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Вертикаль</span>
+                  <input type="range" min={0} max={100} value={posYT} className={styles.slider}
+                    onChange={(e) => handlePositionChange('yt', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{posYT}%</span>
+                </label>
+                <label className={styles.sliderField}>
+                  <span className={styles.sliderName}>Масштаб</span>
+                  <input type="range" min={100} max={200} value={scaleT} className={styles.slider}
+                    onChange={(e) => handlePositionChange('st', Number(e.target.value))} />
+                  <span className={styles.sliderValue}>{scaleT}%</span>
+                </label>
+              </>
+            )}
+            <form className={styles.heroInlineForm} onSubmit={handleSubmitTablet}>
+              <label className={`${styles.fileBtn} ${!current ? styles.fileBtnDisabled : ''}`}>
+                {fileNameT ?? (current?.imageUrlTablet ? 'Заменить фото' : 'Загрузить фото')}
+                <input ref={fileRefT} type="file" accept="image/*" className={styles.fileInputHidden}
+                  disabled={!current}
+                  onChange={(e) => { const f = e.target.files?.[0]; setPreviewT(f ? URL.createObjectURL(f) : null); setFileNameT(f?.name ?? null); }} />
+              </label>
+              {fileNameT && (
+                <button className={styles.submit} type="submit" disabled={uploadingT}>
+                  {uploadingT ? 'Загрузка…' : 'Сохранить'}
+                </button>
+              )}
+            </form>
+            {current?.imageUrlTablet && (
+              <button className={styles.deleteBannerBtn} onClick={handleDeleteTablet}>
+                Удалить планшетное фото
               </button>
             )}
             {!current && <p className={styles.hint}>Сначала загрузите десктоп-баннер</p>}

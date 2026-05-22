@@ -150,8 +150,11 @@ public class AdminController {
                 body.getOrDefault("positionY", 50),
                 body.getOrDefault("positionXMobile", 50),
                 body.getOrDefault("positionYMobile", 50),
+                body.getOrDefault("positionXTablet", 50),
+                body.getOrDefault("positionYTablet", 50),
                 body.getOrDefault("scale", 100),
-                body.getOrDefault("scaleMobile", 100)
+                body.getOrDefault("scaleMobile", 100),
+                body.getOrDefault("scaleTablet", 100)
         ).map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
@@ -168,6 +171,23 @@ public class AdminController {
     @DeleteMapping("/hero/mobile")
     public ResponseEntity<HeroBannerResponse> deleteHeroMobile() {
         return heroBannerAdminService.deleteMobileImage()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
+    @PutMapping("/hero/tablet")
+    public ResponseEntity<HeroBannerResponse> replaceHeroTablet(@RequestBody Map<String, String> body) {
+        String url = body.get("imageUrl");
+        String key = body.get("imageKey");
+        if (url == null || key == null) return ResponseEntity.badRequest().build();
+        return heroBannerAdminService.replaceTabletImage(url, key)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
+    @DeleteMapping("/hero/tablet")
+    public ResponseEntity<HeroBannerResponse> deleteHeroTablet() {
+        return heroBannerAdminService.deleteTabletImage()
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }

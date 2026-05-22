@@ -166,11 +166,11 @@
 
 @media (min-width: 640px) {
   .header {
-    padding: 16px 32px;
+    padding: 12px 32px;
   }
 
   .logo {
-    font-size: 36px;
+    font-size: 28px;
   }
 
   .nav {

@@ -42,8 +42,11 @@
   --hero-bg-offset-y: 50%;
   --hero-bg-offset-x-mobile: 50%;
   --hero-bg-offset-y-mobile: 50%;
+  --hero-bg-offset-x-tablet: 50%;
+  --hero-bg-offset-y-tablet: 50%;
   --hero-bg-scale: 1;
   --hero-bg-scale-mobile: 1;
+  --hero-bg-scale-tablet: 1;
 
 
   /* ----------------------------------------------------------
@@ -264,6 +267,21 @@
   }
 }
 
+/* Низкие экраны ноутбуков (высота ≤ 860px) — уменьшить заголовок и отступы */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .hero {
+    --hero-content-padding-top: 140px;
+    --hero-content-padding-bottom: 56px;
+    --hero-title-size: 6rem;
+  }
+}
+
+@media (min-width: 1280px) and (max-height: 860px) {
+  .hero {
+    --hero-title-size: 7rem;
+  }
+}
+
 
 /* ============================================================
    СТИЛИ — не редактируй, если не знаешь зачем
@@ -283,7 +301,14 @@
   transform: scale(var(--hero-bg-scale-mobile)) scaleX(var(--hero-bg-scale-x));
 }
 
-@media (min-width: 640px) {
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bg {
+    object-position: var(--hero-bg-offset-x-tablet) var(--hero-bg-offset-y-tablet);
+    transform: scale(var(--hero-bg-scale-tablet)) scaleX(var(--hero-bg-scale-x));
+  }
+}
+
+@media (min-width: 1024px) {
   .bg {
     object-position: var(--hero-bg-offset-x) var(--hero-bg-offset-y);
     transform: scale(var(--hero-bg-scale)) scaleX(var(--hero-bg-scale-x));

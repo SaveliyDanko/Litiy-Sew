@@ -12,12 +12,16 @@ const NEW_ARRIVALS = PRODUCTS_BY_CATEGORY.all.slice(0, 4);
 type HeroData = {
   imageUrl: string;
   imageUrlMobile: string | null;
+  imageUrlTablet: string | null;
   positionX: number;
   positionY: number;
   positionXMobile: number;
   positionYMobile: number;
+  positionXTablet: number;
+  positionYTablet: number;
   scale: number;
   scaleMobile: number;
+  scaleTablet: number;
 } | null;
 
 async function fetchHeroBanner(): Promise<HeroData> {
@@ -26,22 +30,30 @@ async function fetchHeroBanner(): Promise<HeroData> {
   const data = await res.json() as {
     imageUrl: string;
     imageUrlMobile?: string | null;
+    imageUrlTablet?: string | null;
     positionX?: number;
     positionY?: number;
     positionXMobile?: number;
     positionYMobile?: number;
+    positionXTablet?: number;
+    positionYTablet?: number;
     scale?: number;
     scaleMobile?: number;
+    scaleTablet?: number;
   };
   return {
     imageUrl: data.imageUrl,
     imageUrlMobile: data.imageUrlMobile ?? null,
+    imageUrlTablet: data.imageUrlTablet ?? null,
     positionX: data.positionX ?? 50,
     positionY: data.positionY ?? 50,
     positionXMobile: data.positionXMobile ?? 50,
     positionYMobile: data.positionYMobile ?? 50,
+    positionXTablet: data.positionXTablet ?? 50,
+    positionYTablet: data.positionYTablet ?? 50,
     scale: data.scale ?? 100,
     scaleMobile: data.scaleMobile ?? 100,
+    scaleTablet: data.scaleTablet ?? 100,
   };
 }
 
@@ -87,14 +99,20 @@ export default function HeroSection() {
           '--hero-bg-offset-y': `${hero.positionY}%`,
           '--hero-bg-offset-x-mobile': `${hero.positionXMobile}%`,
           '--hero-bg-offset-y-mobile': `${hero.positionYMobile}%`,
+          '--hero-bg-offset-x-tablet': `${hero.positionXTablet}%`,
+          '--hero-bg-offset-y-tablet': `${hero.positionYTablet}%`,
           '--hero-bg-scale': hero.scale / 100,
           '--hero-bg-scale-mobile': hero.scaleMobile / 100,
+          '--hero-bg-scale-tablet': hero.scaleTablet / 100,
         } as React.CSSProperties) : undefined}
       >
         {hero && (
           <picture>
             {hero.imageUrlMobile && (
               <source media="(max-width: 639px)" srcSet={hero.imageUrlMobile} />
+            )}
+            {hero.imageUrlTablet && (
+              <source media="(min-width: 640px) and (max-width: 1023px)" srcSet={hero.imageUrlTablet} />
             )}
             <img
               className={styles.bg}

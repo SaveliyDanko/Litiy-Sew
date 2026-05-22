@@ -39,6 +39,12 @@ public class HeroBanner {
     @Column(length = 512)
     private String imageKeyMobile;
 
+    @Column(length = 512)
+    private String imageUrlTablet;
+
+    @Column(length = 512)
+    private String imageKeyTablet;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer positionX = 50;
@@ -57,11 +63,23 @@ public class HeroBanner {
 
     @Column(nullable = false)
     @Builder.Default
+    private Integer positionXTablet = 50;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer positionYTablet = 50;
+
+    @Column(nullable = false)
+    @Builder.Default
     private Integer scale = 100;
 
     @Column(nullable = false)
     @Builder.Default
     private Integer scaleMobile = 100;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer scaleTablet = 100;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
