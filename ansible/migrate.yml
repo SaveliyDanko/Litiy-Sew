@@ -86,39 +86,12 @@
     - name: Обновить MEDIA_PUBLIC_URL во всех таблицах
       shell: |
         cat <<'PGSQL' | docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }}
-        DO $$
-        DECLARE
-          old_prefix TEXT;
-        BEGIN
-          SELECT regexp_replace(image_url, '^(https?://[^/]+/media).*', '\1')
-          INTO old_prefix
-          FROM (
-            SELECT image_url FROM products                  WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-            UNION ALL
-            SELECT image_url FROM pattern_items             WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-            UNION ALL
-            SELECT image_url FROM portfolio_photos          WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-            UNION ALL
-            SELECT image_url FROM hero_banners              WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-            UNION ALL
-            SELECT image_url FROM site_images               WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-            UNION ALL
-            SELECT image_url FROM dynamic_collection_photos WHERE image_url IS NOT NULL AND image_url != '' LIMIT 1
-          ) t LIMIT 1;
-
-          IF old_prefix IS NOT NULL AND old_prefix != '{{ media_public_url }}' THEN
-            RAISE NOTICE 'Заменяем % → {{ media_public_url }}', old_prefix;
-            UPDATE products                  SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-            UPDATE pattern_items             SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-            UPDATE portfolio_photos          SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-            UPDATE hero_banners              SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-            UPDATE site_images               SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-            UPDATE dynamic_collection_photos SET image_url = replace(image_url, old_prefix, '{{ media_public_url }}');
-          ELSE
-            RAISE NOTICE 'URL уже корректны или таблицы пусты — пропускаем.';
-          END IF;
-        END
-        $$;
+        UPDATE products                  SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
+        UPDATE pattern_items             SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
+        UPDATE portfolio_photos          SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
+        UPDATE hero_banners              SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
+        UPDATE site_images               SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
+        UPDATE dynamic_collection_photos SET image_url = regexp_replace(image_url, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url ~ '^https?://';
         PGSQL
       changed_when: true
 
@@ -147,7 +120,8 @@
         path: "{{ uploads_dir }}"
         state: directory
         owner: "{{ app_user }}"
-        group: "{{ app_user }}"
+        group: "www-data"
+        mode: "0750"
         recurse: yes
 
     # ── 6. Очистка ────────────────────────────────────────────────────────────

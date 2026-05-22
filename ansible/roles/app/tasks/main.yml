@@ -53,8 +53,14 @@
     path: "{{ uploads_dir }}"
     state: directory
     owner: "{{ app_user }}"
-    group: "{{ app_user }}"
-    mode: "0755"
+    group: "www-data"
+    mode: "0750"
+
+- name: Добавить app_user в группу www-data (для записи Spring Boot)
+  user:
+    name: "{{ app_user }}"
+    groups: www-data
+    append: yes
 
 # ── 4. Сборка frontend ────────────────────────────────────────────────────────
 
