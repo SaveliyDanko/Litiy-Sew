@@ -61,11 +61,11 @@ public class HeroBanner {
     @Builder.Default
     private Integer positionYMobile = 50;
 
-    @Column(nullable = false)
+    @Column(name = "position_x_tablet", nullable = false)
     @Builder.Default
     private Integer positionXTablet = 50;
 
-    @Column(nullable = false)
+    @Column(name = "position_y_tablet", nullable = false)
     @Builder.Default
     private Integer positionYTablet = 50;
 
@@ -73,11 +73,11 @@ public class HeroBanner {
     @Builder.Default
     private Integer scale = 100;
 
-    @Column(nullable = false)
+    @Column(name = "scale_mobile", nullable = false)
     @Builder.Default
     private Integer scaleMobile = 100;
 
-    @Column(nullable = false)
+    @Column(name = "scale_tablet", nullable = false)
     @Builder.Default
     private Integer scaleTablet = 100;
 
