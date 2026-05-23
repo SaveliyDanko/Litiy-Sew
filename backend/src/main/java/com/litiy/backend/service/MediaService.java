@@ -25,6 +25,11 @@ public class MediaService {
     );
 
     private static final int[] WIDTHS = {400, 800, 1280, 1920};
+    /** Max width of the "original" WebP stored on disk. Beyond this we don't gain
+     *  visible quality — only file size — so we downscale on upload. */
+    private static final int MAX_ORIGINAL_WIDTH = 2400;
+    /** WebP encoder quality for both the original and resized variants. */
+    private static final float WEBP_QUALITY = 0.80f;
 
     @Value("${app.media.upload-dir}")
     private String uploadDir;
@@ -63,12 +68,15 @@ public class MediaService {
         }
 
         int origWidth = original.getWidth();
+        // The "original" we keep on disk is capped at MAX_ORIGINAL_WIDTH — anything wider
+        // is downscaled. srcset still advertises the (possibly capped) original width.
+        int storedWidth = Math.min(origWidth, MAX_ORIGINAL_WIDTH);
 
-        // full-size WebP
+        // full-size WebP (capped)
         String fullName = "original.webp";
         Path fullPath = dir.resolve(fullName);
         try {
-            writeWebP(original, fullPath);
+            writeWebP(original, fullPath, storedWidth);
         } catch (IOException e) {
             deleteDir(dir);
             throw e;
@@ -80,14 +88,14 @@ public class MediaService {
         // resized variants
         Map<Integer, String> variants = new LinkedHashMap<>();
         for (int w : WIDTHS) {
-            if (w >= origWidth) continue;
+            if (w >= storedWidth) continue;
             String variantName = w + ".webp";
             Path variantPath = dir.resolve(variantName);
             try {
                 Thumbnails.of(original)
                         .width(w)
                         .outputFormat("webp")
-                        .outputQuality(0.85)
+                        .outputQuality(WEBP_QUALITY)
                         .toOutputStream(Files.newOutputStream(variantPath));
             } catch (IOException e) {
                 deleteDir(dir);
@@ -103,7 +111,7 @@ public class MediaService {
             srcset.append(entry.getValue()).append(" ").append(entry.getKey()).append("w");
         }
         if (!srcset.isEmpty()) srcset.append(", ");
-        srcset.append(fullUrl).append(" ").append(origWidth).append("w");
+        srcset.append(fullUrl).append(" ").append(storedWidth).append("w");
 
         Map<String, String> result = new LinkedHashMap<>();
         result.put("publicUrl", fullUrl);
@@ -112,13 +120,17 @@ public class MediaService {
         return result;
     }
 
-    private void writeWebP(BufferedImage image, Path target) throws IOException {
+    private void writeWebP(BufferedImage image, Path target, int targetWidth) throws IOException {
         try (OutputStream out = Files.newOutputStream(target)) {
-            Thumbnails.of(image)
-                    .scale(1.0)
-                    .outputFormat("webp")
-                    .outputQuality(0.88)
-                    .toOutputStream(out);
+            Thumbnails.Builder<BufferedImage> b = Thumbnails.of(image);
+            if (targetWidth < image.getWidth()) {
+                b.width(targetWidth);
+            } else {
+                b.scale(1.0);
+            }
+            b.outputFormat("webp")
+             .outputQuality(WEBP_QUALITY)
+             .toOutputStream(out);
         }
     }
 

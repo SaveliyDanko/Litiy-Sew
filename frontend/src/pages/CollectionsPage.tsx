@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Lightbox from '../components/Lightbox';
 import { fetchCollections, type DynamicCollection } from '../services/collections';
+import { cachedFetch, getCached } from '../utils/cachedFetch';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { responsivePhotoStyle } from '../utils/photoStyles';
 import { getCollectionHref } from './collectionsData';
@@ -115,12 +116,12 @@ function CollectionGroup({ title, collections, allCollections, onLightbox }: {
 }
 
 export default function CollectionsPage() {
-  const [collections, setCollections] = useState<DynamicCollection[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [collections, setCollections] = useState<DynamicCollection[]>(() => getCached<DynamicCollection[]>('collections') ?? []);
+  const [loading, setLoading] = useState(() => getCached<DynamicCollection[]>('collections') === undefined);
   const [lightboxOf, setLightboxOf] = useState<DynamicCollection | null>(null);
 
   useEffect(() => {
-    fetchCollections()
+    cachedFetch<DynamicCollection[]>('collections', fetchCollections, setCollections)
       .then(setCollections)
       .catch(() => {})
       .finally(() => setLoading(false));

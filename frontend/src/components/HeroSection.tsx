@@ -3,6 +3,7 @@ import { MEDIA_BASE_URL, PRODUCTS_BY_CATEGORY } from '../pages/patternsData';
 import { getCollectionHref } from '../pages/collectionsData';
 import { fetchCollections, type DynamicCollection } from '../services/collections';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
+import { cachedFetch, getCached } from '../utils/cachedFetch';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { responsivePhotoStyle } from '../utils/photoStyles';
@@ -68,21 +69,32 @@ async function fetchHeroBanner(): Promise<HeroData> {
   };
 }
 
+function siteImagesToMap(list: SiteImage[]) {
+  return new Map(list.map((img) => [img.slotKey, img]));
+}
+function pickFeatured(list: DynamicCollection[]): DynamicCollection | null {
+  return list.find((c) => c.featured) ?? list[0] ?? null;
+}
+
 export default function HeroSection() {
-  const [hero, setHero] = useState<HeroData>(null);
-  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
-  const [featured, setFeatured] = useState<DynamicCollection | null>(null);
+  // Initialize from in-memory cache so repeat visits paint instantly.
+  const [hero, setHero] = useState<HeroData>(() => getCached<HeroData>('hero') ?? null);
+  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(() => {
+    const cached = getCached<SiteImage[]>('siteImages');
+    return cached ? siteImagesToMap(cached) : new Map();
+  });
+  const [featured, setFeatured] = useState<DynamicCollection | null>(() => {
+    const cached = getCached<DynamicCollection[]>('collections');
+    return cached ? pickFeatured(cached) : null;
+  });
 
   useEffect(() => {
-    fetchHeroBanner().then(setHero);
-    fetchAllSiteImages()
-      .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
+    cachedFetch<HeroData>('hero', fetchHeroBanner, setHero).then(setHero).catch(() => {});
+    cachedFetch<SiteImage[]>('siteImages', fetchAllSiteImages, (list) => setSiteImages(siteImagesToMap(list)))
+      .then((list) => setSiteImages(siteImagesToMap(list)))
       .catch(() => {});
-    fetchCollections()
-      .then((list) => {
-        const f = list.find((c) => c.featured) ?? list[0] ?? null;
-        setFeatured(f);
-      })
+    cachedFetch<DynamicCollection[]>('collections', fetchCollections, (list) => setFeatured(pickFeatured(list)))
+      .then((list) => setFeatured(pickFeatured(list)))
       .catch(() => {});
   }, []);
 

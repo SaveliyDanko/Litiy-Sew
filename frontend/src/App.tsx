@@ -1,6 +1,10 @@
+import { lazy, Suspense } from 'react';
+
 import Toaster from './components/Toaster';
-import AdminPage from './pages/AdminPage';
 import AboutPage from './pages/AboutPage';
+// AdminPage is heavy and only used by the owner — lazy-load it so public visitors
+// don't pay the bundle cost.
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 import PrivacyPage from './pages/PrivacyPage';
 import OfferPage from './pages/OfferPage';
 import TermsPage from './pages/TermsPage';
@@ -21,7 +25,11 @@ function renderPage() {
   const path = window.location.pathname;
 
   if (path.startsWith('/admin')) {
-    return <AdminPage />;
+    return (
+      <Suspense fallback={null}>
+        <AdminPage />
+      </Suspense>
+    );
   }
 
   if (path.startsWith('/auth') || path.startsWith('/profile')) {
