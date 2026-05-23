@@ -2515,6 +2515,39 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
 
 // ── CollectionsSection ────────────────────────────────────────────────────
 
+function PositionInput({ index, total, onApply }: { index: number; total: number; onApply: (newIdx: number) => void }) {
+  const [draft, setDraft] = useState(String(index + 1));
+  // Sync external index changes back to the field (drag/arrow moves)
+  useEffect(() => { setDraft(String(index + 1)); }, [index]);
+
+  function commit() {
+    const v = parseInt(draft, 10);
+    if (Number.isNaN(v) || v < 1 || v > total) {
+      setDraft(String(index + 1));
+      return;
+    }
+    if (v - 1 !== index) onApply(v - 1);
+  }
+
+  return (
+    <input
+      type="number"
+      min={1}
+      max={total}
+      value={draft}
+      className={styles.positionInput}
+      aria-label="Позиция"
+      title="Позиция (Enter / уход с поля — применить)"
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') { e.currentTarget.blur(); }
+        else if (e.key === 'Escape') { setDraft(String(index + 1)); e.currentTarget.blur(); }
+      }}
+    />
+  );
+}
+
 function CollectionsSection() {
   const [collections, setCollections] = useState<DynamicCollection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2611,20 +2644,10 @@ function CollectionsSection() {
                 >⋮⋮</button>
                 <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
                 <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'down')} disabled={idx === sorted.length - 1} aria-label="Вниз">↓</button>
-                <input
-                  type="number"
-                  min={1}
-                  max={sorted.length}
-                  value={idx + 1}
-                  className={styles.positionInput}
-                  aria-label="Позиция"
-                  title="Позиция (1 — первая)"
-                  onChange={(e) => {
-                    const v = parseInt(e.target.value, 10);
-                    if (!Number.isNaN(v) && v >= 1 && v <= sorted.length) {
-                      handleReorderTo(c.id, v - 1);
-                    }
-                  }}
+                <PositionInput
+                  index={idx}
+                  total={sorted.length}
+                  onApply={(newIdx) => handleReorderTo(c.id, newIdx)}
                 />
               </div>
               <DynCollectionCard
