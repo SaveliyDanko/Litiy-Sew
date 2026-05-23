@@ -2403,7 +2403,7 @@ function DynCollectionCard({
 
 const MAX_COLLECTIONS = 25;
 
-function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection) => void }) {
+function CreateCollectionForm({ onCreated, nextSortOrder }: { onCreated: (c: DynamicCollection) => void; nextSortOrder: number }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     slug: '', title: '', subtitle: '', eyebrow: '', description: '',
@@ -2426,6 +2426,7 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
         description: form.description.trim() || undefined,
         tone: form.tone,
         category: form.category,
+        sortOrder: nextSortOrder,
       });
       onCreated(created);
       setForm({ slug: '', title: '', subtitle: '', eyebrow: '', description: '', tone: 'neutral', category: 'COLLECTION' });
@@ -2661,7 +2662,10 @@ function CollectionsSection() {
       )}
 
       {canCreate
-        ? <CreateCollectionForm onCreated={handleCreated} />
+        ? <CreateCollectionForm
+            onCreated={handleCreated}
+            nextSortOrder={collections.length > 0 ? Math.max(...collections.map((c) => c.sortOrder)) + 1 : 0}
+          />
         : <p className={styles.hint}>Достигнут лимит {MAX_COLLECTIONS} коллекций.</p>
       }
     </div>
