@@ -10,6 +10,7 @@ public record PortfolioProjectRequest(
         String lead,
         String paragraph1,
         String paragraph2,
+        String paragraph3,
         @Size(max = 512) String imageUrl,
         @Size(max = 512) String imageKey,
         String imageSrcSet,

@@ -45,6 +45,9 @@ public class PortfolioProject {
     @Column(columnDefinition = "TEXT")
     private String paragraph2;
 
+    @Column(columnDefinition = "TEXT")
+    private String paragraph3;
+
     @Column(length = 512)
     private String imageUrl;
 

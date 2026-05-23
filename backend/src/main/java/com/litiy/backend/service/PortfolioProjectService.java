@@ -45,6 +45,7 @@ public class PortfolioProjectService {
                 .lead(req.lead())
                 .paragraph1(req.paragraph1())
                 .paragraph2(req.paragraph2())
+                .paragraph3(req.paragraph3())
                 .imageUrl(req.imageUrl())
                 .imageKey(req.imageKey())
                 .imageSrcSet(req.imageSrcSet())
@@ -67,6 +68,7 @@ public class PortfolioProjectService {
         p.setLead(req.lead());
         p.setParagraph1(req.paragraph1());
         p.setParagraph2(req.paragraph2());
+        p.setParagraph3(req.paragraph3());
         if (req.imageUrl() != null) p.setImageUrl(req.imageUrl());
         if (req.imageKey() != null) p.setImageKey(req.imageKey());
         if (req.imageSrcSet() != null) p.setImageSrcSet(req.imageSrcSet());

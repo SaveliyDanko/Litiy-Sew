@@ -21,6 +21,7 @@ export type PortfolioProject = {
   lead: string | null;
   paragraph1: string | null;
   paragraph2: string | null;
+  paragraph3: string | null;
   imageUrl: string | null;
   imageKey: string | null;
   imageSrcSet: string | null;
@@ -39,6 +40,7 @@ export type PortfolioProjectData = {
   lead?: string;
   paragraph1?: string;
   paragraph2?: string;
+  paragraph3?: string;
   imageUrl?: string;
   imageKey?: string;
   imageSrcSet?: string | null;

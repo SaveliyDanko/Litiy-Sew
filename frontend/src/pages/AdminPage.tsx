@@ -1363,6 +1363,7 @@ function PortfolioProjectRow({
   const [lead, setLead] = useState(project.lead ?? '');
   const [paragraph1, setParagraph1] = useState(project.paragraph1 ?? '');
   const [paragraph2, setParagraph2] = useState(project.paragraph2 ?? '');
+  const [paragraph3, setParagraph3] = useState(project.paragraph3 ?? '');
 
   useEffect(() => {
     setEyebrow(project.eyebrow ?? '');
@@ -1371,6 +1372,7 @@ function PortfolioProjectRow({
     setLead(project.lead ?? '');
     setParagraph1(project.paragraph1 ?? '');
     setParagraph2(project.paragraph2 ?? '');
+    setParagraph3(project.paragraph3 ?? '');
   }, [project]);
 
   async function handleSaveText(e: React.FormEvent) {
@@ -1384,6 +1386,7 @@ function PortfolioProjectRow({
         lead: lead.trim() || undefined,
         paragraph1: paragraph1.trim() || undefined,
         paragraph2: paragraph2.trim() || undefined,
+        paragraph3: paragraph3.trim() || undefined,
         imageUrl: project.imageUrl ?? undefined,
         imageKey: project.imageKey ?? undefined,
         imageSrcSet: project.imageSrcSet ?? undefined,
@@ -1499,6 +1502,10 @@ function PortfolioProjectRow({
             <label className={styles.field}>
               <span className={styles.label}>Абзац 2 (необязательно)</span>
               <textarea className={styles.textarea} value={paragraph2} onChange={(e) => setParagraph2(e.target.value)} rows={3} />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Абзац 3 (необязательно)</span>
+              <textarea className={styles.textarea} value={paragraph3} onChange={(e) => setParagraph3(e.target.value)} rows={3} />
             </label>
             <button className={styles.submit} type="submit" disabled={saving}>
               {saving ? 'Сохраняется…' : 'Сохранить текст'}

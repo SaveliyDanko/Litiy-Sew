@@ -149,6 +149,7 @@ function ActiveProjectDetail({
         {project.lead && <p className={styles.portfolioDetailLead}>{project.lead}</p>}
         {project.paragraph1 && <p className={styles.portfolioDetailText}>{project.paragraph1}</p>}
         {project.paragraph2 && <p className={styles.portfolioDetailText}>{project.paragraph2}</p>}
+        {project.paragraph3 && <p className={styles.portfolioDetailText}>{project.paragraph3}</p>}
       </div>
     </article>
   );
