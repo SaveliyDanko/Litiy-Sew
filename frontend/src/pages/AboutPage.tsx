@@ -133,6 +133,7 @@ function ActiveProjectDetail({
 
 export default function AboutPage() {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
   const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
@@ -152,7 +153,8 @@ export default function AboutPage() {
         setProjects(list);
         if (list.length > 0) setActiveProjectId(list[0].id);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setProjectsLoading(false));
   }, []);
 
   const activePortfolio = projects.find((p) => p.id === activeProjectId) ?? null;
@@ -252,6 +254,9 @@ export default function AboutPage() {
             role="tablist"
             aria-label={ABOUT_PAGE_DATA.portfolio.tablistLabel}
           >
+            {projectsLoading && Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className={styles.portfolioCardSkeleton} aria-hidden="true" />
+            ))}
             {projects.map((item) => {
               const isActive = item.id === activeProjectId;
 
