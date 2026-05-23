@@ -121,7 +121,6 @@
      ---------------------------------------------------------- */
   position: relative;
   min-height: var(--hero-min-height);
-  overflow: hidden;
   background-color: var(--hero-bg-color);
 }
 
@@ -188,7 +187,7 @@
 
     --hero-content-padding-top: 40px;
     --hero-content-padding-x: 32px;
-    --hero-content-padding-bottom: 80px;
+    --hero-content-padding-bottom: 48px;
 
     --hero-title-size: 3.6rem;
     --hero-title-letter-spacing: 0.02em;
@@ -291,6 +290,13 @@
 
 /* ── Hero: фон ───────────────────────────────────────────────────────────── */
 
+.bgWrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
 /* Мобайл использует mobile-переменные позиции, десктоп — основные */
 .bg {
   position: absolute;
@@ -299,7 +305,6 @@
   height: 100%;
   object-fit: cover;
   object-position: var(--hero-bg-offset-x-mobile) var(--hero-bg-offset-y-mobile);
-  z-index: 0;
   transform: scale(var(--hero-bg-scale-mobile)) scaleX(var(--hero-bg-scale-x));
 }
 
