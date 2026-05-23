@@ -45,14 +45,14 @@ button {
   transform: scale(var(--ph-scale-mobile, 1));
 }
 
-@media (min-width: 640px) and (max-width: 1279px) {
+@media (min-width: 640px) and (max-width: 1535px) {
   .responsivePhoto {
     object-position: var(--ph-pos-x-tablet, 50%) var(--ph-pos-y-tablet, 50%);
     transform: scale(var(--ph-scale-tablet, 1));
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1536px) {
   .responsivePhoto {
     object-position: var(--ph-pos-x-desktop, 50%) var(--ph-pos-y-desktop, 50%);
     transform: scale(var(--ph-scale-desktop, 1));
