@@ -30,21 +30,13 @@ function ProjectPhotoSlider({ photos, coverPhoto, coverSrcSet, coverPosX, coverP
   }
 
   const [idx, setIdx] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback((next: number) => {
     setIdx(next);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      setIdx((i) => (i + 1) % allPhotos.length);
-    }, 4000);
-  }, [allPhotos.length]);
+  }, []);
 
   useEffect(() => {
     setIdx(0);
-    if (allPhotos.length <= 1) return;
-    timerRef.current = setTimeout(() => setIdx(1), 4000);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [photos, coverPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (allPhotos.length === 0) return null;
