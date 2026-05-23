@@ -39,12 +39,38 @@ function ProjectPhotoSlider({ photos, coverPhoto, coverSrcSet, coverPosX, coverP
     setIdx(0);
   }, [photos, coverPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStartXRef.current = t.clientX;
+    touchStartYRef.current = t.clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartXRef.current;
+    const dy = t.clientY - touchStartYRef.current;
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+    // Минимум 40px по горизонтали и угол меньше 30° — иначе это вертикальный скролл
+    if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+    if (dx < 0) goTo((idx + 1) % allPhotos.length);
+    else        goTo((idx - 1 + allPhotos.length) % allPhotos.length);
+  }
+
   if (allPhotos.length === 0) return null;
 
   const current = allPhotos[idx] ?? allPhotos[0];
 
   return (
-    <div className={styles.portfolioPreview}>
+    <div
+      className={styles.portfolioPreview}
+      onTouchStart={allPhotos.length > 1 ? handleTouchStart : undefined}
+      onTouchEnd={allPhotos.length > 1 ? handleTouchEnd : undefined}
+    >
       <img
         key={current.url}
         className={styles.portfolioPreviewImage}
