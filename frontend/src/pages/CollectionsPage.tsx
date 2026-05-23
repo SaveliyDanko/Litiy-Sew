@@ -26,7 +26,7 @@ function CollectionCard({
   const isLightbox = collection.category === 'SKETCH' && photo;
 
   const inner = (
-    <article className={styles.card} data-tone={collection.tone}>
+    <article className={styles.card} data-tone={collection.tone} data-category={collection.category}>
       <div
         className={styles.cardMedia}
         style={{

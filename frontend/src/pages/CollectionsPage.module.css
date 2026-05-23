@@ -308,6 +308,19 @@
   object-fit: cover;
 }
 
+/* На мобильных и планшетах эскизные проекты показываются в оригинальных пропорциях:
+   контейнер растёт по фото, фото без обрезки. На десктопе (≥ 960px) — стандартный
+   фиксированный размер карточки как у остальных категорий. */
+@media (max-width: 959px) {
+  .card[data-category='SKETCH'] .cardMedia {
+    height: auto;
+  }
+  .card[data-category='SKETCH'] .cardImage {
+    height: auto;
+    object-fit: contain;
+  }
+}
+
 /* Фоновые градиенты карточек при отсутствии фото — по тону коллекции */
 .card[data-tone='warm'] .cardMedia {
   background: radial-gradient(circle at 28% 30%, #ff875d 0%, #d15e36 18%, #512318 52%, #28110e 100%);
