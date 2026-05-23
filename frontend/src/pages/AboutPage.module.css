@@ -6,8 +6,8 @@
   --about-side-padding: 16px;
   --about-max-width: 1240px;
 
-  /* Hero */
-  --about-hero-height: calc(100svh - 64px);
+  /* Hero: на мобайле хедер ~56px (padding 14px*2 + logo 28px) */
+  --about-hero-height: calc(100svh - 56px);
 
   /* Настройка hero-изображения:
      1) `position-x/y` меняют точку кадрирования.
@@ -468,7 +468,7 @@
     --about-page-padding-bottom: 88px;
     --about-section-gap: 72px;
     --about-side-padding: 24px;
-    --about-hero-height: calc(100svh - 72px);
+    --about-hero-height: calc(100svh - 44px);
     --about-hero-content-max-width: 680px;
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
@@ -511,7 +511,7 @@
 @media (min-width: 1024px) {
   .page {
     --about-side-padding: 40px;
-    --about-hero-height: calc(100svh - 82px);
+    --about-hero-height: calc(100svh - 71px);
     --about-hero-content-width: 58%;
     --about-hero-content-max-width: 760px;
     --about-hero-content-padding: 60px 100px 100px;
