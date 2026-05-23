@@ -1,0 +1,143 @@
+---
+# Восстановить БД и медиафайлы из локального бэкапа на чистый VPS.
+# Запускать ПОСЛЕ site.yml (сервисы должны быть запущены).
+#
+# Использование:
+#   ansible-playbook -i inventory.ini restore.yml --ask-vault-pass \
+#     -e "backup_dir=../backups/2025-06-01"
+#
+# Обязательные переменные:
+#   backup_dir — путь к папке с бэкапом (содержит db.sql.gz и uploads/)
+#
+# Порядок деплоя на чистый VPS:
+#   1. ansible-playbook site.yml --ask-vault-pass
+#   2. ansible-playbook restore.yml --ask-vault-pass -e "backup_dir=../backups/YYYY-MM-DD"
+
+- name: Restore backup → VPS
+  hosts: vps
+  become: yes
+
+  vars:
+    remote_dump: /tmp/litiy_sew_restore.sql.gz
+
+  pre_tasks:
+    - name: Проверить что backup_dir передан
+      fail:
+        msg: "Укажите backup_dir: -e \"backup_dir=../backups/YYYY-MM-DD\""
+      when: backup_dir is not defined
+
+    - name: Проверить наличие db.sql.gz
+      delegate_to: localhost
+      become: no
+      stat:
+        path: "{{ backup_dir }}/db.sql.gz"
+      register: dump_stat
+
+    - name: Прервать если db.sql.gz не найден
+      fail:
+        msg: "Файл {{ backup_dir }}/db.sql.gz не найден"
+      when: not dump_stat.stat.exists
+
+  tasks:
+
+    # ── 1. Убедиться что сервисы запущены ─────────────────────────────────────
+
+    - name: Убедиться что контейнеры запущены
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        files:
+          - docker-compose.yml
+        state: present
+      become_user: "{{ app_user }}"
+
+    - name: Подождать готовности PostgreSQL
+      command: >
+        docker compose -f {{ app_dir }}/docker-compose.yml
+        exec -T postgres
+        pg_isready -U {{ postgres_user }}
+      register: pg_ready
+      until: pg_ready.rc == 0
+      retries: 12
+      delay: 5
+      become_user: "{{ app_user }}"
+      changed_when: false
+
+    # ── 2. Передать дамп на VPS ───────────────────────────────────────────────
+
+    - name: Скопировать db.sql.gz на VPS
+      copy:
+        src: "{{ backup_dir }}/db.sql.gz"
+        dest: "{{ remote_dump }}"
+        mode: "0600"
+
+    # ── 3. Восстановить БД ────────────────────────────────────────────────────
+
+    - name: Восстановить БД (psql < gunzip)
+      shell: >
+        gunzip -c {{ remote_dump }}
+        | docker compose -f {{ app_dir }}/docker-compose.yml
+          exec -T postgres
+          psql -U {{ postgres_user }} {{ postgres_db }}
+      changed_when: true
+
+    # ── 4. Обновить image_url под домен VPS ───────────────────────────────────
+
+    - name: Обновить MEDIA_PUBLIC_URL во всех таблицах
+      shell: |
+        cat <<'PGSQL' | docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }}
+        UPDATE products                  SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE pattern_items             SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE portfolio_photos          SET photo_url        = regexp_replace(photo_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE photo_url        ~ '^https?://';
+        UPDATE hero_banners              SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE hero_banners              SET image_url_mobile = regexp_replace(image_url_mobile, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url_mobile ~ '^https?://';
+        UPDATE site_images               SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE dynamic_collection_photos SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        UPDATE portfolio_project_photos  SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
+        PGSQL
+      changed_when: true
+
+    # ── 5. Перенести медиафайлы ───────────────────────────────────────────────
+
+    - name: Создать папку uploads на VPS
+      file:
+        path: "{{ uploads_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "www-data"
+        mode: "0750"
+
+    - name: Синхронизировать uploads/ → VPS
+      synchronize:
+        mode: push
+        src: "{{ backup_dir }}/uploads/"
+        dest: "{{ uploads_dir }}/"
+        recursive: yes
+        checksum: yes
+        rsync_opts:
+          - "--exclude=.DS_Store"
+          - "--exclude=Thumbs.db"
+
+    - name: Установить права на медиафайлы
+      file:
+        path: "{{ uploads_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "www-data"
+        mode: "0750"
+        recurse: yes
+
+    # ── 6. Очистка ────────────────────────────────────────────────────────────
+
+    - name: Удалить временный дамп на VPS
+      file:
+        path: "{{ remote_dump }}"
+        state: absent
+
+    # ── 7. Итог ───────────────────────────────────────────────────────────────
+
+    - name: Результат восстановления
+      debug:
+        msg:
+          - "✓ БД восстановлена из {{ backup_dir }}/db.sql.gz"
+          - "✓ URL картинок обновлены на {{ media_public_url }}"
+          - "✓ Медиафайлы скопированы в {{ uploads_dir }}"

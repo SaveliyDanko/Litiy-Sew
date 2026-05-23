@@ -6,10 +6,14 @@
 ansible/
 ├── site.yml              # Полный provision + deploy (первый запуск)
 ├── deploy.yml            # Быстрый re-deploy (без provision)
+├── backup.yml            # Скачать БД + медиафайлы с VPS на локальный ПК
+├── restore.yml           # Восстановить из бэкапа на чистый VPS
+├── migrate.yml           # Перенос данных с dev-машины на VPS (первый деплой)
 ├── inventory.ini         # Адрес VPS и SSH-пользователь
 ├── group_vars/
-│   └── vps.yml           # Публичные переменные
-├── vault.yml             # Зашифрованные секреты (git-ignore!)
+│   └── vps/
+│       ├── vars.yml      # Публичные переменные
+│       └── vault.yml     # Зашифрованные секреты (git-ignore!)
 ├── vault.yml.example     # Шаблон секретов
 └── roles/
     ├── common/           # Базовые пакеты, UFW, системный пользователь
@@ -56,6 +60,44 @@ ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
 - установит Docker, Nginx, Certbot
 - получит SSL-сертификат Let's Encrypt
 - соберёт и задеплоит frontend + backend
+
+---
+
+## Бэкап (VPS → локальный ПК)
+
+Скачать текущие данные с VPS в папку `backups/YYYY-MM-DD/`:
+
+```bash
+ansible-playbook -i ansible/inventory.ini ansible/backup.yml --ask-vault-pass
+```
+
+Результат:
+```
+backups/
+└── 2025-06-01/
+    ├── db.sql.gz   — сжатый дамп PostgreSQL
+    └── uploads/    — медиафайлы (без потерь качества)
+```
+
+Папка `backups/` добавлена в `.gitignore` — в репозиторий не попадает.
+
+---
+
+## Деплой на чистый VPS из бэкапа
+
+```bash
+# 1. Полный provision (docker, nginx, ssl, app)
+ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
+
+# 2. Восстановить данные из последнего бэкапа
+ansible-playbook -i ansible/inventory.ini ansible/restore.yml --ask-vault-pass \
+  -e "backup_dir=../backups/2025-06-01"
+```
+
+`restore.yml` сделает:
+1. Загрузит `db.sql.gz` на VPS и восстановит через `psql`
+2. Заменит URL картинок (`localhost` / старый домен → `https://litiy.site/media`)
+3. Синхронизирует папку `uploads/` через rsync
 
 ---
 

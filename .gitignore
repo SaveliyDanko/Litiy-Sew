@@ -35,3 +35,7 @@ backend/.gradle/
 backend/bin/
 backend/out/
 backend/.env
+
+# Бэкапы (БД + медиафайлы)
+backups/*
+!backups/.gitignore

@@ -1,0 +1,90 @@
+---
+# Скачать бэкап БД + медиафайлов с VPS на локальный ПК.
+#
+# Использование:
+#   ansible-playbook -i inventory.ini backup.yml --ask-vault-pass
+#
+# Опциональные переменные (-e):
+#   backup_dir — куда сохранять (default: ../backups/<дата>)
+#
+# Результат:
+#   backups/YYYY-MM-DD/
+#     db.sql.gz   — сжатый дамп PostgreSQL
+#     uploads/    — медиафайлы (оригиналы, без потерь)
+
+- name: Backup VPS → локальный ПК
+  hosts: vps
+  become: yes
+
+  vars:
+    backup_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+    backup_dir: "{{ playbook_dir }}/../backups/{{ backup_date }}"
+    remote_dump: /tmp/litiy_sew_backup.sql.gz
+
+  tasks:
+
+    # ── 1. Дамп БД на VPS ─────────────────────────────────────────────────────
+
+    - name: Снять pg_dump и сжать
+      shell: >
+        docker compose -f {{ app_dir }}/docker-compose.yml
+        exec -T postgres
+        pg_dump -U {{ postgres_user }} {{ postgres_db }}
+        | gzip > {{ remote_dump }}
+      become_user: "{{ app_user }}"
+      changed_when: true
+
+    # ── 2. Создать локальную папку ─────────────────────────────────────────────
+
+    - name: Создать backup_dir на локальной машине
+      delegate_to: localhost
+      become: no
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: "0750"
+
+    # ── 3. Скачать дамп на локальную машину ───────────────────────────────────
+
+    - name: Скачать db.sql.gz
+      fetch:
+        src: "{{ remote_dump }}"
+        dest: "{{ backup_dir }}/db.sql.gz"
+        flat: yes
+        validate_checksum: yes
+
+    - name: Удалить временный дамп на VPS
+      file:
+        path: "{{ remote_dump }}"
+        state: absent
+
+    # ── 4. Синхронизировать медиафайлы VPS → локальная машина ────────────────
+    # rsync pull: delegate_to=localhost, но src/dest — наоборот (pull-режим)
+
+    - name: Синхронизировать uploads → backups/uploads/
+      synchronize:
+        mode: pull
+        src: "{{ uploads_dir }}/"
+        dest: "{{ backup_dir }}/uploads/"
+        recursive: yes
+        checksum: yes
+        rsync_opts:
+          - "--exclude=.DS_Store"
+          - "--exclude=Thumbs.db"
+
+    # ── 5. Итог ───────────────────────────────────────────────────────────────
+
+    - name: Размер бэкапа
+      delegate_to: localhost
+      become: no
+      command: du -sh "{{ backup_dir }}"
+      register: backup_size
+      changed_when: false
+
+    - name: Результат
+      delegate_to: localhost
+      become: no
+      debug:
+        msg:
+          - "✓ Бэкап сохранён: {{ backup_dir }}"
+          - "  db.sql.gz + uploads/   {{ backup_size.stdout }}"
