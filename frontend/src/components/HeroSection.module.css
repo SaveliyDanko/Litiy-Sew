@@ -195,6 +195,8 @@
     --hero-title-text-align: center;
 
     --card-image-width: 160px;
+    /* 100svh - padding-top - заголовок - card-offset-y - кнопка - padding-bottom */
+    --card-image-max-height: calc(100svh - 40px - 3.8rem - 16px - 44px - 48px);
   }
 }
 
@@ -202,6 +204,7 @@
 @media (min-width: 768px) {
   .hero {
     --hero-title-size: 5rem;
+    --card-image-max-height: calc(100svh - 40px - 5.2rem - 16px - 44px - 48px);
   }
 
   .featured {
@@ -223,6 +226,7 @@
 
     --card-offset-y: 16px;
     --card-image-width: 210px;
+    --card-image-max-height: calc(100svh - 260px - 6.6rem - 16px - 46px - 120px);
     --card-button-padding-y: 15px;
     --card-button-padding-x: 26px;
     --card-button-font-size: 12px;
@@ -244,6 +248,7 @@
 
     --card-offset-y: 16px;
     --card-image-width: 250px;
+    --card-image-max-height: calc(100svh - 260px - 9.5rem - 16px - 48px - 120px);
     --card-button-padding-y: 17px;
     --card-button-padding-x: 32px;
     --card-button-font-size: 13px;
@@ -413,12 +418,16 @@
 .cardImageWrap {
   display: block;
   width: var(--card-image-width);
+  max-height: var(--card-image-max-height, none);
+  overflow: hidden;
 }
 
 .cardImage {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: top;
 }
 
 .btn {
