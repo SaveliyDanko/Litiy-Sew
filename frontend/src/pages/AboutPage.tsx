@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import { fetchPortfolioPhotos, type PortfolioPhoto } from '../services/portfolio';
 import { fetchPortfolioProjects, type PortfolioProject, type ProjectPhoto } from '../services/portfolioProjects';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
+import { fetchAllSiteTexts } from '../services/siteTexts';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { ABOUT_PAGE_DATA } from './aboutData';
 import styles from './AboutPage.module.css';
@@ -136,11 +137,15 @@ export default function AboutPage() {
   const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
   const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
+  const [siteTexts, setSiteTexts] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     fetchPortfolioPhotos().then(setPhotos).catch(() => {});
     fetchAllSiteImages()
       .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
+      .catch(() => {});
+    fetchAllSiteTexts()
+      .then((list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .catch(() => {});
     fetchPortfolioProjects()
       .then((list) => {
@@ -229,9 +234,10 @@ export default function AboutPage() {
           </div>
 
           <div className={styles.storyCopy}>
-            {ABOUT_PAGE_DATA.story.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            {ABOUT_PAGE_DATA.story.paragraphs.map((fallback, i) => {
+              const text = siteTexts.get(`about-story-p${i + 1}`) ?? fallback;
+              return <p key={i}>{text}</p>;
+            })}
           </div>
         </section>
 

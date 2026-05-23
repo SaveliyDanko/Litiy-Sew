@@ -63,6 +63,7 @@ import {
   type DynamicCollection,
   type DynamicCollectionPhoto,
 } from '../services/collections';
+import { fetchAllSiteTexts, upsertSiteText, type SiteText as SiteTextEntry } from '../services/siteTexts';
 import styles from './AdminPage.module.css';
 
 type Tab = 'products' | 'patterns' | 'portfolio' | 'home' | 'about' | 'collections' | 'settings';
@@ -1622,26 +1623,90 @@ function PortfolioProjectsSection() {
   );
 }
 
+const STORY_TEXT_SLOTS = [
+  {
+    key: 'about-story-p1',
+    label: 'Текст о себе — абзац 1',
+    fallback: 'Конструктор одежды, выпускница Инженерной школы одежды СПбГУПТД по направлению «Конструирование, моделирование и технология швейных изделий».',
+  },
+  {
+    key: 'about-story-p2',
+    label: 'Текст о себе — абзац 2',
+    fallback: 'В своих проектах я в первую очередь обращаюсь к теме женственности и стремлюсь раскрывать красоту через пластику линий, пропорции и внимание к деталям. Для меня важен диалог между конструкцией и образом, когда форма становится продолжением характера.',
+  },
+];
+
+function StoryTextSlot({ slotKey, label, fallback, data, onUpdate }: {
+  slotKey: string;
+  label: string;
+  fallback: string;
+  data: SiteTextEntry | null;
+  onUpdate: (t: SiteTextEntry) => void;
+}) {
+  const [value, setValue] = useState(data?.value ?? '');
+  const [saving, setSaving] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setValue(data?.value ?? '');
+  }, [data]);
+
+  function handleChange(v: string) {
+    setValue(v);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        const updated = await upsertSiteText(slotKey, v);
+        onUpdate(updated);
+      } catch {
+        showToast('Ошибка сохранения');
+      } finally {
+        setSaving(false);
+      }
+    }, 800);
+  }
+
+  return (
+    <label className={styles.field}>
+      <span className={styles.label}>
+        {label} {saving && <span className={styles.heroSaving}>сохраняется…</span>}
+      </span>
+      <textarea
+        className={styles.textarea}
+        rows={4}
+        value={value || fallback}
+        onChange={(e) => handleChange(e.target.value)}
+      />
+    </label>
+  );
+}
+
 function AboutSection() {
   const [images, setImages] = useState<Map<string, SiteImage>>(new Map());
+  const [texts, setTexts] = useState<Map<string, SiteTextEntry>>(new Map());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAllSiteImages()
-      .then((list) => {
-        const map = new Map(list.map((img) => [img.slotKey, img]));
-        setImages(map);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetchAllSiteImages(),
+      fetchAllSiteTexts(),
+    ]).then(([imgs, txts]) => {
+      setImages(new Map(imgs.map((img) => [img.slotKey, img])));
+      setTexts(new Map(txts.map((t) => [t.slotKey, t])));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  function handleUpdate(slotKey: string, img: SiteImage | null) {
+  function handleImageUpdate(slotKey: string, img: SiteImage | null) {
     setImages((prev) => {
       const next = new Map(prev);
       if (img) next.set(slotKey, img); else next.delete(slotKey);
       return next;
     });
+  }
+
+  function handleTextUpdate(t: SiteTextEntry) {
+    setTexts((prev) => new Map(prev).set(t.slotKey, t));
   }
 
   if (loading) return <p className={styles.hint}>Загрузка…</p>;
@@ -1660,7 +1725,21 @@ function AboutSection() {
             key={cfg.key}
             config={cfg}
             data={images.get(cfg.key) ?? null}
-            onUpdate={(img) => handleUpdate(cfg.key, img)}
+            onUpdate={(img) => handleImageUpdate(cfg.key, img)}
+          />
+        ))}
+      </div>
+
+      <div className={styles.slotGroup}>
+        <p className={styles.slotGroupTitle}>Текст о себе</p>
+        {STORY_TEXT_SLOTS.map((slot) => (
+          <StoryTextSlot
+            key={slot.key}
+            slotKey={slot.key}
+            label={slot.label}
+            fallback={slot.fallback}
+            data={texts.get(slot.key) ?? null}
+            onUpdate={handleTextUpdate}
           />
         ))}
       </div>
