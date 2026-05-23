@@ -408,7 +408,10 @@
 .cardImageWrap {
   display: block;
   width: var(--card-image-width);
-  aspect-ratio: 4 / 5;
+  height: min(
+    calc(var(--card-image-width) * 1.25),
+    calc(100svh - var(--hero-content-padding-top) - var(--hero-content-padding-bottom) - var(--hero-title-size) - var(--card-offset-y) - 96px)
+  );
 }
 
 .cardImage {
