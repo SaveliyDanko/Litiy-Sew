@@ -153,7 +153,7 @@ export default function HeroSection() {
             <span className={styles.srOnly}>Litiy Sew</span>
           </h1>
 
-          <div className={styles.card}>
+          <a href="/collections" className={styles.card}>
             {imgUrl('home-card-image') && (
               <div className={styles.cardImageWrap}>
                 <img
@@ -164,10 +164,8 @@ export default function HeroSection() {
                 />
               </div>
             )}
-            <a href="/collections" className={styles.btn}>
-              НОВАЯ КОЛЛЕКЦИЯ
-            </a>
-          </div>
+            <span className={styles.btn}>НОВАЯ КОЛЛЕКЦИЯ</span>
+          </a>
         </div>
       </section>
 
