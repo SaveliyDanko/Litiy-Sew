@@ -2518,6 +2518,8 @@ function CreateCollectionForm({ onCreated }: { onCreated: (c: DynamicCollection)
 function CollectionsSection() {
   const [collections, setCollections] = useState<DynamicCollection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [draggingId, setDraggingId] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCollections()
@@ -2540,20 +2542,29 @@ function CollectionsSection() {
     setCollections((prev) => [...prev, c].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id));
   }
 
+  async function handleReorderTo(id: number, newIdx: number) {
+    const sorted = [...collections].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+    const oldIdx = sorted.findIndex((c) => c.id === id);
+    if (oldIdx === -1) return;
+    const clamped = Math.max(0, Math.min(sorted.length - 1, newIdx));
+    if (clamped === oldIdx) return;
+    const [moved] = sorted.splice(oldIdx, 1);
+    sorted.splice(clamped, 0, moved);
+    const updated = sorted.map((c, i) => ({ ...c, sortOrder: i }));
+    const prevById = new Map(collections.map((c) => [c.id, c.sortOrder]));
+    const changed = updated.filter((c) => prevById.get(c.id) !== c.sortOrder);
+    setCollections(updated);
+    try {
+      await Promise.all(changed.map((c) => reorderCollection(c.id, c.sortOrder)));
+    } catch {
+      showToast('Ошибка сохранения порядка');
+    }
+  }
+
   async function handleMove(id: number, dir: 'up' | 'down') {
     const sorted = [...collections].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
     const idx = sorted.findIndex((c) => c.id === id);
-    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= sorted.length) return;
-    // Normalize: assign each item its current index as sortOrder, then swap
-    const normalized = sorted.map((c, i) => ({ ...c, sortOrder: i }));
-    await reorderCollection(normalized[idx].id, swapIdx);
-    await reorderCollection(normalized[swapIdx].id, idx);
-    const updated = [...normalized];
-    updated[idx] = { ...normalized[idx], sortOrder: swapIdx };
-    updated[swapIdx] = { ...normalized[swapIdx], sortOrder: idx };
-    updated.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
-    setCollections(updated);
+    await handleReorderTo(id, dir === 'up' ? idx - 1 : idx + 1);
   }
 
   if (loading) return <p className={styles.hint}>Загрузка…</p>;
@@ -2574,10 +2585,47 @@ function CollectionsSection() {
       {sorted.length > 0 && (
         <div className={styles.collectionsList}>
           {sorted.map((c, idx) => (
-            <div key={c.id} className={styles.collectionSortRow}>
+            <div
+              key={c.id}
+              className={`${styles.collectionSortRow} ${draggingId === c.id ? styles.dragging : ''} ${overIdx === idx && draggingId !== null && draggingId !== c.id ? styles.dropTarget : ''}`}
+              onDragOver={(e) => { if (draggingId !== null && draggingId !== c.id) { e.preventDefault(); setOverIdx(idx); } }}
+              onDragLeave={() => { if (overIdx === idx) setOverIdx(null); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggingId !== null && draggingId !== c.id) {
+                  handleReorderTo(draggingId, idx);
+                }
+                setDraggingId(null);
+                setOverIdx(null);
+              }}
+            >
               <div className={styles.collectionSortBtns}>
+                <button
+                  className={styles.dragHandle}
+                  draggable
+                  onDragStart={(e) => { setDraggingId(c.id); e.dataTransfer.effectAllowed = 'move'; }}
+                  onDragEnd={() => { setDraggingId(null); setOverIdx(null); }}
+                  aria-label="Перетащить"
+                  title="Перетащить"
+                  type="button"
+                >⋮⋮</button>
                 <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'up')} disabled={idx === 0} aria-label="Вверх">↑</button>
                 <button className={styles.orderBtn} onClick={() => handleMove(c.id, 'down')} disabled={idx === sorted.length - 1} aria-label="Вниз">↓</button>
+                <input
+                  type="number"
+                  min={1}
+                  max={sorted.length}
+                  value={idx + 1}
+                  className={styles.positionInput}
+                  aria-label="Позиция"
+                  title="Позиция (1 — первая)"
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    if (!Number.isNaN(v) && v >= 1 && v <= sorted.length) {
+                      handleReorderTo(c.id, v - 1);
+                    }
+                  }}
+                />
               </div>
               <DynCollectionCard
                 collection={c}

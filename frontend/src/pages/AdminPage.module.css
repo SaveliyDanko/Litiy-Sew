@@ -969,6 +969,16 @@ select.input {
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
+  border-top: 2px solid transparent;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.collectionSortRow.dragging {
+  opacity: 0.4;
+}
+
+.collectionSortRow.dropTarget {
+  border-top-color: #111;
 }
 
 .collectionSortBtns {
@@ -977,6 +987,57 @@ select.input {
   gap: 0.25rem;
   padding-top: 0.5rem;
   flex-shrink: 0;
+  align-items: center;
+}
+
+.dragHandle {
+  appearance: none;
+  border: 1px solid #d8d8d8;
+  background: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: grab;
+  color: #888;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.dragHandle:hover {
+  background: #f4f4f4;
+  color: #111;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.positionInput {
+  width: 44px;
+  padding: 4px 6px;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  text-align: center;
+  margin-top: 0.25rem;
+  -moz-appearance: textfield;
+}
+
+.positionInput::-webkit-outer-spin-button,
+.positionInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.positionInput:focus {
+  outline: none;
+  border-color: #111;
 }
 
 .collectionSortRow > .collectionCard {
