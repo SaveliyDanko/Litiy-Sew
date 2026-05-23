@@ -188,8 +188,11 @@ sudo certbot certificates
 - A-запись `litiy.site` указывает на IP VPS (`dig litiy.site`)
 - inventory заполнен, vault создан и зашифрован
 
+> **Все ansible-команды запускать из папки `ansible/`** — там лежит `ansible.cfg` с нужными настройками.
+
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
+cd ansible
+ansible-playbook site.yml --ask-vault-pass
 ```
 
 Плейбук выполнит по порядку:
@@ -212,7 +215,8 @@ ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
 После изменений в коде:
 
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass
+cd ansible
+ansible-playbook deploy.yml --ask-vault-pass
 ```
 
 Этот плейбук **не трогает** Docker-установку, Nginx и сертификаты — только:
@@ -340,10 +344,10 @@ curl -I http://litiy.site
 
 ```bash
 # Запустить с подробным выводом
-ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass -vv
+cd ansible && ansible-playbook site.yml --ask-vault-pass -vv
 
 # Проверить доступность сервера
-ansible -i ansible/inventory.ini vps -m ping
+cd ansible && ansible vps -m ping
 ```
 
 ### Пересоздать контейнеры с нуля (крайняя мера)
@@ -366,7 +370,7 @@ sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml up -d --bu
 Если сервер уже поднят (`site.yml` отработал ранее), достаточно запустить быстрый re-deploy:
 
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass
+cd ansible && ansible-playbook deploy.yml --ask-vault-pass
 ```
 
 Плейбук пересоберёт backend и frontend, новые таблицы (`products`, `pattern_items`, `portfolio_photos`, `hero_banners`) создадутся автоматически при старте Spring Boot (через `ddl-auto: update`).

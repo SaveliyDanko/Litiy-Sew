@@ -52,8 +52,11 @@ ansible-vault encrypt ansible/vault.yml
 
 ### 4. Запусти provision
 
+> Все команды запускать из папки `ansible/` — там лежит `ansible.cfg`.
+
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
+cd ansible
+ansible-playbook site.yml --ask-vault-pass
 ```
 
 Это сделает:
@@ -68,7 +71,8 @@ ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
 Скачать текущие данные с VPS в папку `backups/YYYY-MM-DD/`:
 
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/backup.yml --ask-vault-pass
+cd ansible
+ansible-playbook backup.yml --ask-vault-pass
 ```
 
 Результат:
@@ -86,12 +90,13 @@ backups/
 ## Деплой на чистый VPS из бэкапа
 
 ```bash
+cd ansible
+
 # 1. Полный provision (docker, nginx, ssl, app)
-ansible-playbook -i ansible/inventory.ini ansible/site.yml --ask-vault-pass
+ansible-playbook site.yml --ask-vault-pass
 
 # 2. Восстановить данные из последнего бэкапа
-ansible-playbook -i ansible/inventory.ini ansible/restore.yml --ask-vault-pass \
-  -e "backup_dir=../backups/2025-06-01"
+ansible-playbook restore.yml --ask-vault-pass -e "backup_dir=../backups/2025-06-01"
 ```
 
 `restore.yml` сделает:
@@ -106,15 +111,16 @@ ansible-playbook -i ansible/inventory.ini ansible/restore.yml --ask-vault-pass \
 При первом деплое на чистый VPS — после `site.yml` запусти перенос данных:
 
 ```bash
-ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass
+cd ansible
+ansible-playbook migrate.yml --ask-vault-pass
 ```
 
 По умолчанию берёт медиафайлы из `MEDIA_UPLOAD_DIR` (или `/opt/litiy-sew/uploads`).
 Если папка другая — передай явно:
 
 ```bash
-ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass \
-  -e "local_uploads_dir=/my/custom/uploads"
+cd ansible
+ansible-playbook migrate.yml --ask-vault-pass -e "local_uploads_dir=/my/custom/uploads"
 ```
 
 Плейбук сделает:
@@ -138,7 +144,8 @@ ansible-playbook -i inventory.ini migrate.yml --ask-vault-pass \
 Фото загруженные через админку на проде остаются на VPS независимо от деплоев.
 
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --ask-vault-pass
+cd ansible
+ansible-playbook deploy.yml --ask-vault-pass
 ```
 
 Это сделает:
