@@ -93,6 +93,10 @@
      Видна только от 640px — на мобайле скрыта.
      ---------------------------------------------------------- */
 
+  /* Вертикальный сдвиг карточки относительно заголовка.
+     Отрицательное значение = карточка поднимается вверх (наезжает на заголовок). */
+  --card-offset-y: 16px;
+
   /* Ширина фото внутри карточки */
   --card-image-width: 210px;
 
@@ -117,6 +121,7 @@
      ---------------------------------------------------------- */
   position: relative;
   min-height: var(--hero-min-height);
+  overflow: hidden;
   background-color: var(--hero-bg-color);
 }
 
@@ -183,7 +188,7 @@
 
     --hero-content-padding-top: 40px;
     --hero-content-padding-x: 32px;
-    --hero-content-padding-bottom: 48px;
+    --hero-content-padding-bottom: 80px;
 
     --hero-title-size: 3.6rem;
     --hero-title-letter-spacing: 0.02em;
@@ -217,6 +222,7 @@
     --hero-content-padding-bottom: 120px;
     --hero-title-size: 6.3rem;
 
+    --card-offset-y: 16px;
     --card-image-width: 210px;
     --card-button-padding-y: 15px;
     --card-button-padding-x: 26px;
@@ -237,6 +243,7 @@
   .hero {
     --hero-title-size: 9rem;
 
+    --card-offset-y: 16px;
     --card-image-width: 250px;
     --card-button-padding-y: 17px;
     --card-button-padding-x: 32px;
@@ -284,13 +291,6 @@
 
 /* ── Hero: фон ───────────────────────────────────────────────────────────── */
 
-.bgWrap {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-}
-
 /* Мобайл использует mobile-переменные позиции, десктоп — основные */
 .bg {
   position: absolute;
@@ -299,6 +299,7 @@
   height: 100%;
   object-fit: cover;
   object-position: var(--hero-bg-offset-x-mobile) var(--hero-bg-offset-y-mobile);
+  z-index: 0;
   transform: scale(var(--hero-bg-scale-mobile)) scaleX(var(--hero-bg-scale-x));
 }
 
@@ -396,25 +397,27 @@
 
 .card {
   display: none;
-  position: absolute;
-  z-index: 10;
+  position: relative;
+  z-index: 1;
   flex-direction: column;
-  align-items: stretch;
-  width: var(--card-image-width);
-  bottom: var(--hero-content-padding-bottom);
-  left: 50%;
-  transform: translateX(-50%);
+  align-items: center;
+  width: fit-content;
+  margin: var(--card-offset-y) auto 0;
 }
 
 .cardImageWrap {
   display: block;
   width: var(--card-image-width);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
 }
 
 .cardImage {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
 }
 
 .btn {

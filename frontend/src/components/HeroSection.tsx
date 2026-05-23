@@ -116,34 +116,32 @@ export default function HeroSection() {
           '--hero-bg-scale-tablet': hero.scaleTablet / 100,
         } as React.CSSProperties) : undefined}
       >
-        <div className={styles.bgWrap}>
-          {hero && (
-            <picture>
-              {hero.imageUrlMobile && (
-                <source
-                  media="(max-width: 639px)"
-                  srcSet={hero.imageSrcSetMobile ?? hero.imageUrlMobile}
-                  sizes="100vw"
-                />
-              )}
-              {hero.imageUrlTablet && (
-                <source
-                  media="(min-width: 640px) and (max-width: 1023px)"
-                  srcSet={hero.imageSrcSetTablet ?? hero.imageUrlTablet}
-                  sizes="100vw"
-                />
-              )}
-              <img
-                className={styles.bg}
-                src={hero.imageUrl}
-                {...imgSrcSetProps(hero.imageSrcSet, '100vw')}
-                alt="Litiy Sew hero"
-                fetchPriority="high"
+        {hero && (
+          <picture>
+            {hero.imageUrlMobile && (
+              <source
+                media="(max-width: 639px)"
+                srcSet={hero.imageSrcSetMobile ?? hero.imageUrlMobile}
+                sizes="100vw"
               />
-            </picture>
-          )}
-          <div className={styles.overlay} />
-        </div>
+            )}
+            {hero.imageUrlTablet && (
+              <source
+                media="(min-width: 640px) and (max-width: 1023px)"
+                srcSet={hero.imageSrcSetTablet ?? hero.imageUrlTablet}
+                sizes="100vw"
+              />
+            )}
+            <img
+              className={styles.bg}
+              src={hero.imageUrl}
+              {...imgSrcSetProps(hero.imageSrcSet, '100vw')}
+              alt="Litiy Sew hero"
+              fetchPriority="high"
+            />
+          </picture>
+        )}
+        <div className={styles.overlay} />
 
         <div className={styles.content}>
           <h1 className={styles.title}>
