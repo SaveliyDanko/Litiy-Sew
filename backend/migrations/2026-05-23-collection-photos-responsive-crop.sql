@@ -18,9 +18,15 @@ ALTER TABLE dynamic_collection_photos ADD COLUMN IF NOT EXISTS scale_tablet     
 
 -- Backfill: copy existing desktop crop values into the new breakpoint columns
 -- so that existing photos render identically on all sizes until an admin tweaks them.
-UPDATE dynamic_collection_photos SET position_x_mobile = position_x WHERE position_x_mobile = 50 AND position_x <> 50;
-UPDATE dynamic_collection_photos SET position_y_mobile = position_y WHERE position_y_mobile = 50 AND position_y <> 50;
-UPDATE dynamic_collection_photos SET scale_mobile      = scale      WHERE scale_mobile      = 100 AND scale      <> 100;
-UPDATE dynamic_collection_photos SET position_x_tablet = position_x WHERE position_x_tablet = 50 AND position_x <> 50;
-UPDATE dynamic_collection_photos SET position_y_tablet = position_y WHERE position_y_tablet = 50 AND position_y <> 50;
-UPDATE dynamic_collection_photos SET scale_tablet      = scale      WHERE scale_tablet      = 100 AND scale      <> 100;
+--
+-- NOTE: the legacy columns are named without underscores (positionx, positiony) because
+-- the original entity declared them without explicit @Column(name=...) and Hibernate's
+-- default naming strategy lowercased them without inserting underscores. The new columns
+-- DO have explicit names with underscores via @Column. This mismatch is intentional —
+-- don't try to "fix" the legacy names, that would break the running app.
+UPDATE dynamic_collection_photos SET position_x_mobile = positionx WHERE position_x_mobile = 50 AND positionx <> 50;
+UPDATE dynamic_collection_photos SET position_y_mobile = positiony WHERE position_y_mobile = 50 AND positiony <> 50;
+UPDATE dynamic_collection_photos SET scale_mobile      = scale     WHERE scale_mobile      = 100 AND scale     <> 100;
+UPDATE dynamic_collection_photos SET position_x_tablet = positionx WHERE position_x_tablet = 50 AND positionx <> 50;
+UPDATE dynamic_collection_photos SET position_y_tablet = positiony WHERE position_y_tablet = 50 AND positiony <> 50;
+UPDATE dynamic_collection_photos SET scale_tablet      = scale     WHERE scale_tablet      = 100 AND scale     <> 100;
