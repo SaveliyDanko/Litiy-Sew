@@ -5,6 +5,7 @@ import { fetchCollections, type DynamicCollection } from '../services/collection
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
+import { responsivePhotoStyle } from '../utils/photoStyles';
 import ProductCard from './ProductCard';
 import styles from './HeroSection.module.css';
 
@@ -222,12 +223,12 @@ export default function HeroSection() {
           >
             {featuredCardPhoto ? (
               <img
-                className={styles.featuredImage}
+                className={`${styles.featuredImage} responsivePhoto`}
                 src={featuredCardPhoto.imageUrl}
                 {...imgSrcSetProps(featuredCardPhoto.imageSrcSet, '(min-width: 1024px) 50vw, 100vw')}
                 alt={featured.title}
                 loading="lazy"
-                style={{ objectPosition: `${featuredCardPhoto.positionX}% ${featuredCardPhoto.positionY}%`, transform: `scale(${(featuredCardPhoto.scale ?? 100) / 100})` }}
+                style={responsivePhotoStyle(featuredCardPhoto)}
               />
             ) : (
               <div className={styles.featuredGlow} />

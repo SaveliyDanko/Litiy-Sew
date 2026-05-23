@@ -1753,9 +1753,30 @@ function AboutSection() {
 
 // ── Dynamic collection photo row ──────────────────────────────────────────
 
+type Breakpoint = 'desktop' | 'tablet' | 'mobile';
+
+const BP_LABELS: Record<Breakpoint, string> = {
+  desktop: 'Большой',
+  tablet: 'Средний',
+  mobile: 'Мобильный',
+};
+
+type PhotoCropValues = {
+  positionX: number; positionY: number; scale: number;
+  positionXTablet: number; positionYTablet: number; scaleTablet: number;
+  positionXMobile: number; positionYMobile: number; scaleMobile: number;
+};
+
+const BP_FIELDS: Record<Breakpoint, { x: keyof PhotoCropValues; y: keyof PhotoCropValues; s: keyof PhotoCropValues }> = {
+  desktop: { x: 'positionX',       y: 'positionY',       s: 'scale' },
+  tablet:  { x: 'positionXTablet', y: 'positionYTablet', s: 'scaleTablet' },
+  mobile:  { x: 'positionXMobile', y: 'positionYMobile', s: 'scaleMobile' },
+};
+
 function DynPhotoRow({
   photo,
   label,
+  responsive,
   onDelete,
   onUpdate,
   onMoveUp,
@@ -1763,27 +1784,43 @@ function DynPhotoRow({
 }: {
   photo: DynamicCollectionPhoto;
   label?: string;
+  responsive?: boolean;
   onDelete: (id: number) => void;
   onUpdate: (p: DynamicCollectionPhoto) => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
 }) {
-  const [posX, setPosX] = useState(photo.positionX);
-  const [posY, setPosY] = useState(photo.positionY);
-  const [scale, setScale] = useState(photo.scale ?? 100);
+  const [values, setValues] = useState<PhotoCropValues>({
+    positionX: photo.positionX,
+    positionY: photo.positionY,
+    scale: photo.scale ?? 100,
+    positionXTablet: photo.positionXTablet ?? photo.positionX,
+    positionYTablet: photo.positionYTablet ?? photo.positionY,
+    scaleTablet: photo.scaleTablet ?? photo.scale ?? 100,
+    positionXMobile: photo.positionXMobile ?? photo.positionX,
+    positionYMobile: photo.positionYMobile ?? photo.positionY,
+    scaleMobile: photo.scaleMobile ?? photo.scale ?? 100,
+  });
+  const [bp, setBp] = useState<Breakpoint>('desktop');
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const posRef = useRef({ x: photo.positionX, y: photo.positionY, s: photo.scale ?? 100 });
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
 
   function handlePos(axis: 'x' | 'y' | 's', val: number) {
-    if (axis === 'x') { setPosX(val); posRef.current.x = val; }
-    else if (axis === 'y') { setPosY(val); posRef.current.y = val; }
-    else { setScale(val); posRef.current.s = val; }
+    const f = BP_FIELDS[bp];
+    const key = axis === 'x' ? f.x : axis === 'y' ? f.y : f.s;
+    setValues((v) => ({ ...v, [key]: val }));
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       setSaving(true);
       try {
-        const updated = await updateCollectionPhotoPosition(photo.id, posRef.current.x, posRef.current.y, posRef.current.s);
+        const patch = responsive ? valuesRef.current : {
+          positionX: valuesRef.current.positionX,
+          positionY: valuesRef.current.positionY,
+          scale: valuesRef.current.scale,
+        };
+        const updated = await updateCollectionPhotoPosition(photo.id, patch);
         onUpdate(updated);
       } catch {
         showToast('Ошибка сохранения позиции');
@@ -1801,34 +1838,52 @@ function DynPhotoRow({
   }
 
   const typeLabel = label ?? (photo.photoType === 'CARD' ? 'Карточка' : photo.photoType === 'HERO' ? 'Hero' : 'Галерея');
+  const f = BP_FIELDS[bp];
+  const curX = values[f.x];
+  const curY = values[f.y];
+  const curS = values[f.s];
 
   return (
     <div className={styles.dynPhotoRow}>
       <div className={styles.dynPhotoThumb}>
         <img src={photo.imageUrl} alt={typeLabel}
-          style={{ objectPosition: `${posX}% ${posY}%`, transform: `scale(${scale / 100})` }} />
+          style={{ objectPosition: `${curX}% ${curY}%`, transform: `scale(${curS / 100})` }} />
       </div>
       <div className={styles.dynPhotoMeta}>
         <span className={styles.dynPhotoType}>{typeLabel}</span>
         {saving && <span className={styles.dynPhotoSaving}>сохраняется…</span>}
+        {responsive && (
+          <div className={styles.bpTabs}>
+            {(['desktop','tablet','mobile'] as Breakpoint[]).map((b) => (
+              <button
+                key={b}
+                type="button"
+                className={`${styles.bpTab} ${bp === b ? styles.bpTabActive : ''}`}
+                onClick={() => setBp(b)}
+              >
+                {BP_LABELS[b]}
+              </button>
+            ))}
+          </div>
+        )}
         <div className={styles.dynPhotoSliders}>
           <label className={styles.sliderField}>
             <span className={styles.sliderName}>Гориз.</span>
-            <input type="range" min={0} max={100} value={posX} className={styles.slider}
+            <input type="range" min={0} max={100} value={curX} className={styles.slider}
               onChange={(e) => handlePos('x', Number(e.target.value))} />
-            <span className={styles.sliderValue}>{posX}%</span>
+            <span className={styles.sliderValue}>{curX}%</span>
           </label>
           <label className={styles.sliderField}>
             <span className={styles.sliderName}>Верт.</span>
-            <input type="range" min={0} max={100} value={posY} className={styles.slider}
+            <input type="range" min={0} max={100} value={curY} className={styles.slider}
               onChange={(e) => handlePos('y', Number(e.target.value))} />
-            <span className={styles.sliderValue}>{posY}%</span>
+            <span className={styles.sliderValue}>{curY}%</span>
           </label>
           <label className={styles.sliderField}>
             <span className={styles.sliderName}>Масштаб</span>
-            <input type="range" min={100} max={200} value={scale} className={styles.slider}
+            <input type="range" min={100} max={200} value={curS} className={styles.slider}
               onChange={(e) => handlePos('s', Number(e.target.value))} />
-            <span className={styles.sliderValue}>{scale}%</span>
+            <span className={styles.sliderValue}>{curS}%</span>
           </label>
         </div>
       </div>
@@ -1910,6 +1965,7 @@ function CollectionPhotoGroups({
                         ? (i === 0 ? 'Деталь 1' : i === 1 ? 'Деталь 2' : `Мозаика ${i - 1}`)
                         : undefined
                     }
+                    responsive={group.type === 'HERO' || group.type === 'CARD'}
                     onDelete={onDelete}
                     onUpdate={onUpdate}
                     onMoveUp={group.type === 'GALLERY' && i > 0 ? () => handleMove(groupPhotos, i, -1) : undefined}

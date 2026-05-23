@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { fetchCollection, type DynamicCollection } from '../services/collections';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
+import { responsivePhotoStyle } from '../utils/photoStyles';
 import styles from './CollectionPlaceholderPage.module.css';
 
 export default function CollectionPlaceholderPage() {
@@ -85,7 +86,7 @@ export default function CollectionPlaceholderPage() {
           {heroDisplay ? (
             <img
               ref={heroImgRef}
-              className={styles.heroImage}
+              className={`${styles.heroImage} responsivePhoto`}
               src={heroDisplay.imageUrl}
               {...imgSrcSetProps(heroDisplay.imageSrcSet, '100vw')}
               alt={collection.title}
@@ -96,10 +97,7 @@ export default function CollectionPlaceholderPage() {
                   setHeroAspect(`${img.naturalWidth} / ${img.naturalHeight}`);
                 }
               }}
-              style={{
-                objectPosition: `${heroDisplay.positionX}% ${heroDisplay.positionY}%`,
-                transform: `scale(${(heroDisplay.scale ?? 100) / 100})`,
-              }}
+              style={responsivePhotoStyle(heroDisplay)}
             />
           ) : (
             <div className={styles.heroPlaceholder} />

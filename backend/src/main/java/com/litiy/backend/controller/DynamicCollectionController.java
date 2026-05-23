@@ -86,12 +86,7 @@ public class DynamicCollectionController {
     public ResponseEntity<DynamicCollectionPhotoResponse> updatePhotoPosition(
             @PathVariable Long photoId,
             @RequestBody Map<String, Integer> body) {
-        return ResponseEntity.ok(service.updatePhotoPosition(
-                photoId,
-                body.getOrDefault("positionX", 50),
-                body.getOrDefault("positionY", 50),
-                body.getOrDefault("scale", 100)
-        ));
+        return ResponseEntity.ok(service.updatePhotoPosition(photoId, body));
     }
 
     @PatchMapping("/api/admin/collections/photos/{photoId}/order")

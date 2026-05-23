@@ -154,12 +154,18 @@ public class DynamicCollectionService {
         photoRepo.save(photo);
     }
 
-    public DynamicCollectionPhotoResponse updatePhotoPosition(Long photoId, int positionX, int positionY, int scale) {
+    public DynamicCollectionPhotoResponse updatePhotoPosition(Long photoId, java.util.Map<String, Integer> body) {
         DynamicCollectionPhoto photo = photoRepo.findById(photoId)
                 .orElseThrow(() -> new NoSuchElementException("Photo not found: " + photoId));
-        photo.setPositionX(positionX);
-        photo.setPositionY(positionY);
-        photo.setScale(scale);
+        if (body.containsKey("positionX"))       photo.setPositionX(body.get("positionX"));
+        if (body.containsKey("positionY"))       photo.setPositionY(body.get("positionY"));
+        if (body.containsKey("scale"))           photo.setScale(body.get("scale"));
+        if (body.containsKey("positionXMobile")) photo.setPositionXMobile(body.get("positionXMobile"));
+        if (body.containsKey("positionYMobile")) photo.setPositionYMobile(body.get("positionYMobile"));
+        if (body.containsKey("scaleMobile"))     photo.setScaleMobile(body.get("scaleMobile"));
+        if (body.containsKey("positionXTablet")) photo.setPositionXTablet(body.get("positionXTablet"));
+        if (body.containsKey("positionYTablet")) photo.setPositionYTablet(body.get("positionYTablet"));
+        if (body.containsKey("scaleTablet"))     photo.setScaleTablet(body.get("scaleTablet"));
         return DynamicCollectionPhotoResponse.from(photoRepo.save(photo));
     }
 

@@ -1194,6 +1194,41 @@ select.input {
   gap: 0.35rem;
 }
 
+.bpTabs {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0.25rem 0 0.5rem;
+  padding: 3px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.bpTab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  color: #666;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.bpTab:hover {
+  color: #111;
+}
+
+.bpTabActive {
+  background: #111;
+  color: #fff;
+}
+
+.bpTabActive:hover {
+  color: #fff;
+}
+
 .dynPhotoAddForm {
   background: #f8f8f8;
   border: 1px dashed #d8d8d8;

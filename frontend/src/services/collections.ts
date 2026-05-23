@@ -8,9 +8,27 @@ export type DynamicCollectionPhoto = {
   positionX: number;
   positionY: number;
   scale: number;
+  positionXMobile: number;
+  positionYMobile: number;
+  scaleMobile: number;
+  positionXTablet: number;
+  positionYTablet: number;
+  scaleTablet: number;
   sortOrder: number;
   createdAt: string;
 };
+
+export type PhotoPositionPatch = Partial<{
+  positionX: number;
+  positionY: number;
+  scale: number;
+  positionXMobile: number;
+  positionYMobile: number;
+  scaleMobile: number;
+  positionXTablet: number;
+  positionYTablet: number;
+  scaleTablet: number;
+}>;
 
 export type CollectionCategory = 'COLLECTION' | 'SOLO' | 'SKETCH';
 
@@ -148,10 +166,10 @@ export async function addCollectionPhoto(collectionId: number, data: AddPhotoDat
   });
 }
 
-export async function updateCollectionPhotoPosition(photoId: number, positionX: number, positionY: number, scale: number): Promise<DynamicCollectionPhoto> {
+export async function updateCollectionPhotoPosition(photoId: number, patch: PhotoPositionPatch): Promise<DynamicCollectionPhoto> {
   return adminRequest<DynamicCollectionPhoto>(`/admin/collections/photos/${photoId}/position`, {
     method: 'PATCH',
-    body: JSON.stringify({ positionX, positionY, scale }),
+    body: JSON.stringify(patch),
   });
 }
 
