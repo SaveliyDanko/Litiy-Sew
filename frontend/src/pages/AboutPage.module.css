@@ -67,7 +67,7 @@
      - `text-line-height` — межстрочный интервал.
      - `text-color`       — цвет текста.
        (Ширина текста не ограничена — блок занимает всё доступное пространство колонки.) */
-  --about-story-copy-gap: 20px;
+  --about-story-copy-gap: 23px;
   --about-story-text-size: 1rem;
   --about-story-text-line-height: 1.7;
   --about-story-text-color: #2a2a2a;
