@@ -386,7 +386,16 @@
   scale: 1.25;
 }
 
+.sliderTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
 .portfolioPreviewImage {
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;

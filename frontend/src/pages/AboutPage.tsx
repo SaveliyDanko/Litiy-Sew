@@ -63,26 +63,31 @@ function ProjectPhotoSlider({ photos, coverPhoto, coverSrcSet, coverPosX, coverP
 
   if (allPhotos.length === 0) return null;
 
-  const current = allPhotos[idx] ?? allPhotos[0];
-
   return (
     <div
       className={styles.portfolioPreview}
       onTouchStart={allPhotos.length > 1 ? handleTouchStart : undefined}
       onTouchEnd={allPhotos.length > 1 ? handleTouchEnd : undefined}
     >
-      <img
-        key={current.url}
-        className={styles.portfolioPreviewImage}
-        src={current.url}
-        {...imgSrcSetProps(current.srcSet, '(min-width: 1024px) 50vw, 100vw')}
-        alt={title}
-        loading="lazy"
-        style={{
-          objectPosition: `${current.posX}% ${current.posY}%`,
-          transform: `scale(${current.scale / 100})`,
-        }}
-      />
+      <div
+        className={styles.sliderTrack}
+        style={{ transform: `translateX(-${idx * 100}%)` }}
+      >
+        {allPhotos.map((photo, i) => (
+          <img
+            key={i}
+            className={styles.portfolioPreviewImage}
+            src={photo.url}
+            {...imgSrcSetProps(photo.srcSet, '(min-width: 1024px) 50vw, 100vw')}
+            alt={title}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            style={{
+              objectPosition: `${photo.posX}% ${photo.posY}%`,
+              transform: `scale(${photo.scale / 100})`,
+            }}
+          />
+        ))}
+      </div>
       {allPhotos.length > 1 && (
         <>
           <button
