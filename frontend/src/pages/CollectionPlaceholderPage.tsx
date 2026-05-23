@@ -55,9 +55,10 @@ export default function CollectionPlaceholderPage() {
 
   const heroDisplay = heroPhoto ?? cardPhoto ?? null;
 
-  // First two gallery photos go into the detail strip; the rest into the mosaic
-  const detailPhotos = galleryPhotos.slice(0, 2);
-  const mosaicPhotos = galleryPhotos.slice(2);
+  // First two gallery photos go into the detail strip; the rest into the mosaic.
+  // When the detail block is hidden, ALL gallery photos fall into the mosaic.
+  const detailPhotos = collection.hideDetail ? [] : galleryPhotos.slice(0, 2);
+  const mosaicPhotos = collection.hideDetail ? galleryPhotos : galleryPhotos.slice(2);
 
   return (
     <>
@@ -119,7 +120,7 @@ export default function CollectionPlaceholderPage() {
         </section>
 
         {/* ── Detail strip: two photos + description ───────────────────── */}
-        {(detailPhotos.length > 0 || collection.detailIntro || collection.detailFocus) && (
+        {!collection.hideDetail && (detailPhotos.length > 0 || collection.detailIntro || collection.detailFocus) && (
           <section className={styles.detail}>
             <div className={styles.detailInner}>
               {detailPhotos[0] && (

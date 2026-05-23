@@ -60,6 +60,7 @@ public class DynamicCollectionService {
                 .detailFocus(req.detailFocus())
                 .groupTitle(req.groupTitle())
                 .hideCardLabel(Boolean.TRUE.equals(req.hideCardLabel()))
+                .hideDetail(Boolean.TRUE.equals(req.hideDetail()))
                 .heroTitlePosition(req.heroTitlePosition() != null ? req.heroTitlePosition() : "bottom-left")
                 .heroHeightMode(req.heroHeightMode() != null ? req.heroHeightMode() : "full")
                 .heroHeightMobile(req.heroHeightMobile())
@@ -92,6 +93,7 @@ public class DynamicCollectionService {
         c.setDetailFocus(req.detailFocus());
         c.setGroupTitle(req.groupTitle());
         if (req.hideCardLabel() != null) c.setHideCardLabel(req.hideCardLabel());
+        if (req.hideDetail() != null) c.setHideDetail(req.hideDetail());
         if (req.heroTitlePosition() != null) c.setHeroTitlePosition(req.heroTitlePosition());
         if (req.heroHeightMode() != null) c.setHeroHeightMode(req.heroHeightMode());
         c.setHeroHeightMobile(req.heroHeightMobile());

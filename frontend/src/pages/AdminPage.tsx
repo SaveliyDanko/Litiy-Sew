@@ -2004,6 +2004,7 @@ function DynCollectionCard({
   const [detailFocus, setDetailFocus] = useState(collection.detailFocus ?? '');
   const [groupTitle, setGroupTitle] = useState(collection.groupTitle ?? '');
   const [hideCardLabel, setHideCardLabel] = useState(collection.hideCardLabel ?? false);
+  const [hideDetail, setHideDetail] = useState(collection.hideDetail ?? false);
   const [heroTitlePosition, setHeroTitlePosition] = useState<HeroTitlePosition>(collection.heroTitlePosition ?? 'bottom-left');
   const [heroHeightMode, setHeroHeightMode] = useState<'full' | 'half' | 'auto'>(collection.heroHeightMode ?? 'full');
   const [heroHeightMobile, setHeroHeightMobile] = useState<string>(collection.heroHeightMobile != null ? String(collection.heroHeightMobile) : '');
@@ -2031,6 +2032,7 @@ function DynCollectionCard({
     setDetailFocus(collection.detailFocus ?? '');
     setGroupTitle(collection.groupTitle ?? '');
     setHideCardLabel(collection.hideCardLabel ?? false);
+    setHideDetail(collection.hideDetail ?? false);
     setHeroTitlePosition((collection.heroTitlePosition ?? 'bottom-left') as HeroTitlePosition);
     setHeroHeightMode(collection.heroHeightMode ?? 'full');
     setHeroHeightMobile(collection.heroHeightMobile != null ? String(collection.heroHeightMobile) : '');
@@ -2059,6 +2061,7 @@ function DynCollectionCard({
         detailFocus: detailFocus.trim() || undefined,
         groupTitle: groupTitle.trim() || undefined,
         hideCardLabel,
+        hideDetail,
         heroTitlePosition,
         heroHeightMode,
         heroHeightMobile: heroHeightMobile !== '' ? Number(heroHeightMobile) : null,
@@ -2317,6 +2320,10 @@ function DynCollectionCard({
               <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" checked={hideCardLabel} onChange={(e) => setHideCardLabel(e.target.checked)} />
                 <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>Скрыть название под карточкой</span>
+              </label>
+              <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="checkbox" checked={hideDetail} onChange={(e) => setHideDetail(e.target.checked)} />
+                <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>Скрыть detail-блок (фото слева/справа + текст). Все галерея-фото уйдут в мозаику</span>
               </label>
               <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />

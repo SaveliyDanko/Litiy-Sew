@@ -55,6 +55,10 @@ public class DynamicCollection {
     @Builder.Default
     private Boolean hideCardLabel = false;
 
+    @Column(name = "hide_detail")
+    @Builder.Default
+    private Boolean hideDetail = false;
+
     /** 'bottom-left' | 'bottom-center' | 'center' */
     @Column(length = 32)
     @Builder.Default

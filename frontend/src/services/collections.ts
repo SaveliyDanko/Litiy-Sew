@@ -43,6 +43,7 @@ export type DynamicCollection = {
   detailFocus: string | null;
   groupTitle: string | null;
   hideCardLabel: boolean;
+  hideDetail: boolean;
   heroTitlePosition:
     | 'top-left'    | 'top-center-left'    | 'top-center-right'    | 'top-right'
     | 'upper-left'  | 'upper-center-left'  | 'upper-center-right'  | 'upper-right'
@@ -71,6 +72,7 @@ export type CreateCollectionData = {
   detailFocus?: string;
   groupTitle?: string;
   hideCardLabel?: boolean;
+  hideDetail?: boolean;
   heroTitlePosition?:
     | 'top-left'    | 'top-center-left'    | 'top-center-right'    | 'top-right'
     | 'upper-left'  | 'upper-center-left'  | 'upper-center-right'  | 'upper-right'

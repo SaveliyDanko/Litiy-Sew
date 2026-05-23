@@ -16,6 +16,7 @@ public record DynamicCollectionRequest(
         @Size(max = 1024) String detailFocus,
         @Size(max = 256) String groupTitle,
         Boolean hideCardLabel,
+        Boolean hideDetail,
         @Pattern(regexp = "^(top|upper|lower|bottom)-(left|center-left|center-right|right)$") String heroTitlePosition,
         @Pattern(regexp = "^(full|half|auto)$") String heroHeightMode,
         @jakarta.validation.constraints.Min(10) @jakarta.validation.constraints.Max(100) Integer heroHeightMobile,
