@@ -166,7 +166,7 @@ export default function HeroSection() {
             <span className={styles.srOnly}>Litiy Sew</span>
           </h1>
 
-          <a href="/collections" className={styles.card}>
+          <a href={featured ? getCollectionHref(featured.slug) : '/collections'} className={styles.card}>
             {imgUrl('home-card-image') && (
               <div className={styles.cardImageWrap}>
                 <img
