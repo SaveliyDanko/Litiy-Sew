@@ -265,6 +265,19 @@
   color: inherit;
 }
 
+.cardLinkButton {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: inherit;
+  cursor: zoom-in;
+  display: block;
+  width: 100%;
+}
+
 .card {
   display: grid;
   gap: 16px;

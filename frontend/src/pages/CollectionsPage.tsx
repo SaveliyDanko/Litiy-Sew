@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import Lightbox from '../components/Lightbox';
 import { fetchCollections, type DynamicCollection } from '../services/collections';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { responsivePhotoStyle } from '../utils/photoStyles';
@@ -12,56 +13,84 @@ function cardPhoto(c: DynamicCollection) {
   return c.photos.find((p) => p.photoType === 'CARD') ?? c.photos[0] ?? null;
 }
 
-function CollectionCard({ collection, globalIndex: _globalIndex }: { collection: DynamicCollection; globalIndex: number }) {
+function CollectionCard({
+  collection,
+  globalIndex: _globalIndex,
+  onLightbox,
+}: {
+  collection: DynamicCollection;
+  globalIndex: number;
+  onLightbox?: (c: DynamicCollection) => void;
+}) {
   const photo = cardPhoto(collection);
+  const isLightbox = collection.category === 'SKETCH' && photo;
+
+  const inner = (
+    <article className={styles.card} data-tone={collection.tone}>
+      <div
+        className={styles.cardMedia}
+        style={{
+          ...(collection.cardHeightMobile != null ? { '--card-h-mobile': `${collection.cardHeightMobile}px` } as React.CSSProperties : {}),
+          ...(collection.cardHeightDesktop != null ? { '--card-h-desktop': `${collection.cardHeightDesktop}px` } as React.CSSProperties : {}),
+        }}
+      >
+        {collection.eyebrow && (
+          <div className={styles.cardBadge}>{collection.eyebrow}</div>
+        )}
+        {photo ? (
+          <img
+            className={`${styles.cardImage} responsivePhoto`}
+            src={photo.imageUrl}
+            {...imgSrcSetProps(photo.imageSrcSet, '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw')}
+            alt={collection.title}
+            loading="lazy"
+            style={responsivePhotoStyle(photo)}
+          />
+        ) : (
+          <div className={styles.cardPlaceholder} />
+        )}
+        <div className={styles.cardOverlay} />
+      </div>
+
+      {!collection.hideCardLabel && (
+        <div className={styles.cardBody}>
+          <p className={styles.cardSubtitle}>{collection.subtitle ?? ''}</p>
+          <h3 className={styles.cardTitle}>{collection.title}</h3>
+          <p className={styles.cardDescription}>{collection.description ?? ''}</p>
+        </div>
+      )}
+    </article>
+  );
+
+  if (isLightbox && onLightbox) {
+    return (
+      <button
+        type="button"
+        className={`${styles.cardLink} ${styles.cardLinkButton}`}
+        aria-label={`Открыть эскиз ${collection.title}`}
+        onClick={() => onLightbox(collection)}
+      >
+        {inner}
+      </button>
+    );
+  }
+
   return (
     <a
       href={getCollectionHref(collection.slug)}
       className={styles.cardLink}
       aria-label={`Открыть коллекцию ${collection.title}`}
     >
-      <article className={styles.card} data-tone={collection.tone}>
-        <div
-          className={styles.cardMedia}
-          style={{
-            ...(collection.cardHeightMobile != null ? { '--card-h-mobile': `${collection.cardHeightMobile}px` } as React.CSSProperties : {}),
-            ...(collection.cardHeightDesktop != null ? { '--card-h-desktop': `${collection.cardHeightDesktop}px` } as React.CSSProperties : {}),
-          }}
-        >
-          {collection.eyebrow && (
-            <div className={styles.cardBadge}>{collection.eyebrow}</div>
-          )}
-          {photo ? (
-            <img
-              className={`${styles.cardImage} responsivePhoto`}
-              src={photo.imageUrl}
-              {...imgSrcSetProps(photo.imageSrcSet, '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw')}
-              alt={collection.title}
-              loading="lazy"
-              style={responsivePhotoStyle(photo)}
-            />
-          ) : (
-            <div className={styles.cardPlaceholder} />
-          )}
-          <div className={styles.cardOverlay} />
-        </div>
-
-        {!collection.hideCardLabel && (
-          <div className={styles.cardBody}>
-            <p className={styles.cardSubtitle}>{collection.subtitle ?? ''}</p>
-            <h3 className={styles.cardTitle}>{collection.title}</h3>
-            <p className={styles.cardDescription}>{collection.description ?? ''}</p>
-          </div>
-        )}
-      </article>
+      {inner}
     </a>
   );
 }
 
-function CollectionGroup({ title, collections, allCollections }: {
+function CollectionGroup({ title, collections, allCollections, onLightbox }: {
   title: string;
   collections: DynamicCollection[];
   allCollections: DynamicCollection[];
+  onLightbox?: (c: DynamicCollection) => void;
 }) {
   if (collections.length === 0) return null;
   return (
@@ -73,7 +102,12 @@ function CollectionGroup({ title, collections, allCollections }: {
       )}
       <div className={styles.soloGrid}>
         {collections.map((c) => (
-          <CollectionCard key={c.slug} collection={c} globalIndex={allCollections.indexOf(c)} />
+          <CollectionCard
+            key={c.slug}
+            collection={c}
+            globalIndex={allCollections.indexOf(c)}
+            onLightbox={onLightbox}
+          />
         ))}
       </div>
     </section>
@@ -83,6 +117,7 @@ function CollectionGroup({ title, collections, allCollections }: {
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<DynamicCollection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxOf, setLightboxOf] = useState<DynamicCollection | null>(null);
 
   useEffect(() => {
     fetchCollections()
@@ -90,6 +125,8 @@ export default function CollectionsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const lightboxPhoto = lightboxOf ? cardPhoto(lightboxOf) : null;
 
   if (loading) {
     return (
@@ -168,10 +205,24 @@ export default function CollectionsPage() {
         )}
 
         <CollectionGroup title={soloList[0]?.groupTitle ?? 'Одиночные модели'} collections={soloList} allCollections={collections} />
-        <CollectionGroup title={sketchList[0]?.groupTitle ?? 'Эскизные проекты'} collections={sketchList} allCollections={collections} />
+        <CollectionGroup
+          title={sketchList[0]?.groupTitle ?? 'Эскизные проекты'}
+          collections={sketchList}
+          allCollections={collections}
+          onLightbox={setLightboxOf}
+        />
       </main>
 
       <Footer />
+
+      {lightboxOf && lightboxPhoto && (
+        <Lightbox
+          src={lightboxPhoto.imageUrl}
+          srcSet={lightboxPhoto.imageSrcSet}
+          alt={lightboxOf.title}
+          onClose={() => setLightboxOf(null)}
+        />
+      )}
     </>
   );
 }
