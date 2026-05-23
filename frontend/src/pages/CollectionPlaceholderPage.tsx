@@ -165,7 +165,7 @@ export default function CollectionPlaceholderPage() {
 
         {/* ── Mosaic gallery ───────────────────────────────────────────── */}
         {mosaicPhotos.length > 0 && (
-          <section className={styles.mosaic}>
+          <section className={`${styles.mosaic} ${collection.hideDetail ? styles.mosaicStandalone : ''}`}>
             <div className={styles.mosaicGrid}>
               {Array.from({ length: mosaicCols }, (_, colIdx) => (
                 <div key={colIdx} className={styles.mosaicCol}>

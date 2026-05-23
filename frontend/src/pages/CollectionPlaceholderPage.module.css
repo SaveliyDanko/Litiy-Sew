@@ -374,6 +374,12 @@
   padding: 0 var(--mosaic-padding-h) var(--mosaic-padding-b);
 }
 
+/* Когда detail-блок скрыт, мозаика идёт сразу после Hero — нужен верхний отступ,
+   который раньше давал bottom-padding у detail. */
+.mosaicStandalone {
+  padding-top: var(--detail-padding-v);
+}
+
 .mosaicGrid {
   display: grid;
   grid-template-columns: repeat(var(--mosaic-cols), 1fr);
