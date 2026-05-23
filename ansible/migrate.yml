@@ -26,10 +26,7 @@
     - name: Создать дамп БД на локальной машине
       delegate_to: localhost
       become: no
-      command: >
-        docker compose -f {{ playbook_dir }}/../docker-compose.yml
-        exec -T postgres
-        pg_dump -U {{ postgres_user }} {{ postgres_db }}
+      command: docker compose -f {{ playbook_dir }}/../docker-compose.yml exec -T postgres pg_dump -U {{ postgres_user }} {{ postgres_db }}
       register: pg_dump_result
       changed_when: true
 
@@ -60,10 +57,7 @@
       become_user: "{{ app_user }}"
 
     - name: Подождать готовности PostgreSQL на VPS
-      command: >
-        docker compose -f {{ app_dir }}/docker-compose.yml
-        exec -T postgres
-        pg_isready -U {{ postgres_user }}
+      command: docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres pg_isready -U {{ postgres_user }}
       register: pg_ready
       until: pg_ready.rc == 0
       retries: 12
@@ -72,11 +66,8 @@
       changed_when: false
 
     - name: Восстановить БД на VPS (psql < dump)
-      shell: >
-        docker compose -f {{ app_dir }}/docker-compose.yml
-        exec -T postgres
-        psql -U {{ postgres_user }} {{ postgres_db }}
-        < {{ dump_file }}
+      shell: |
+        docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }} < {{ dump_file }}
       changed_when: true
 
     # ── 4. Обновить image_url в БД под домен VPS ──────────────────────────────

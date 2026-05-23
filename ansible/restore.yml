@@ -51,10 +51,7 @@
       become_user: "{{ app_user }}"
 
     - name: Подождать готовности PostgreSQL
-      command: >
-        docker compose -f {{ app_dir }}/docker-compose.yml
-        exec -T postgres
-        pg_isready -U {{ postgres_user }}
+      command: docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres pg_isready -U {{ postgres_user }}
       register: pg_ready
       until: pg_ready.rc == 0
       retries: 12
@@ -73,11 +70,8 @@
     # ── 3. Восстановить БД ────────────────────────────────────────────────────
 
     - name: Восстановить БД (psql < gunzip)
-      shell: >
-        gunzip -c {{ remote_dump }}
-        | docker compose -f {{ app_dir }}/docker-compose.yml
-          exec -T postgres
-          psql -U {{ postgres_user }} {{ postgres_db }}
+      shell: |
+        gunzip -c {{ remote_dump }} | docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }}
       changed_when: true
 
     # ── 4. Обновить image_url под домен VPS ───────────────────────────────────

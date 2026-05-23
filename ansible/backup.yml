@@ -26,11 +26,8 @@
     # ── 1. Дамп БД на VPS ─────────────────────────────────────────────────────
 
     - name: Снять pg_dump и сжать
-      shell: >
-        docker compose -f {{ app_dir }}/docker-compose.yml
-        exec -T postgres
-        pg_dump -U {{ postgres_user }} {{ postgres_db }}
-        | gzip > {{ remote_dump }}
+      shell: |
+        docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres pg_dump -U {{ postgres_user }} {{ postgres_db }} | gzip > {{ remote_dump }}
       become_user: "{{ app_user }}"
       changed_when: true
 
