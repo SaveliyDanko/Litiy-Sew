@@ -95,7 +95,7 @@
 
   /* Вертикальный сдвиг карточки относительно заголовка.
      Отрицательное значение = карточка поднимается вверх (наезжает на заголовок). */
-  --card-offset-y: -18px;
+  --card-offset-y: 16px;
 
   /* Ширина фото внутри карточки */
   --card-image-width: 210px;
@@ -188,12 +188,14 @@
 
     --hero-content-padding-top: 40px;
     --hero-content-padding-x: 32px;
-    --hero-content-padding-bottom: 64px;
+    --hero-content-padding-bottom: 80px;
 
     --hero-title-size: 3.6rem;
     --hero-title-letter-spacing: 0.02em;
     --hero-title-align: center;          /* заголовок по центру */
     --hero-title-text-align: center;
+
+    --card-image-width: 160px;
   }
 }
 
@@ -217,11 +219,11 @@
   .hero {
     --hero-content-padding-top: 260px;   /* большой отступ сверху — заголовок внизу */
     --hero-content-padding-x: 48px;
-    --hero-content-padding-bottom: 96px;
+    --hero-content-padding-bottom: 120px;
     --hero-title-size: 6.3rem;
 
-    --card-offset-y: -28px;
-    --card-image-width: 250px;
+    --card-offset-y: 16px;
+    --card-image-width: 210px;
     --card-button-padding-y: 15px;
     --card-button-padding-x: 26px;
     --card-button-font-size: 12px;
@@ -241,8 +243,8 @@
   .hero {
     --hero-title-size: 9rem;
 
-    --card-offset-y: -56px;
-    --card-image-width: 290px;
+    --card-offset-y: 16px;
+    --card-image-width: 250px;
     --card-button-padding-y: 17px;
     --card-button-padding-x: 32px;
     --card-button-font-size: 13px;
@@ -406,16 +408,12 @@
 .cardImageWrap {
   display: block;
   width: var(--card-image-width);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
 }
 
 .cardImage {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
+  height: auto;
 }
 
 .btn {
