@@ -20,11 +20,15 @@
 ### Локальная машина
 - Python 3.8+
 - Ansible 2.14+
+- **JDK 21** (для локальной сборки backend через `./gradlew bootJar`).
+  Сборка происходит на dev-машине, на VPS улетает уже готовый `.jar` —
+  это экономит ~10 минут деплоя и не упирается в RAM сервера.
+- Node.js + npm — для сборки frontend (`npm run build`)
 - SSH-ключ для доступа к VPS
 
 ### VPS
 - Ubuntu 22.04 / 24.04
-- Минимум 2 GB RAM, 20 GB диск
+- Минимум 1 GB RAM, 20 GB диск (раньше нужно было 2 GB из-за on-server Gradle)
 - Открытые порты: 22 (SSH), 80 (HTTP), 443 (HTTPS)
 
 ### Домен
@@ -221,12 +225,13 @@ ansible-playbook deploy.yml --ask-vault-pass
 
 Этот плейбук **не трогает** Docker-установку, Nginx и сертификаты — только:
 
-1. Синхронизирует исходники на VPS по rsync
-2. Пересобирает frontend (`npm run build`)
-3. Пересобирает Docker-образ backend и перезапускает контейнеры
-4. Перезагружает Nginx
+1. **Локально** собирает backend (`./gradlew bootJar`) — нужен JDK 21 на dev-машине
+2. Заливает на VPS `backend/Dockerfile` + `backend/build/libs/*.jar` + папку миграций
+3. Синхронизирует frontend на VPS и пересобирает (`npm run build`)
+4. Пересобирает Docker-образ backend (runtime-only, без Gradle) и перезапускает контейнеры
+5. Перезагружает Nginx
 
-Время выполнения: ~2–4 минуты.
+Время выполнения: ~2–4 минуты (раньше было 10–15 из-за Gradle на VPS).
 
 ---
 

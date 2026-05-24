@@ -1,15 +1,72 @@
 ---
-# ── 1. Синхронизация исходников ──────────────────────────────────────────────
+# ── 1. Сборка backend локально (jar, не на VPS — экономит 10+ мин и RAM) ─────
 
-- name: Синхронизировать backend на VPS
+- name: Собрать backend (./gradlew bootJar) на локальной машине
+  delegate_to: localhost
+  become: no
+  command: ./gradlew bootJar --no-daemon
+  args:
+    chdir: "{{ playbook_dir }}/../backend"
+  changed_when: true
+
+- name: Найти собранный jar
+  delegate_to: localhost
+  become: no
+  find:
+    paths: "{{ playbook_dir }}/../backend/build/libs"
+    patterns: "*.jar"
+    excludes: "*-plain.jar"
+  register: backend_jar
+
+- name: Проверить что jar найден
+  assert:
+    that: backend_jar.files | length > 0
+    fail_msg: "build/libs/*.jar не найден после bootJar. Запусти `./gradlew bootJar` вручную и проверь логи."
+
+# ── 2. Синхронизация backend (только Dockerfile + jar) ──────────────────────
+
+- name: Создать backend/build/libs на VPS
+  file:
+    path: "{{ app_dir }}/backend/build/libs"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Удалить старые jar на VPS (на случай если осталось от прошлой сборки)
+  shell: rm -f {{ app_dir }}/backend/build/libs/*.jar
+  changed_when: true
+
+- name: Скопировать Dockerfile на VPS
+  copy:
+    src: "{{ playbook_dir }}/../backend/Dockerfile"
+    dest: "{{ app_dir }}/backend/Dockerfile"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+
+- name: Скопировать собранный jar на VPS
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ app_dir }}/backend/build/libs/{{ item.path | basename }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+  loop: "{{ backend_jar.files }}"
+
+- name: Проверить наличие папки migrations на локалке
+  delegate_to: localhost
+  become: no
+  stat:
+    path: "{{ playbook_dir }}/../backend/migrations"
+  register: backend_migrations_present
+
+- name: Скопировать SQL-миграции на VPS (для ручного запуска при апдейте схемы)
   synchronize:
-    src: "{{ playbook_dir }}/../backend/"
-    dest: "{{ app_dir }}/backend/"
+    src: "{{ playbook_dir }}/../backend/migrations/"
+    dest: "{{ app_dir }}/backend/migrations/"
     delete: yes
-    rsync_opts:
-      - "--exclude=build/"
-      - "--exclude=.gradle/"
-      - "--exclude=*.class"
+  when: backend_migrations_present.stat.exists
 
 - name: Синхронизировать frontend на VPS
   synchronize:
