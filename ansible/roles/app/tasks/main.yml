@@ -45,6 +45,14 @@
     group: "{{ app_user }}"
     mode: "0644"
 
+- name: Скопировать .dockerignore на VPS
+  copy:
+    src: "{{ playbook_dir }}/../backend/.dockerignore"
+    dest: "{{ app_dir }}/backend/.dockerignore"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+
 - name: Скопировать собранный jar на VPS
   copy:
     src: "{{ item.path }}"
