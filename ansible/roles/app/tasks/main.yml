@@ -151,6 +151,10 @@
     state: present
     build: always
     pull: missing
+    # nocache: builds — на ~5 секунд дольше, зато buildkit не кэширует stale
+    # .dockerignore (видели на проде: подцеплял старую 93-байтную версию вместо
+    # свежей 368-байтной, build context становился пустым).
+    nocache: true
   become_user: "{{ app_user }}"
   notify: Reload nginx
 
