@@ -1,8 +1,21 @@
 .gradle
-build
 bin
 out
 .idea
 .vscode
 HELP.md
-src/test
+# Build is done on dev machine — only the runnable jar should reach Docker context.
+# Source and Gradle wrappers no longer participate in the image build.
+src
+gradle
+gradlew
+gradlew.bat
+build.gradle
+settings.gradle
+build/classes
+build/generated
+build/reports
+build/resources
+build/tmp
+build/distributions
+build/libs/*-plain.jar
