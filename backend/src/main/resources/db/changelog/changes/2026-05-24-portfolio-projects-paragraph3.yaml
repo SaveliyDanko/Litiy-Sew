@@ -1,0 +1,22 @@
+# Optional third paragraph in portfolio project card.
+
+databaseChangeLog:
+  - changeSet:
+      id: 2026-05-24-portfolio-projects-add-paragraph3
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - tableExists:
+                tableName: portfolio_projects
+            - not:
+                - columnExists:
+                    tableName: portfolio_projects
+                    columnName: paragraph3
+      changes:
+        - addColumn:
+            tableName: portfolio_projects
+            columns:
+              - column:
+                  name: paragraph3
+                  type: TEXT

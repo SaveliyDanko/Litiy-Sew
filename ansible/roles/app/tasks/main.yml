@@ -54,19 +54,9 @@
     mode: "0644"
   loop: "{{ backend_jar.files }}"
 
-- name: Проверить наличие папки migrations на локалке
-  delegate_to: localhost
-  become: no
-  stat:
-    path: "{{ playbook_dir }}/../backend/migrations"
-  register: backend_migrations_present
-
-- name: Скопировать SQL-миграции на VPS (для ручного запуска при апдейте схемы)
-  synchronize:
-    src: "{{ playbook_dir }}/../backend/migrations/"
-    dest: "{{ app_dir }}/backend/migrations/"
-    delete: yes
-  when: backend_migrations_present.stat.exists
+# Миграции лежат в classpath приложения (src/main/resources/db/changelog/),
+# их прогоняет Liquibase автоматически при старте бэкенда — никаких ручных
+# psql -f больше не нужно.
 
 - name: Синхронизировать frontend на VPS
   synchronize:

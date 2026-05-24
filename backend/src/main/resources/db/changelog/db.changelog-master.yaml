@@ -1,0 +1,22 @@
+# Liquibase master changelog.
+#
+# Все DDL/DML миграции декларируются через changesets. Hibernate (ddl-auto: update)
+# по-прежнему создаёт новые таблицы из @Entity на чистом стенде — Liquibase
+# отвечает за реструктуризацию существующих таблиц, добавление NOT NULL колонок
+# с дефолтом, бэкфилл данных, индексы, constraints — всё, что Hibernate сам не умеет.
+#
+# Каждый changeset должен:
+#   * иметь уникальный id (используем YYYY-MM-DD-<slug>)
+#   * иметь preConditions с onFail=MARK_RAN — это делает changeset идемпотентным
+#     и на чистом стенде (где Hibernate уже добавил всё нужное из entity), и на
+#     проде (где колонки могли быть добавлены вручную через psql до Liquibase).
+#
+# Новые миграции добавляются как include в конец списка.
+
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/2026-05-23-collection-photos-responsive-crop.yaml
+  - include:
+      file: db/changelog/changes/2026-05-23-collections-hide-detail.yaml
+  - include:
+      file: db/changelog/changes/2026-05-24-portfolio-projects-paragraph3.yaml

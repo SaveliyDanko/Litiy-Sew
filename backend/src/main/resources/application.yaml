@@ -16,6 +16,10 @@ spring:
       hibernate:
         format_sql: ${JPA_SHOW_SQL:false}
 
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}

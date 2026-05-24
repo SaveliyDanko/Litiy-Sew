@@ -1,0 +1,25 @@
+# Flag to hide the DETAIL block on a collection page (admin toggle).
+# When TRUE, all gallery photos go straight into the mosaic after Hero.
+
+databaseChangeLog:
+  - changeSet:
+      id: 2026-05-23-collections-add-hide-detail
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - tableExists:
+                tableName: dynamic_collections
+            - not:
+                - columnExists:
+                    tableName: dynamic_collections
+                    columnName: hide_detail
+      changes:
+        - addColumn:
+            tableName: dynamic_collections
+            columns:
+              - column:
+                  name: hide_detail
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints: { nullable: false }

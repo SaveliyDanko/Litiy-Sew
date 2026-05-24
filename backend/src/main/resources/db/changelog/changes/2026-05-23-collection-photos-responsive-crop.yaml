@@ -1,0 +1,80 @@
+# Per-breakpoint photo crop for collection photos: 6 new columns (positionX/Y/scale
+# × mobile/tablet) + backfill from existing desktop values.
+#
+# Legacy desktop columns are named without underscores (positionx, positiony) —
+# the original entity had no explicit @Column(name=…) so Hibernate's default
+# naming strategy lowercased the camelCase fields without inserting underscores.
+# New columns DO use explicit snake_case names. The backfill reads the legacy
+# names and writes the new names — intentional mismatch, don't "fix" the legacy.
+
+databaseChangeLog:
+  - changeSet:
+      id: 2026-05-23-collection-photos-add-mobile-tablet-crop
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - tableExists:
+                tableName: dynamic_collection_photos
+            - not:
+                - columnExists:
+                    tableName: dynamic_collection_photos
+                    columnName: position_x_mobile
+      changes:
+        - addColumn:
+            tableName: dynamic_collection_photos
+            columns:
+              - column:
+                  name: position_x_mobile
+                  type: INTEGER
+                  defaultValueNumeric: 50
+                  constraints: { nullable: false }
+              - column:
+                  name: position_y_mobile
+                  type: INTEGER
+                  defaultValueNumeric: 50
+                  constraints: { nullable: false }
+              - column:
+                  name: scale_mobile
+                  type: INTEGER
+                  defaultValueNumeric: 100
+                  constraints: { nullable: false }
+              - column:
+                  name: position_x_tablet
+                  type: INTEGER
+                  defaultValueNumeric: 50
+                  constraints: { nullable: false }
+              - column:
+                  name: position_y_tablet
+                  type: INTEGER
+                  defaultValueNumeric: 50
+                  constraints: { nullable: false }
+              - column:
+                  name: scale_tablet
+                  type: INTEGER
+                  defaultValueNumeric: 100
+                  constraints: { nullable: false }
+
+  - changeSet:
+      id: 2026-05-23-collection-photos-backfill-mobile-tablet-crop
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - columnExists:
+                tableName: dynamic_collection_photos
+                columnName: positionx
+            - columnExists:
+                tableName: dynamic_collection_photos
+                columnName: position_x_mobile
+      changes:
+        - sql:
+            splitStatements: true
+            stripComments: true
+            sql: |
+              UPDATE dynamic_collection_photos SET position_x_mobile = positionx WHERE position_x_mobile = 50 AND positionx <> 50;
+              UPDATE dynamic_collection_photos SET position_y_mobile = positiony WHERE position_y_mobile = 50 AND positiony <> 50;
+              UPDATE dynamic_collection_photos SET scale_mobile      = scale     WHERE scale_mobile      = 100 AND scale     <> 100;
+              UPDATE dynamic_collection_photos SET position_x_tablet = positionx WHERE position_x_tablet = 50 AND positionx <> 50;
+              UPDATE dynamic_collection_photos SET position_y_tablet = positiony WHERE position_y_tablet = 50 AND positiony <> 50;
+              UPDATE dynamic_collection_photos SET scale_tablet      = scale     WHERE scale_tablet      = 100 AND scale     <> 100;

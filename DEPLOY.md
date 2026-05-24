@@ -226,10 +226,14 @@ ansible-playbook deploy.yml --ask-vault-pass
 Этот плейбук **не трогает** Docker-установку, Nginx и сертификаты — только:
 
 1. **Локально** собирает backend (`./gradlew bootJar`) — нужен JDK 21 на dev-машине
-2. Заливает на VPS `backend/Dockerfile` + `backend/build/libs/*.jar` + папку миграций
+2. Заливает на VPS `backend/Dockerfile` + `backend/build/libs/*.jar`
 3. Синхронизирует frontend на VPS и пересобирает (`npm run build`)
 4. Пересобирает Docker-образ backend (runtime-only, без Gradle) и перезапускает контейнеры
 5. Перезагружает Nginx
+
+Миграции БД (Liquibase) прогоняются автоматически при старте backend-контейнера —
+никаких ручных `psql -f` или ALTER TABLE больше не нужно. Changelog лежит в
+`backend/src/main/resources/db/changelog/` и попадает в jar.
 
 Время выполнения: ~2–4 минуты (раньше было 10–15 из-за Gradle на VPS).
 
