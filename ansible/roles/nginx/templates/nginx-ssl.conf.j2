@@ -16,6 +16,14 @@ server {
     root {{ app_dir }}/frontend/dist;
     index index.html;
 
+    # index.html — не кешировать. После деплоя браузеры должны сразу получить
+    # новые ссылки на хешированные JS/CSS, иначе будут грузить старые ассеты.
+    location = /index.html {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        expires 0;
+    }
+
     # Frontend — SPA fallback
     location / {
         try_files $uri $uri/ /index.html;
@@ -32,22 +40,38 @@ server {
         client_max_body_size 20m;
     }
 
-    # Локальные медиафайлы
+    # Локальные медиафайлы — иммутабельные (уникальный UUID на каждый файл).
     location ^~ /media/ {
         alias {{ uploads_dir }}/;
         expires 1y;
-        add_header Cache-Control "public, immutable";
+        add_header Cache-Control "public, immutable, max-age=31536000";
         add_header X-Content-Type-Options nosniff;
+        # Включаем sendfile для эффективной отдачи больших файлов.
+        sendfile on;
+        tcp_nopush on;
     }
 
     # Gzip
     gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        application/json
+        application/javascript
+        application/xml
+        application/xml+rss
+        image/svg+xml
+        font/ttf
+        font/otf
+        application/font-woff;
     gzip_min_length 1024;
 
-    # Кэш статики
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+    # Кэш собранной статики Vite (хешированные имена → можно кешировать вечно).
+    location ~* \.(js|css|webp|avif|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
-        add_header Cache-Control "public, immutable";
+        add_header Cache-Control "public, immutable, max-age=31536000";
     }
 }

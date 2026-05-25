@@ -11,4 +11,13 @@ COPY build/libs/*.jar /app/app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# JVM флаги:
+#   -XX:MaxRAMPercentage=70 — heap до 70% доступной RAM контейнера (на 2 GB VPS ≈ 1.4 GB).
+#       Без этого JVM использует дефолт 25% и недогружает машину.
+#   -XX:+UseG1GC — современный low-latency GC, дефолт для Java 21, но фиксируем явно.
+#   -Xss512k — стек потока 512 KB вместо дефолтного 1 MB. Tomcat 200 потоков → экономия ~100 MB.
+#   -XX:+ExitOnOutOfMemoryError — при OOM контейнер падает и docker compose перезапускает,
+#       а не зависает в swap-аду.
+#   -Djava.security.egd=file:/dev/./urandom — быстрый source энтропии для SSL/secure random,
+#       иначе на старте Spring может ждать /dev/random (1–10 секунд на cold VPS).
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70", "-XX:+UseG1GC", "-Xss512k", "-XX:+ExitOnOutOfMemoryError", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app/app.jar"]

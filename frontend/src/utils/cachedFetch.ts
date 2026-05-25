@@ -34,6 +34,16 @@ export async function cachedFetch<T>(key: string, loader: () => Promise<T>, onUp
     set.add(onUpdate as Subscriber<unknown>);
   }
 
+  // /api/bootstrap pre-seeds public-content keys before React mounts. If a
+  // cached value is already present AND no fetch is in flight for this key,
+  // skip the loader entirely — this avoids the 5 redundant per-resource HTTP
+  // requests that bootstrap is meant to replace.
+  // (If you need explicit revalidation after a mutation, call invalidateCache.)
+  const cached = cache.get(key) as T | undefined;
+  if (cached !== undefined && !inflight.has(key)) {
+    return cached;
+  }
+
   // Deduplicate concurrent calls for the same key
   let p = inflight.get(key) as Promise<T> | undefined;
   if (!p) {
@@ -49,9 +59,23 @@ export async function cachedFetch<T>(key: string, loader: () => Promise<T>, onUp
   }
 
   // If we already have a cached value, resolve fast with it but keep `p` going
-  const cached = cache.get(key) as T | undefined;
   if (cached !== undefined) return cached;
   return p;
+}
+
+/**
+ * Pre-fill a cache entry without making a network request. Used by the
+ * /api/bootstrap path: one HTTP round-trip seeds hero / collections / siteImages
+ * / siteTexts / portfolio at once, then per-page `cachedFetch` calls hit the
+ * warm cache and skip the network entirely until invalidation.
+ *
+ * Also fires any subscribers registered for the key so already-mounted
+ * components re-render with the fresh data.
+ */
+export function seedCache<T>(key: string, data: T): void {
+  cache.set(key, data);
+  const subs = subscribers.get(key);
+  if (subs) for (const fn of subs) (fn as Subscriber<T>)(data);
 }
 
 /** Test helper / admin invalidation hook. */

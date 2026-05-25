@@ -5,7 +5,8 @@ import Header from '../components/Header';
 import { fetchPortfolioPhotos, type PortfolioPhoto } from '../services/portfolio';
 import { fetchPortfolioProjects, type PortfolioProject, type ProjectPhoto } from '../services/portfolioProjects';
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
-import { fetchAllSiteTexts } from '../services/siteTexts';
+import { fetchAllSiteTexts, type SiteText } from '../services/siteTexts';
+import { cachedFetch, getCached } from '../utils/cachedFetch';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
 import { normalizeMediaSrcSet } from '../utils/mediaUrls';
 import { ABOUT_PAGE_DATA } from './aboutData';
@@ -163,9 +164,6 @@ function ActiveProjectDetail({
                     {a.kind === 'LINK' ? '↗' : '⬇'}
                   </span>
                   <span className={styles.portfolioAttachmentLabel}>{a.label || a.url}</span>
-                  {a.kind === 'FILE' && a.fileSize ? (
-                    <span className={styles.portfolioAttachmentSize}>{formatAttachmentSize(a.fileSize)}</span>
-                  ) : null}
                 </a>
               </li>
             ))}
@@ -176,33 +174,50 @@ function ActiveProjectDetail({
   );
 }
 
-function formatAttachmentSize(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 export default function AboutPage() {
-  const [projects, setProjects] = useState<PortfolioProject[]>([]);
-  const [projectsLoading, setProjectsLoading] = useState(true);
-  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
+  // Seed state from cache (populated by /api/bootstrap before mount) so first
+  // render is non-empty if user already visited the home page.
+  const [projects, setProjects] = useState<PortfolioProject[]>(
+    () => getCached<PortfolioProject[]>('portfolioProjects') ?? []
+  );
+  const [projectsLoading, setProjectsLoading] = useState(
+    () => getCached<PortfolioProject[]>('portfolioProjects') === undefined
+  );
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(() => {
+    const cached = getCached<PortfolioProject[]>('portfolioProjects');
+    return cached && cached.length > 0 ? cached[0].id : null;
+  });
   const detailRef = useRef<HTMLElement>(null);
-  const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
-  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(new Map());
-  const [siteTexts, setSiteTexts] = useState<Map<string, string>>(new Map());
+  const [photos, setPhotos] = useState<PortfolioPhoto[]>(
+    () => getCached<PortfolioPhoto[]>('portfolioPhotos') ?? []
+  );
+  const [siteImages, setSiteImages] = useState<Map<string, SiteImage>>(() => {
+    const cached = getCached<SiteImage[]>('siteImages');
+    return cached ? new Map(cached.map((img) => [img.slotKey, img])) : new Map();
+  });
+  const [siteTexts, setSiteTexts] = useState<Map<string, string>>(() => {
+    const cached = getCached<SiteText[]>('siteTexts');
+    return cached ? new Map(cached.map((t) => [t.slotKey, t.value])) : new Map();
+  });
 
   useEffect(() => {
-    fetchPortfolioPhotos().then(setPhotos).catch(() => {});
-    fetchAllSiteImages()
+    cachedFetch<PortfolioPhoto[]>('portfolioPhotos', fetchPortfolioPhotos, setPhotos)
+      .then(setPhotos).catch(() => {});
+    cachedFetch<SiteImage[]>('siteImages', fetchAllSiteImages,
+      (list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
       .then((list) => setSiteImages(new Map(list.map((img) => [img.slotKey, img]))))
       .catch(() => {});
-    fetchAllSiteTexts()
+    cachedFetch<SiteText[]>('siteTexts', fetchAllSiteTexts,
+      (list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .then((list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .catch(() => {});
-    fetchPortfolioProjects()
+    cachedFetch<PortfolioProject[]>('portfolioProjects', fetchPortfolioProjects, (list) => {
+      setProjects(list);
+      if (list.length > 0) setActiveProjectId((prev) => prev ?? list[0].id);
+    })
       .then((list) => {
         setProjects(list);
-        if (list.length > 0) setActiveProjectId(list[0].id);
+        if (list.length > 0) setActiveProjectId((prev) => prev ?? list[0].id);
       })
       .catch(() => {})
       .finally(() => setProjectsLoading(false));
