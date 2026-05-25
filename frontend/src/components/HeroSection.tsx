@@ -99,6 +99,38 @@ export default function HeroSection() {
       .catch(() => {});
   }, []);
 
+  // Preload hero image as soon as its URL is known. Adds <link rel="preload"> to <head>,
+  // browser starts download with high priority before React commits the <img>.
+  // Picks the variant matching the current viewport (mobile / tablet / desktop).
+  useEffect(() => {
+    if (!hero) return;
+    const mql = window.matchMedia('(max-width: 639px)');
+    const isTablet = window.matchMedia('(min-width: 640px) and (max-width: 1023px)').matches;
+    const url = mql.matches
+      ? (hero.imageUrlMobile ?? hero.imageUrl)
+      : isTablet
+        ? (hero.imageUrlTablet ?? hero.imageUrl)
+        : hero.imageUrl;
+    const srcset = mql.matches
+      ? (hero.imageSrcSetMobile ?? hero.imageSrcSet)
+      : isTablet
+        ? (hero.imageSrcSetTablet ?? hero.imageSrcSet)
+        : hero.imageSrcSet;
+    if (!url) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = url;
+    if (srcset) {
+      link.setAttribute('imagesrcset', srcset);
+      link.setAttribute('imagesizes', '100vw');
+    }
+    link.fetchPriority = 'high';
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [hero]);
+
   function imgUrl(slotKey: string) {
     return siteImages.get(slotKey)?.imageUrl ?? null;
   }
@@ -167,7 +199,17 @@ export default function HeroSection() {
             <span className={styles.srOnly}>Litiy Sew</span>
           </h1>
 
-          <a href={featured ? getCollectionHref(featured.slug) : '/collections'} className={styles.card}>
+          <a
+            href={featured ? getCollectionHref(featured.slug) : '/collections'}
+            className={styles.card}
+            style={(() => {
+              const si = siteImages.get('home-card-image');
+              return {
+                ...(si?.containerHeight ? { '--card-image-width-desktop': `${si.containerHeight}px` } : {}),
+                ...(si?.containerHeightMobile ? { '--card-image-width-mobile': `${si.containerHeightMobile}px` } : {}),
+              } as React.CSSProperties;
+            })()}
+          >
             {imgUrl('home-card-image') && (
               <div className={styles.cardImageWrap}>
                 <img

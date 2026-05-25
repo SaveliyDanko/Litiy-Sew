@@ -177,14 +177,19 @@ public class MediaService {
         return result;
     }
 
-    /** Strip directory separators and non-printable chars; cap to 200 chars; ensure non-empty. */
+    /** Strip directory separators and non-printable chars; cap to 200 chars; ensure non-empty.
+     *  Unicode-aware: keeps кириллицу, пробелы и другие нормальные символы; режет только то,
+     *  что реально опасно (path separators, control chars, spec-символы). */
     private String sanitizeFilename(String name) {
         if (name == null || name.isBlank()) return "file";
         String base = name.replace("\\", "/");
         int slash = base.lastIndexOf('/');
         if (slash >= 0) base = base.substring(slash + 1);
-        base = base.replaceAll("[\\p{Cntrl}]", "");
-        base = base.replaceAll("[^\\w.\\-]+", "_");
+        base = base.replaceAll("\\p{Cntrl}", "");
+        // (?U) — \w и \s Unicode-aware. Разрешаем буквы любого алфавита, цифры, '_',
+        // пробелы, точки, тире, скобки. Остальное (слэши, спецсимволы) → '_'.
+        base = base.replaceAll("(?U)[^\\w.\\- ()]+", "_");
+        base = base.trim();
         if (base.isBlank() || base.equals(".") || base.equals("..")) base = "file";
         if (base.length() > 200) base = base.substring(0, 200);
         return base;

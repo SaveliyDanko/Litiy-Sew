@@ -957,6 +957,10 @@ type SlotConfig = {
   mobile?: boolean;
   hasContainerHeight?: boolean;
   heightOnly?: boolean;
+  /** Show containerHeight/containerHeightMobile as "Ширина" instead of "Высота".
+   *  Used for slots where the admin actually controls width, not height
+   *  (e.g. hero card "Новая коллекция" — the field stores px-width, button stretches with it). */
+  widthLabels?: boolean;
 };
 
 function SiteImageSlot({ config, data, onUpdate }: {
@@ -1097,7 +1101,13 @@ function SiteImageSlot({ config, data, onUpdate }: {
             {/* Preview */}
             <div
               className={config.portrait ? styles.slotPreviewPortrait : config.mobile ? styles.slotPreviewMobile : styles.slotPreviewLandscape}
-              style={config.hasContainerHeight && containerHeight > 0 ? { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' } : undefined}
+              style={
+                config.hasContainerHeight && containerHeight > 0
+                  ? config.widthLabels
+                    ? { width: `${containerHeight}px`, height: 'auto', aspectRatio: 'unset' }
+                    : { height: `${containerHeight}px`, width: 'auto', aspectRatio: 'unset' }
+                  : undefined
+              }
             >
               {displayUrl ? (
                 <img
@@ -1138,14 +1148,14 @@ function SiteImageSlot({ config, data, onUpdate }: {
                 {config.hasContainerHeight && (
                   <>
                     <label className={styles.sliderField}>
-                      <span className={styles.sliderName}>Высота десктоп, px</span>
-                      <input type="range" min={200} max={800} value={containerHeight || 400} className={styles.slider}
+                      <span className={styles.sliderName}>{config.widthLabels ? 'Ширина десктоп, px' : 'Высота десктоп, px'}</span>
+                      <input type="range" min={config.widthLabels ? 120 : 200} max={config.widthLabels ? 600 : 800} value={containerHeight || (config.widthLabels ? 250 : 400)} className={styles.slider}
                         onChange={(e) => handlePositionChange('h', Number(e.target.value))} />
                       <span className={styles.sliderValue}>{containerHeight > 0 ? `${containerHeight}px` : 'авто'}</span>
                     </label>
                     <label className={styles.sliderField}>
-                      <span className={styles.sliderName}>Высота мобайл, px</span>
-                      <input type="range" min={100} max={800} value={containerHeightMobile || 300} className={styles.slider}
+                      <span className={styles.sliderName}>{config.widthLabels ? 'Ширина мобайл, px' : 'Высота мобайл, px'}</span>
+                      <input type="range" min={config.widthLabels ? 100 : 100} max={config.widthLabels ? 500 : 800} value={containerHeightMobile || (config.widthLabels ? 200 : 300)} className={styles.slider}
                         onChange={(e) => handlePositionChange('hm', Number(e.target.value))} />
                       <span className={styles.sliderValue}>{containerHeightMobile > 0 ? `${containerHeightMobile}px` : 'авто'}</span>
                     </label>
@@ -1185,8 +1195,10 @@ const HOME_SLOTS: SlotConfig[] = [
   {
     key: 'home-card-image',
     label: 'Карточка «Новая коллекция»',
-    hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе)',
+    hint: 'Фото рядом с кнопкой «НОВАЯ КОЛЛЕКЦИЯ» на главной странице (появляется на десктопе). Ширина карточки управляет и шириной кнопки.',
     portrait: true,
+    hasContainerHeight: true,
+    widthLabels: true,
   },
   {
     key: 'home-featured-media',

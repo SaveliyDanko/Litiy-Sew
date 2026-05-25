@@ -181,11 +181,6 @@
   .hero {
     --hero-min-height: 100svh;
 
-    /* Фон: зеркалим и слегка увеличиваем для эффекта */
-    --hero-bg-scale: 1.15;
-    --hero-bg-scale-x: -1;
-    --hero-overlay-color: rgb(130 130 130 / 60%);  /* затемнение для читаемости */
-
     --hero-content-padding-top: 40px;
     --hero-content-padding-x: 32px;
     --hero-content-padding-bottom: 80px;
@@ -407,10 +402,21 @@
   text-decoration: none;
 }
 
+
 .cardImageWrap {
   display: flex;
   justify-content: center;
-  width: var(--card-image-width);
+  /* width: fit-content + max-width: wrap сжимается до натуральной ширины фото,
+     если она меньше админского значения. Это даёт кнопке точно ширину видимого
+     фото (через align-self: stretch у .btn), а не пустой контейнер. */
+  width: fit-content;
+  max-width: var(--card-image-width-mobile, var(--card-image-width));
+}
+
+@media (min-width: 640px) {
+  .cardImageWrap {
+    max-width: var(--card-image-width-desktop, var(--card-image-width));
+  }
 }
 
 .cardImage {
@@ -421,14 +427,27 @@
   max-height: clamp(
     140px,
     calc(100svh - var(--hero-content-padding-top) - var(--hero-content-padding-bottom) - var(--hero-title-size) - var(--card-offset-y) - 96px),
-    calc(var(--card-image-width) * 1.25)
+    calc(var(--card-image-width-mobile, var(--card-image-width)) * 1.25)
   );
   transform: none !important;
 }
 
+@media (min-width: 640px) {
+  .cardImage {
+    max-height: clamp(
+      140px,
+      calc(100svh - var(--hero-content-padding-top) - var(--hero-content-padding-bottom) - var(--hero-title-size) - var(--card-offset-y) - 96px),
+      calc(var(--card-image-width-desktop, var(--card-image-width)) * 1.25)
+    );
+  }
+}
+
 .btn {
   display: block;
-  width: 100%;
+  /* align-self: stretch вместо width:100% — кнопка растягивается на ширину
+     .card, которая равна максимальной ширине ребёнка (.cardImageWrap).
+     При max-width у wrap'а это ширина видимого фото — кнопка не вылезает за фото. */
+  align-self: stretch;
   padding: var(--card-button-padding-y) var(--card-button-padding-x);
   background: var(--card-button-bg);
   color: var(--card-button-text-color);

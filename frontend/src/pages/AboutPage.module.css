@@ -3,6 +3,7 @@
   --about-page-bg: linear-gradient(180deg, #f5f0e9 0%, #ffffff 38%);
   --about-page-padding-bottom: 72px;
   --about-section-gap: 56px;
+  --about-portfolio-gap: 45px;
   --about-side-padding: 16px;
   --about-max-width: 1240px;
 
@@ -216,7 +217,7 @@
 .portfolio {
   display: grid;
   gap: 22px;
-  padding: var(--about-section-gap) var(--about-side-padding) 0;
+  padding: var(--about-portfolio-gap) var(--about-side-padding) 0;
 }
 
 .sectionHeading {
@@ -485,12 +486,6 @@
   min-width: 0;
 }
 
-.portfolioAttachmentSize {
-  font-size: 0.8rem;
-  color: #6f6457;
-  flex-shrink: 0;
-}
-
 /* ── Gallery (dynamic photos from admin) ────────────────────────────────── */
 
 .gallery {
@@ -543,6 +538,7 @@
   .page {
     --about-page-padding-bottom: 88px;
     --about-section-gap: 72px;
+    --about-portfolio-gap: 58px;
     --about-side-padding: 24px;
     --about-hero-height: calc(100svh - 44px);
     --about-hero-content-max-width: 680px;
@@ -617,6 +613,7 @@
   .page {
     --about-page-padding-bottom: 104px;
     --about-section-gap: 88px;
+    --about-portfolio-gap: 70px;
     --about-side-padding: 48px;
     --about-hero-title-size: 10rem;
     --about-story-gap: 96px;
