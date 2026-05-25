@@ -77,13 +77,43 @@
     - name: Обновить MEDIA_PUBLIC_URL во всех таблицах
       shell: |
         cat <<'PGSQL' | docker compose -f {{ app_dir }}/docker-compose.yml exec -T postgres psql -U {{ postgres_user }} {{ postgres_db }}
-        UPDATE products                  SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
-        UPDATE pattern_items             SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
-        UPDATE portfolio_photos          SET photo_url        = regexp_replace(photo_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE photo_url        ~ '^https?://';
-        UPDATE hero_banners              SET image_url        = regexp_replace(image_url,        '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url        ~ '^https?://';
-        UPDATE hero_banners              SET image_url_mobile = regexp_replace(image_url_mobile, '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url_mobile ~ '^https?://';
-        UPDATE site_images               SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
-        UPDATE dynamic_collection_photos SET image_url   = regexp_replace(image_url,   '^https?://[^/]+/media', '{{ media_public_url }}') WHERE image_url   ~ '^https?://';
+        CREATE OR REPLACE FUNCTION _rewrite_media_url(_table text, _column text, _base text)
+        RETURNS void AS $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = _table AND column_name = _column
+          ) THEN
+            EXECUTE format(
+              'UPDATE %I SET %I = regexp_replace(%I, %L, %L, %L) WHERE %I ~ %L',
+              _table, _column, _column, 'https?://[^ ,]+/media', _base, 'g', _column, 'https?://'
+            );
+          END IF;
+        END;
+        $$ LANGUAGE plpgsql;
+
+        SELECT _rewrite_media_url('products', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('products', 'image_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('pattern_items', 'preview_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('pattern_items', 'preview_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_photos', 'photo_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_photos', 'photo_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_url_mobile', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_src_set_mobile', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_url_tablet', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('hero_banners', 'image_src_set_tablet', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('site_images', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('site_images', 'image_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('dynamic_collection_photos', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('dynamic_collection_photos', 'image_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_project_photos', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_project_photos', 'image_src_set', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_projects', 'image_url', '{{ media_public_url }}');
+        SELECT _rewrite_media_url('portfolio_projects', 'image_src_set', '{{ media_public_url }}');
+
+        DROP FUNCTION _rewrite_media_url(text, text, text);
         PGSQL
       changed_when: true
 

@@ -1,3 +1,5 @@
+import { normalizeMediaFields } from '../utils/mediaUrls';
+
 export type DynamicCollectionPhoto = {
   id: number;
   collectionId: number;
@@ -114,7 +116,8 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
   }
-  return res.json() as Promise<T>;
+  const data = await res.json() as T;
+  return normalizeMediaFields(data);
 }
 
 // ── Public ────────────────────────────────────────────────────────────────────
@@ -122,14 +125,16 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
 export async function fetchCollections(): Promise<DynamicCollection[]> {
   const res = await fetch(`${API}/collections`);
   if (!res.ok) return [];
-  return res.json() as Promise<DynamicCollection[]>;
+  const data = await res.json() as DynamicCollection[];
+  return normalizeMediaFields(data);
 }
 
 export async function fetchCollection(slug: string): Promise<DynamicCollection | null> {
   const res = await fetch(`${API}/collections/${slug}`);
   if (res.status === 404) return null;
   if (!res.ok) return null;
-  return res.json() as Promise<DynamicCollection>;
+  const data = await res.json() as DynamicCollection;
+  return normalizeMediaFields(data);
 }
 
 // ── Admin: collections ────────────────────────────────────────────────────────

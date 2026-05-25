@@ -1,5 +1,5 @@
 ---
-# ── 1. Сборка backend локально (jar, не на VPS — экономит 10+ мин и RAM) ─────
+# ── 1. Локальные сборки (не на VPS — экономит RAM на маленьких серверах) ─────
 
 - name: Собрать backend (./gradlew bootJar) на локальной машине
   delegate_to: localhost
@@ -22,6 +22,24 @@
   assert:
     that: backend_jar.files | length > 0
     fail_msg: "build/libs/*.jar не найден после bootJar. Запусти `./gradlew bootJar` вручную и проверь логи."
+
+- name: Установить зависимости frontend на локальной машине
+  delegate_to: localhost
+  become: no
+  command: npm ci
+  args:
+    chdir: "{{ playbook_dir }}/../frontend"
+  changed_when: true
+
+- name: Собрать frontend на локальной машине
+  delegate_to: localhost
+  become: no
+  command: npm run build
+  args:
+    chdir: "{{ playbook_dir }}/../frontend"
+  environment:
+    VITE_SHOP_ENABLED: "{{ vite_shop_enabled }}"
+  changed_when: true
 
 # ── 2. Синхронизация backend (только Dockerfile + jar) ──────────────────────
 
@@ -62,18 +80,24 @@
     mode: "0644"
   loop: "{{ backend_jar.files }}"
 
+- name: Создать frontend/dist на VPS
+  file:
+    path: "{{ app_dir }}/frontend/dist"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Синхронизировать собранный frontend dist на VPS
+  synchronize:
+    src: "{{ playbook_dir }}/../frontend/dist/"
+    dest: "{{ app_dir }}/frontend/dist/"
+    delete: yes
+  notify: Reload nginx
+
 # Миграции лежат в classpath приложения (src/main/resources/db/changelog/),
 # их прогоняет Liquibase автоматически при старте бэкенда — никаких ручных
 # psql -f больше не нужно.
-
-- name: Синхронизировать frontend на VPS
-  synchronize:
-    src: "{{ playbook_dir }}/../frontend/"
-    dest: "{{ app_dir }}/frontend/"
-    delete: yes
-    rsync_opts:
-      - "--exclude=node_modules/"
-      - "--exclude=dist/"
 
 - name: Синхронизировать docker-compose.prod.yml
   copy:
@@ -109,7 +133,19 @@
     state: directory
     owner: "{{ app_user }}"
     group: "www-data"
-    mode: "0750"
+    mode: "2750"
+
+- name: Дать Nginx доступ к существующим папкам uploads
+  command: find {{ uploads_dir }} -type d -exec chmod 2750 {} +
+  changed_when: true
+
+- name: Дать Nginx доступ к существующим файлам uploads
+  command: find {{ uploads_dir }} -type f -exec chmod 0640 {} +
+  changed_when: true
+
+- name: Назначить группу www-data для uploads
+  command: chgrp -R www-data {{ uploads_dir }}
+  changed_when: true
 
 - name: Добавить app_user в группу www-data (для записи Spring Boot)
   user:
@@ -117,31 +153,14 @@
     groups: www-data
     append: yes
 
-# ── 4. Сборка frontend ────────────────────────────────────────────────────────
+# ── 4. Запуск сервисов через Docker Compose ───────────────────────────────────
 
-- name: Установить Node.js (если отсутствует)
-  apt:
-    name:
-      - nodejs
-      - npm
-    state: present
-
-- name: Установить зависимости frontend
-  community.general.npm:
-    path: "{{ app_dir }}/frontend"
-    ci: yes
-  become_user: "{{ app_user }}"
-
-- name: Собрать frontend
-  command: npm run build
+- name: Пересобрать backend image без кеша
+  command: docker compose -f docker-compose.yml build --no-cache backend
   args:
-    chdir: "{{ app_dir }}/frontend"
-  environment:
-    VITE_SHOP_ENABLED: "{{ vite_shop_enabled }}"
+    chdir: "{{ app_dir }}"
   become_user: "{{ app_user }}"
-  notify: Reload nginx
-
-# ── 5. Запуск сервисов через Docker Compose ───────────────────────────────────
+  changed_when: true
 
 - name: Запустить (или пересобрать) backend через docker compose
   community.docker.docker_compose_v2:
@@ -149,12 +168,8 @@
     files:
       - docker-compose.yml
     state: present
-    build: always
+    build: never
     pull: missing
-    # nocache: builds — на ~5 секунд дольше, зато buildkit не кэширует stale
-    # .dockerignore (видели на проде: подцеплял старую 93-байтную версию вместо
-    # свежей 368-байтной, build context становился пустым).
-    nocache: true
   become_user: "{{ app_user }}"
   notify: Reload nginx
 
@@ -191,4 +206,3 @@
   become_user: "{{ app_user }}"
   no_log: true
   changed_when: true
-

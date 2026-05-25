@@ -41,7 +41,8 @@ npm run dev
 | PostgreSQL | localhost:5433 |
 | Redis | localhost:6379 |
 
-Vite автоматически проксирует `/api/*` → `http://localhost:8080` (настроено в `frontend/vite.config.ts`).
+Vite автоматически проксирует `/api/*` и `/media/*` → `http://localhost:8080`
+(настроено в `frontend/vite.config.ts`).
 
 ---
 
@@ -96,7 +97,13 @@ npm run lint             # ESLint
 
 Загруженные через админку фото хранятся на хосте в `/opt/litiy-sew/uploads/` и монтируются в контейнер как bind mount — файлы **не теряются** при пересборке. Путь задаётся переменной `MEDIA_UPLOAD_DIR` в `.env`.
 
-**Фото загруженные на проде остаются на проде.** `ansible-playbook deploy.yml` обновляет только код — БД и медиафайлы он не трогает. Это намеренно: данные накапливаются на VPS независимо от деплоев.
+На проде публичные URL лучше хранить как относительные `/media/...`
+(`MEDIA_PUBLIC_URL=/media`). Так фото не зависят от домена, протокола и
+локального `localhost`.
+
+**Фото загруженные на проде остаются на проде.** `ansible-playbook deploy.yml`
+обновляет код и может чинить права файлов, но не удаляет БД и медиафайлы.
+Это намеренно: данные накапливаются на VPS независимо от деплоев.
 
 Полная инструкция по переносу — в следующем разделе.
 
@@ -109,10 +116,11 @@ npm run lint             # ESLint
 | Часть | Где лежит | Обновляется при деплое | Как переносить |
 |---|---|---|---|
 | **Код** | git-репозиторий | ✅ автоматически (`deploy.yml`) | `git push` / `git pull` |
-| **Медиафайлы** | `/opt/litiy-sew/uploads/` на хосте VPS | ❌ не трогается | `rsync` или `tar + scp` |
+| **Медиафайлы** | `/opt/litiy-sew/uploads/` на хосте VPS | ❌ содержимое не трогается, ✅ права чинятся | `rsync` или `tar + scp` |
 | **БД** | PostgreSQL на VPS | ❌ не трогается | `pg_dump` / `psql` |
 
-> Медиафайлы и БД живут только на VPS. `deploy.yml` их не трогает — поэтому фото загруженные через админку на проде никуда не пропадают после деплоя.
+> Медиафайлы и БД живут только на VPS. `deploy.yml` не удаляет их содержимое —
+> поэтому фото загруженные через админку на проде никуда не пропадают после деплоя.
 
 ### 1. Экспорт (на исходном сервере)
 
@@ -146,8 +154,27 @@ tar -xzf uploads.tar.gz -C /opt/litiy-sew/
 docker compose exec -T postgres psql -U postgres litiy_sew < backup.sql
 ```
 
-> **Важно:** `MEDIA_PUBLIC_URL` в `.env` должен совпадать с доменом в URL-ах, хранящихся в БД. При смене домена обновить `image_url` во всех таблицах:
-> `products`, `pattern_items`, `portfolio_photos`, `hero_banners`, `site_images`, `dynamic_collection_photos`.
+Для новых загрузок используется относительный публичный URL:
+
+```bash
+MEDIA_PUBLIC_URL=/media
+```
+
+Такой формат работает и локально через Vite proxy, и на проде через Nginx.
+Если переносишь старую БД со ссылками `http://localhost:8080/media/...` или
+со старым доменом, `restore.yml`/`migrate.yml` переписывают URL и `srcset`
+на `media_public_url` из `ansible/group_vars/vps/vars.yml`.
+
+Если после переноса фото отдают `403`, проверь права:
+
+```bash
+sudo chgrp -R www-data /opt/litiy-sew/uploads
+sudo find /opt/litiy-sew/uploads -type d -exec chmod 2750 {} +
+sudo find /opt/litiy-sew/uploads -type f -exec chmod 0640 {} +
+```
+
+Это даёт Nginx (`www-data`) доступ к чтению, а setgid на папках сохраняет
+группу `www-data` для новых загрузок.
 
 ---
 

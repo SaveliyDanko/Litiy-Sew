@@ -9,13 +9,13 @@ import styles from './CollectionPlaceholderPage.module.css';
 
 export default function CollectionPlaceholderPage() {
   const slug = window.location.pathname.replace('/collections/', '').replace(/\/+$/, '');
-  const [collection, setCollection] = useState<DynamicCollection | null | undefined>(undefined);
+  const [collection, setCollection] = useState<DynamicCollection | null | undefined>(() => slug ? undefined : null);
   const mosaicCols = useMemo(() => (window.innerWidth < 640 ? 2 : 3), []);
   const [heroAspect, setHeroAspect] = useState<string | undefined>(undefined);
   const heroImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (!slug) { setCollection(null); return; }
+    if (!slug) return;
     fetchCollection(slug)
       .then(setCollection)
       .catch(() => setCollection(null));

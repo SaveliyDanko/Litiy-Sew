@@ -16,11 +16,9 @@ function cardPhoto(c: DynamicCollection) {
 
 function CollectionCard({
   collection,
-  globalIndex: _globalIndex,
   onLightbox,
 }: {
   collection: DynamicCollection;
-  globalIndex: number;
   onLightbox?: (c: DynamicCollection) => void;
 }) {
   const photo = cardPhoto(collection);
@@ -87,10 +85,9 @@ function CollectionCard({
   );
 }
 
-function CollectionGroup({ title, collections, allCollections, onLightbox }: {
+function CollectionGroup({ title, collections, onLightbox }: {
   title: string;
   collections: DynamicCollection[];
-  allCollections: DynamicCollection[];
   onLightbox?: (c: DynamicCollection) => void;
 }) {
   if (collections.length === 0) return null;
@@ -106,7 +103,6 @@ function CollectionGroup({ title, collections, allCollections, onLightbox }: {
           <CollectionCard
             key={c.slug}
             collection={c}
-            globalIndex={allCollections.indexOf(c)}
             onLightbox={onLightbox}
           />
         ))}
@@ -202,14 +198,13 @@ export default function CollectionsPage() {
         )}
 
         {collectionList.length > 0 && (
-          <CollectionGroup title="Коллекции" collections={collectionList} allCollections={collections} />
+          <CollectionGroup title="Коллекции" collections={collectionList} />
         )}
 
-        <CollectionGroup title={soloList[0]?.groupTitle ?? 'Одиночные модели'} collections={soloList} allCollections={collections} />
+        <CollectionGroup title={soloList[0]?.groupTitle ?? 'Одиночные модели'} collections={soloList} />
         <CollectionGroup
           title={sketchList[0]?.groupTitle ?? 'Эскизные проекты'}
           collections={sketchList}
-          allCollections={collections}
           onLightbox={setLightboxOf}
         />
       </main>

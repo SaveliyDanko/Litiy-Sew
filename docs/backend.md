@@ -62,7 +62,8 @@ docker compose up -d postgres redis
 - CSRF отключён (SPA + сессионная кука с `SameSite=Lax` по умолчанию).
 - CORS: разрешены `http://localhost:5173` и `http://localhost:4173`, `allowCredentials=true` — фронт должен слать `fetch(..., { credentials: 'include' })`.
 - Пароли — `BCryptPasswordEncoder`. Коды подтверждения хранятся в Redis в виде BCrypt-хеша, проверка через `PasswordEncoder.matches`.
-- Публичные эндпоинты: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/login/verify`, `POST /api/auth/verify-email`, `POST /api/auth/resend-code`, `/api/media/**`.
+- Публичные эндпоинты: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/login/verify`, `POST /api/auth/verify-email`, `POST /api/auth/resend-code`, публичные GET-контент API и чтение медиа (`GET /media/**`, локально также `GET /api/media/**`).
+- Запись медиа (`POST /api/media/upload`, `DELETE /api/media`) доступна только `ADMIN`.
 - Остальные требуют авторизации, при 401 возвращается пустой ответ с `HttpStatusEntryPoint`.
 
 ## Аутентификация
@@ -268,10 +269,19 @@ curl -b cookies.txt -X POST http://localhost:8080/api/cart \
 
 | Метод | Путь | Авторизация | Описание |
 |---|---|---|---|
-| POST | `/api/media/upload` | публичный* | Загрузить файл. `multipart/form-data`, поле `file`. Возвращает `{ publicUrl, key }`. |
-| DELETE | `/api/media?key=...` | публичный* | Удалить файл по ключу. 204. |
+| POST | `/api/media/upload` | ADMIN | Загрузить файл. `multipart/form-data`, поле `file`. Возвращает `{ publicUrl, key, srcset }`. |
+| DELETE | `/api/media?key=...` | ADMIN | Удалить файл по ключу. 204. |
 
-*Технически открытые эндпоинты (SecurityConfig), на практике вызываются только из авторизованной AdminPage.
+На практике эндпоинты вызываются из авторизованной AdminPage.
+
+`MediaService` конвертирует изображения в WebP, сохраняет `original.webp` и
+responsive-варианты, а в ответе возвращает относительный `publicUrl` вида
+`/media/<uuid>/original.webp` и `srcset`.
+
+В production сами файлы `/media/**` отдаёт Nginx через alias на
+`/opt/litiy-sew/uploads`. Spring ResourceHandler нужен для локального режима
+и для Vite proxy. Если на проде `/media/...` отвечает `403`, это почти всегда
+права на `uploads`: Nginx должен иметь доступ через группу `www-data`.
 
 ---
 

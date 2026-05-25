@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { normalizeMediaSrcSet, normalizeMediaUrl } from '../utils/mediaUrls';
 import styles from './Lightbox.module.css';
 
 type Props = {
@@ -40,8 +41,8 @@ export default function Lightbox({ src, srcSet, alt, onClose }: Props) {
       </button>
       <img
         className={styles.image}
-        src={src}
-        srcSet={srcSet ?? undefined}
+        src={normalizeMediaUrl(src)}
+        srcSet={normalizeMediaSrcSet(srcSet) ?? undefined}
         alt={alt}
         onClick={(e) => e.stopPropagation()}
       />

@@ -6,8 +6,9 @@
 Браузер
   │  HTTPS (продакшн) / HTTP (локально)
   ▼
-Nginx                          — reverse proxy, раздаёт статику фронта и проксирует /api
+Nginx                          — reverse proxy, раздаёт статику фронта и медиа
   │  /api/** → http://backend:8080
+  │  /media/** → /opt/litiy-sew/uploads
   ▼
 Spring Boot (порт 8080)
   ├── REST Controllers          — принимают запросы, возвращают JSON
@@ -15,12 +16,11 @@ Spring Boot (порт 8080)
   ├── Repositories (Spring Data JPA)
   │     ├── PostgreSQL          — основное хранилище (пользователи, товары, коллекции…)
   │     └── Redis               — временные данные (коды подтверждения, login-challenge)
-  └── MediaService              — файлы → локальная папка /opt/litiy-sew/uploads
-          ▲
-          └── /media/**         — Spring отдаёт загруженные файлы как статику
+  └── MediaService              — сохраняет файлы в /opt/litiy-sew/uploads
 ```
 
-Локально бэкенд запускается напрямую (порт 8080), а фронтенд через Vite dev-server (порт 5173) с прокси `/api → localhost:8080`.
+Локально бэкенд запускается напрямую (порт 8080), а фронтенд через Vite dev-server
+(порт 5173) с прокси `/api` и `/media` → `localhost:8080`.
 
 ---
 
@@ -55,16 +55,29 @@ Spring Boot (порт 8080)
   ▼
 MediaController → MediaService
   │  сохраняет файл в MEDIA_UPLOAD_DIR (по умолчанию /opt/litiy-sew/uploads)
-  │  генерирует уникальное имя: uuid/originalname.ext
-  └→ { "publicUrl": "http://host/media/uuid/file.ext", "key": "uuid/file.ext" }
+  │  конвертирует в WebP и генерирует варианты 400/800/1280/1920
+  └→ { "publicUrl": "/media/uuid/original.webp", "key": "uuid/original.webp", "srcset": "..." }
 
 Браузер
-  │  GET /media/uuid/file.ext
+  │  GET /media/uuid/original.webp
   ▼
-Spring (ResourceHandler)  → отдаёт файл из MEDIA_UPLOAD_DIR
+Prod: Nginx alias /media/ → /opt/litiy-sew/uploads
+Dev: Vite proxy /media → Spring ResourceHandler
 ```
 
 `imageKey` / `photoKey` — это путь относительно `MEDIA_UPLOAD_DIR`. При удалении сущности сервис вызывает `mediaService.deleteFile(key)`, которая удаляет файл с диска.
+
+На VPS права `uploads` важны для Nginx:
+
+```text
+/opt/litiy-sew/uploads      litiy-sew:www-data 2750
+вложенные директории        litiy-sew:www-data 2750
+файлы                       litiy-sew:www-data 0640
+```
+
+Setgid-бит (`2` в `2750`) нужен, чтобы новые папки наследовали группу
+`www-data`. Если вложенные папки останутся `litiy-sew:litiy-sew` с `750`,
+Nginx вернёт `403` и в error.log будет `Permission denied`.
 
 ---
 

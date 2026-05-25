@@ -25,7 +25,7 @@ ansible/
     ├── common/           # apt update, UFW, системный пользователь litiy-sew
     ├── docker/           # Docker Engine + compose plugin
     ├── nginx/            # Nginx config + Certbot SSL
-    └── app/              # Заливка кода, npm build, docker compose up
+    └── app/              # Локальная сборка, заливка артефактов, docker compose up
 ```
 
 Миграции схемы БД лежат **в jar приложения** (`backend/src/main/resources/db/changelog/`)
@@ -45,7 +45,7 @@ ansible-galaxy collection install community.docker community.general
 
 - **JDK 21** — для `./gradlew bootJar` (ansible собирает backend jar локально
   и отправляет на VPS только готовый артефакт).
-- **Node.js + npm** — для сборки frontend.
+- **Node.js + npm** — для локальной сборки frontend.
 - **rsync** и **ssh-клиент** (обычно уже есть).
 
 VPS — Ubuntu 22.04 / 24.04, минимум 1 GB RAM, открытые 22 / 80 / 443.
@@ -98,7 +98,7 @@ ansible-playbook site.yml --ask-vault-pass
 1. `common` — apt update, UFW, создаёт пользователя `litiy-sew`.
 2. `docker` — ставит Docker Engine + compose plugin.
 3. `nginx` — HTTP-конфиг → Certbot SSL → HTTPS-конфиг с HTTP/2.
-4. `app` — собирает jar локально, заливает на VPS, поднимает контейнеры
+4. `app` — собирает jar и frontend локально, заливает артефакты на VPS, поднимает контейнеры
    (postgres, redis, backend) через docker compose.
 
 Время выполнения: ~5–10 минут.
@@ -117,11 +117,11 @@ ansible-playbook deploy.yml --ask-vault-pass
 | Что | `deploy.yml` делает |
 |---|---|
 | Backend код | ✅ собирает jar локально (`./gradlew bootJar`), копирует на VPS |
-| Frontend код | ✅ синхронизирует, пересобирает `npm run build` на VPS |
+| Frontend код | ✅ собирает локально (`npm ci`, `npm run build`), копирует `dist` на VPS |
 | Docker-образ backend | ✅ пересобирает (`--no-cache`, чтобы buildkit не цеплял протухший `.dockerignore`) |
 | Nginx config | ❌ не трогает (для этого `site.yml`) |
 | SSL-сертификаты | ❌ не трогает |
-| Медиа `/opt/litiy-sew/uploads/` | ❌ не трогает |
+| Медиа `/opt/litiy-sew/uploads/` | ❌ не удаляет файлы, ✅ чинит права для Nginx |
 | База PostgreSQL | ❌ не трогает данные; **Liquibase сам прогонит новые changesets при старте бэка** |
 
 Время выполнения: ~2–4 минуты.
@@ -187,6 +187,16 @@ ansible-playbook migrate.yml --ask-vault-pass
 проде запускать НЕ нужно — для нового кода используется `deploy.yml`.
 
 Оба автоматически переписывают URL картинок в БД (`localhost`/старый домен → `media_public_url` из vars.yml).
+
+После восстановления/переноса важно, чтобы Nginx мог читать вложенные папки:
+директории `uploads` должны быть `litiy-sew:www-data` с mode `2750`, файлы —
+`0640`. Роль `app` чинит это автоматически; вручную:
+
+```bash
+sudo chgrp -R www-data /opt/litiy-sew/uploads
+sudo find /opt/litiy-sew/uploads -type d -exec chmod 2750 {} +
+sudo find /opt/litiy-sew/uploads -type f -exec chmod 0640 {} +
+```
 
 ---
 
@@ -259,3 +269,9 @@ sudo -u litiy-sew docker compose -f /opt/litiy-sew/docker-compose.yml exec postg
 **Backend стартует, но 500 на API**
 → Смотри `docker logs litiy-sew-backend`. Часто это Liquibase нашёл конфликт
 (changeset уже выполнен с другим checksum). Проверь таблицу `databasechangelog`.
+
+**Фото не отображаются, `/media/...` возвращает 403**
+→ Проверь `/var/log/nginx/error.log`. Если там `Permission denied` на
+`/opt/litiy-sew/uploads/...`, значит Nginx (`www-data`) не может прочитать
+вложенные папки. Запусти `deploy.yml` или вручную восстанови права:
+`chgrp -R www-data`, директории `2750`, файлы `0640`.

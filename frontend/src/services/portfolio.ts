@@ -1,3 +1,5 @@
+import { normalizeMediaFields } from '../utils/mediaUrls';
+
 export type PortfolioPhoto = {
   id: number;
   photoUrl: string;
@@ -12,5 +14,6 @@ export type PortfolioPhoto = {
 export async function fetchPortfolioPhotos(): Promise<PortfolioPhoto[]> {
   const res = await fetch('/api/portfolio');
   if (!res.ok) return [];
-  return res.json() as Promise<PortfolioPhoto[]>;
+  const data = await res.json() as PortfolioPhoto[];
+  return normalizeMediaFields(data);
 }

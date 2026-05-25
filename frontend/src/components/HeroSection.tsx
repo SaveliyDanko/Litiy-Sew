@@ -6,6 +6,7 @@ import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { cachedFetch, getCached } from '../utils/cachedFetch';
 import { SHOP_ENABLED } from '../utils/featureFlags';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
+import { normalizeMediaFields } from '../utils/mediaUrls';
 import { responsivePhotoStyle } from '../utils/photoStyles';
 import ProductCard from './ProductCard';
 import styles from './HeroSection.module.css';
@@ -50,7 +51,7 @@ async function fetchHeroBanner(): Promise<HeroData> {
     scaleMobile?: number;
     scaleTablet?: number;
   };
-  return {
+  return normalizeMediaFields({
     imageUrl: data.imageUrl,
     imageSrcSet: data.imageSrcSet ?? null,
     imageUrlMobile: data.imageUrlMobile ?? null,
@@ -66,7 +67,7 @@ async function fetchHeroBanner(): Promise<HeroData> {
     scale: data.scale ?? 100,
     scaleMobile: data.scaleMobile ?? 100,
     scaleTablet: data.scaleTablet ?? 100,
-  };
+  });
 }
 
 function siteImagesToMap(list: SiteImage[]) {

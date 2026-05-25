@@ -65,4 +65,4 @@ app:
       resend-cooldown: 60s
   media:
     upload-dir: ${MEDIA_UPLOAD_DIR:/opt/litiy-sew/uploads}
-    public-url: ${MEDIA_PUBLIC_URL:http://localhost:8080/media}
+    public-url: ${MEDIA_PUBLIC_URL:/media}

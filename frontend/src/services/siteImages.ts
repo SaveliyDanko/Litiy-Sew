@@ -1,3 +1,5 @@
+import { normalizeMediaFields } from '../utils/mediaUrls';
+
 export type SiteImage = {
   id: number;
   slotKey: string;
@@ -14,13 +16,15 @@ export type SiteImage = {
 export async function fetchAllSiteImages(): Promise<SiteImage[]> {
   const res = await fetch('/api/site-images');
   if (!res.ok) return [];
-  return res.json() as Promise<SiteImage[]>;
+  const data = await res.json() as SiteImage[];
+  return normalizeMediaFields(data);
 }
 
 export async function fetchSiteImage(slotKey: string): Promise<SiteImage | null> {
   const res = await fetch(`/api/site-images/${slotKey}`);
   if (res.status === 204 || !res.ok) return null;
-  return res.json() as Promise<SiteImage>;
+  const result = await res.json() as SiteImage;
+  return normalizeMediaFields(result);
 }
 
 export async function upsertSiteImage(data: {
@@ -41,7 +45,8 @@ export async function upsertSiteImage(data: {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<SiteImage>;
+  const result = await res.json() as SiteImage;
+  return normalizeMediaFields(result);
 }
 
 export async function updateSiteImagePosition(
@@ -60,7 +65,8 @@ export async function updateSiteImagePosition(
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<SiteImage>;
+  const data = await res.json() as SiteImage;
+  return normalizeMediaFields(data);
 }
 
 export async function deleteSiteImage(slotKey: string): Promise<void> {

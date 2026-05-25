@@ -21,7 +21,7 @@ postgres_db: litiy_sew
 # postgres_password — в ansible/vault.yml (зашифровано)
 
 # --- Media ---
-media_public_url: "https://{{ domain }}/media"
+media_public_url: "/media"
 
 # --- Mail ---
 mail_host: smtp.gmail.com
