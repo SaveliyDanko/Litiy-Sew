@@ -7,6 +7,7 @@ import { fetchPortfolioProjects, type PortfolioProject, type ProjectPhoto } from
 import { fetchAllSiteImages, type SiteImage } from '../services/siteImages';
 import { fetchAllSiteTexts } from '../services/siteTexts';
 import { imgSrcSetProps } from '../utils/imgSrcSet';
+import { normalizeMediaSrcSet } from '../utils/mediaUrls';
 import { ABOUT_PAGE_DATA } from './aboutData';
 import styles from './AboutPage.module.css';
 
@@ -34,10 +35,6 @@ function ProjectPhotoSlider({ photos, coverPhoto, coverSrcSet, coverPosX, coverP
   const goTo = useCallback((next: number) => {
     setIdx(next);
   }, []);
-
-  useEffect(() => {
-    setIdx(0);
-  }, [photos, coverPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
@@ -134,6 +131,7 @@ function ActiveProjectDetail({
     >
       {hasMedia && (
         <ProjectPhotoSlider
+          key={project.id}
           photos={project.photos}
           coverPhoto={project.imageUrl}
           coverSrcSet={project.imageSrcSet}
@@ -150,9 +148,38 @@ function ActiveProjectDetail({
         {project.paragraph1 && <p className={styles.portfolioDetailText}>{project.paragraph1}</p>}
         {project.paragraph2 && <p className={styles.portfolioDetailText}>{project.paragraph2}</p>}
         {project.paragraph3 && <p className={styles.portfolioDetailText}>{project.paragraph3}</p>}
+        {project.attachmentsEnabled && project.attachments.length > 0 && (
+          <ul className={styles.portfolioAttachments}>
+            {project.attachments.map((a) => (
+              <li key={a.id}>
+                <a
+                  href={a.url}
+                  className={styles.portfolioAttachmentLink}
+                  {...(a.kind === 'LINK'
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : { target: '_blank', rel: 'noopener', download: a.label ?? undefined })}
+                >
+                  <span className={styles.portfolioAttachmentIcon} aria-hidden>
+                    {a.kind === 'LINK' ? '↗' : '⬇'}
+                  </span>
+                  <span className={styles.portfolioAttachmentLabel}>{a.label || a.url}</span>
+                  {a.kind === 'FILE' && a.fileSize ? (
+                    <span className={styles.portfolioAttachmentSize}>{formatAttachmentSize(a.fileSize)}</span>
+                  ) : null}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </article>
   );
+}
+
+function formatAttachmentSize(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function AboutPage() {
@@ -229,7 +256,7 @@ export default function AboutPage() {
             {siteImages.get('about-hero-mobile') && (
               <source
                 media="(max-width: 639px)"
-                srcSet={siteImages.get('about-hero-mobile')!.imageSrcSet ?? siteImages.get('about-hero-mobile')!.imageUrl}
+                srcSet={normalizeMediaSrcSet(siteImages.get('about-hero-mobile')!.imageSrcSet ?? siteImages.get('about-hero-mobile')!.imageUrl)}
                 sizes="100vw"
               />
             )}

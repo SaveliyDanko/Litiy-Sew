@@ -26,6 +26,16 @@ public class MediaController {
     }
 
     /**
+     * POST /api/media/upload-raw  (multipart/form-data, field "file")
+     * Admin-only (gated in SecurityConfig). Accepts any file type, stores as-is.
+     * Response: { "publicUrl": ..., "key": ..., "fileSize": ..., "contentType": ..., "originalName": ... }
+     */
+    @PostMapping("/upload-raw")
+    public ResponseEntity<Map<String, Object>> uploadRaw(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(mediaService.uploadRawFile(file));
+    }
+
+    /**
      * DELETE /api/media?key=uuid/filename.jpg
      */
     @DeleteMapping

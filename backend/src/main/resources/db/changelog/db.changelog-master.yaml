@@ -20,3 +20,5 @@ databaseChangeLog:
       file: db/changelog/changes/2026-05-23-collections-hide-detail.yaml
   - include:
       file: db/changelog/changes/2026-05-24-portfolio-projects-paragraph3.yaml
+  - include:
+      file: db/changelog/changes/2026-05-25-portfolio-attachments.yaml

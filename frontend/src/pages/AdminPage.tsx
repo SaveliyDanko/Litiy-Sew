@@ -32,6 +32,7 @@ import {
   updateAdminCredentials,
   updatePortfolioPhotoPosition,
   uploadFile,
+  uploadRawFile,
   type AdminHeroBanner,
   type AdminPatternItem,
   type AdminPortfolioPhoto,
@@ -39,15 +40,18 @@ import {
 } from '../services/admin';
 import {
   adminListPortfolioProjects,
+  addProjectAttachment,
   addProjectPhoto,
   createPortfolioProject,
   deletePortfolioProject,
+  deleteProjectAttachment,
   deleteProjectPhoto,
   reorderPortfolioProject,
   reorderProjectPhoto,
   updatePortfolioProject,
   updateProjectPhotoPosition,
   type PortfolioProject,
+  type ProjectAttachment,
   type ProjectPhoto,
 } from '../services/portfolioProjects';
 import {
@@ -1364,6 +1368,11 @@ function PortfolioProjectRow({
   const [paragraph1, setParagraph1] = useState(project.paragraph1 ?? '');
   const [paragraph2, setParagraph2] = useState(project.paragraph2 ?? '');
   const [paragraph3, setParagraph3] = useState(project.paragraph3 ?? '');
+  const [attachmentsEnabled, setAttachmentsEnabled] = useState(project.attachmentsEnabled ?? false);
+  const [newLinkLabel, setNewLinkLabel] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const attachmentFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setEyebrow(project.eyebrow ?? '');
@@ -1373,6 +1382,7 @@ function PortfolioProjectRow({
     setParagraph1(project.paragraph1 ?? '');
     setParagraph2(project.paragraph2 ?? '');
     setParagraph3(project.paragraph3 ?? '');
+    setAttachmentsEnabled(project.attachmentsEnabled ?? false);
   }, [project]);
 
   async function handleSaveText(e: React.FormEvent) {
@@ -1390,6 +1400,7 @@ function PortfolioProjectRow({
         imageUrl: project.imageUrl ?? undefined,
         imageKey: project.imageKey ?? undefined,
         imageSrcSet: project.imageSrcSet ?? undefined,
+        attachmentsEnabled,
       });
       onUpdate(updated);
       showToast('Сохранено');
@@ -1430,6 +1441,59 @@ function PortfolioProjectRow({
     updated[swapIdx] = { ...normalized[swapIdx], sortOrder: photoIdx };
     updated.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
     onUpdate({ ...project, photos: updated });
+  }
+
+  async function handleAddLink(e: React.FormEvent) {
+    e.preventDefault();
+    const url = newLinkUrl.trim();
+    if (!url) return;
+    try {
+      const created = await addProjectAttachment(project.id, {
+        kind: 'LINK',
+        label: newLinkLabel.trim() || undefined,
+        url,
+      });
+      onUpdate({ ...project, attachments: [...project.attachments, created] });
+      setNewLinkLabel('');
+      setNewLinkUrl('');
+      showToast('Ссылка добавлена');
+    } catch {
+      showToast('Ошибка добавления');
+    }
+  }
+
+  async function handleUploadAttachmentFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFile(true);
+    try {
+      const { publicUrl, key, fileSize, contentType, originalName } = await uploadRawFile(file);
+      const created = await addProjectAttachment(project.id, {
+        kind: 'FILE',
+        label: originalName,
+        url: publicUrl,
+        fileKey: key,
+        fileSize,
+        contentType: contentType ?? null,
+      });
+      onUpdate({ ...project, attachments: [...project.attachments, created] });
+      showToast('Файл добавлен');
+    } catch {
+      showToast('Ошибка загрузки');
+    } finally {
+      setUploadingFile(false);
+      if (attachmentFileRef.current) attachmentFileRef.current.value = '';
+    }
+  }
+
+  async function handleDeleteAttachment(id: number) {
+    try {
+      await deleteProjectAttachment(id);
+      onUpdate({ ...project, attachments: project.attachments.filter((a) => a.id !== id) });
+      showToast('Удалено');
+    } catch {
+      showToast('Ошибка удаления');
+    }
   }
 
   async function handleDelete() {
@@ -1542,10 +1606,115 @@ function PortfolioProjectRow({
               </label>
             </div>
           </div>
+
+          <div className={styles.projectImageSection}>
+            <label className={styles.field} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="checkbox"
+                checked={attachmentsEnabled}
+                onChange={(e) => setAttachmentsEnabled(e.target.checked)}
+              />
+              <span className={styles.label} style={{ textTransform: 'none', fontWeight: 500 }}>
+                Показывать блок с файлами и ссылками
+              </span>
+            </label>
+            <p className={styles.formHint}>
+              Не забудьте нажать «Сохранить текст» после изменения чекбокса.
+              Когда выключено — блок не отображается на сайте, даже если внутри есть вложения.
+            </p>
+
+            {attachmentsEnabled && (
+              <>
+                {project.attachments.length > 0 && (
+                  <div className={styles.dynPhotoList}>
+                    {project.attachments.map((a) => (
+                      <AttachmentAdminRow key={a.id} attachment={a} onDelete={handleDeleteAttachment} />
+                    ))}
+                  </div>
+                )}
+
+                <form className={styles.form} onSubmit={handleAddLink} style={{ marginTop: 8 }}>
+                  <label className={styles.field}>
+                    <span className={styles.label}>Подпись ссылки (необязательно)</span>
+                    <input
+                      className={styles.input}
+                      value={newLinkLabel}
+                      onChange={(e) => setNewLinkLabel(e.target.value)}
+                      placeholder="Behance"
+                    />
+                  </label>
+                  <label className={styles.field}>
+                    <span className={styles.label}>URL</span>
+                    <input
+                      className={styles.input}
+                      type="url"
+                      value={newLinkUrl}
+                      onChange={(e) => setNewLinkUrl(e.target.value)}
+                      placeholder="https://…"
+                    />
+                  </label>
+                  <button className={styles.submit} type="submit" disabled={!newLinkUrl.trim()}>
+                    Добавить ссылку
+                  </button>
+                </form>
+
+                <div className={styles.fileInputRow} style={{ marginTop: 8 }}>
+                  <label className={`${styles.fileBtn} ${uploadingFile ? styles.fileBtnDisabled : ''}`}>
+                    {uploadingFile ? 'Загрузка…' : '+ Загрузить файл'}
+                    <input
+                      ref={attachmentFileRef}
+                      type="file"
+                      className={styles.fileInputHidden}
+                      disabled={uploadingFile}
+                      onChange={handleUploadAttachmentFile}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
   );
+}
+
+function AttachmentAdminRow({
+  attachment,
+  onDelete,
+}: {
+  attachment: ProjectAttachment;
+  onDelete: (id: number) => void;
+}) {
+  const sizeLabel = attachment.fileSize ? formatBytes(attachment.fileSize) : null;
+  return (
+    <div className={styles.projectRowHeader}>
+      <div className={styles.projectRowInfo}>
+        <span className={styles.projectEyebrow}>{attachment.kind}</span>
+        <div>
+          <a href={attachment.url} target="_blank" rel="noopener noreferrer" className={styles.projectTitle}>
+            {attachment.label || attachment.url}
+          </a>
+          {sizeLabel && <span className={styles.projectEyebrow}> · {sizeLabel}</span>}
+        </div>
+      </div>
+      <div className={styles.projectRowActions}>
+        <button
+          className={styles.deleteBtn}
+          onClick={() => {
+            if (confirm('Удалить вложение?')) onDelete(attachment.id);
+          }}
+          aria-label="Удалить"
+        >×</button>
+      </div>
+    </div>
+  );
+}
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function PortfolioProjectsSection() {

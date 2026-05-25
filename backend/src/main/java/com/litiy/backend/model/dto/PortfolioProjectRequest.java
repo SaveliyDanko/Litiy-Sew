@@ -17,5 +17,6 @@ public record PortfolioProjectRequest(
         Integer positionX,
         Integer positionY,
         Integer scale,
-        Integer sortOrder
+        Integer sortOrder,
+        Boolean attachmentsEnabled
 ) {}

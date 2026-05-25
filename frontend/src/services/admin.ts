@@ -1,3 +1,5 @@
+import { normalizeMediaFields } from '../utils/mediaUrls';
+
 const API_BASE_URL = '/api';
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -14,7 +16,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
   }
-  return res.json() as Promise<T>;
+  const data = await res.json() as T;
+  return normalizeMediaFields(data);
 }
 
 // --- Types ---
@@ -100,7 +103,32 @@ export async function uploadFile(file: File): Promise<UploadResult> {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
   }
-  return res.json() as Promise<UploadResult>;
+  const data = await res.json() as UploadResult;
+  return normalizeMediaFields(data);
+}
+
+export type RawUploadResult = {
+  publicUrl: string;
+  key: string;
+  fileSize: number;
+  contentType: string | null;
+  originalName: string;
+};
+
+export async function uploadRawFile(file: File): Promise<RawUploadResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_BASE_URL}/media/upload-raw`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
+  }
+  const data = await res.json() as RawUploadResult;
+  return normalizeMediaFields(data);
 }
 
 // --- Products ---
@@ -197,7 +225,8 @@ export async function getHero(): Promise<AdminHeroBanner | null> {
   const res = await fetch(`${API_BASE_URL}/admin/hero`, { credentials: 'include' });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function replaceHero(data: { imageUrl: string; imageKey: string; imageSrcSet?: string | null; imageUrlMobile?: string; imageKeyMobile?: string; imageSrcSetMobile?: string | null; imageUrlTablet?: string; imageKeyTablet?: string; imageSrcSetTablet?: string | null; positionX?: number; positionY?: number; positionXMobile?: number; positionYMobile?: number; positionXTablet?: number; positionYTablet?: number; scale?: number; scaleMobile?: number; scaleTablet?: number }): Promise<AdminHeroBanner> {
@@ -216,7 +245,8 @@ export async function updateHeroPosition(positionX: number, positionY: number, p
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function replaceHeroMobile(imageUrl: string, imageKey: string, imageSrcSet?: string | null): Promise<AdminHeroBanner | null> {
@@ -228,7 +258,8 @@ export async function replaceHeroMobile(imageUrl: string, imageKey: string, imag
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function deleteHeroMobile(): Promise<AdminHeroBanner | null> {
@@ -238,7 +269,8 @@ export async function deleteHeroMobile(): Promise<AdminHeroBanner | null> {
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function replaceHeroTablet(imageUrl: string, imageKey: string, imageSrcSet?: string | null): Promise<AdminHeroBanner | null> {
@@ -250,7 +282,8 @@ export async function replaceHeroTablet(imageUrl: string, imageKey: string, imag
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function deleteHeroTablet(): Promise<AdminHeroBanner | null> {
@@ -260,7 +293,8 @@ export async function deleteHeroTablet(): Promise<AdminHeroBanner | null> {
   });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<AdminHeroBanner>;
+  const data = await res.json() as AdminHeroBanner;
+  return normalizeMediaFields(data);
 }
 
 export async function deleteHero(): Promise<void> {

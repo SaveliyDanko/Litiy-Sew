@@ -9,6 +9,8 @@ import com.litiy.backend.model.dto.PatternItemRequest;
 import com.litiy.backend.model.dto.PatternItemResponse;
 import com.litiy.backend.model.dto.PortfolioPhotoRequest;
 import com.litiy.backend.model.dto.PortfolioPhotoResponse;
+import com.litiy.backend.model.dto.PortfolioProjectAttachmentRequest;
+import com.litiy.backend.model.dto.PortfolioProjectAttachmentResponse;
 import com.litiy.backend.model.dto.PortfolioProjectPhotoResponse;
 import com.litiy.backend.model.dto.PortfolioProjectRequest;
 import com.litiy.backend.model.dto.PortfolioProjectResponse;
@@ -207,6 +209,28 @@ public class AdminController {
         int y = body.getOrDefault("positionY", 50);
         int scale = body.getOrDefault("scale", 100);
         return ResponseEntity.ok(portfolioProjectService.updatePhotoPosition(photoId, x, y, scale));
+    }
+
+    // Optional attachments (files & external links) for portfolio cards.
+
+    @PostMapping("/portfolio-projects/{id}/attachments")
+    public ResponseEntity<PortfolioProjectAttachmentResponse> addPortfolioProjectAttachment(
+            @PathVariable Long id,
+            @Valid @RequestBody PortfolioProjectAttachmentRequest req) {
+        return ResponseEntity.status(201).body(portfolioProjectService.addAttachment(id, req));
+    }
+
+    @DeleteMapping("/portfolio-projects/attachments/{attachmentId}")
+    public ResponseEntity<Void> deletePortfolioProjectAttachment(@PathVariable Long attachmentId) {
+        portfolioProjectService.deleteAttachment(attachmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/portfolio-projects/attachments/{attachmentId}/order")
+    public ResponseEntity<Void> reorderPortfolioProjectAttachment(@PathVariable Long attachmentId,
+                                                                   @RequestBody Map<String, Integer> body) {
+        portfolioProjectService.reorderAttachment(attachmentId, body.get("sortOrder"));
+        return ResponseEntity.noContent().build();
     }
 
     // --- Hero Banner ---

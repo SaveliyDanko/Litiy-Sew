@@ -1,3 +1,5 @@
+import { normalizeMediaFields } from '../utils/mediaUrls';
+
 const API = '/api';
 
 export type ProjectPhoto = {
@@ -9,6 +11,19 @@ export type ProjectPhoto = {
   positionX: number;
   positionY: number;
   scale: number;
+  sortOrder: number;
+  createdAt: string;
+};
+
+export type ProjectAttachment = {
+  id: number;
+  projectId: number;
+  kind: 'FILE' | 'LINK';
+  label: string | null;
+  url: string;
+  fileKey: string | null;
+  fileSize: number | null;
+  contentType: string | null;
   sortOrder: number;
   createdAt: string;
 };
@@ -29,8 +44,10 @@ export type PortfolioProject = {
   positionY: number;
   scale: number;
   sortOrder: number;
+  attachmentsEnabled: boolean;
   createdAt: string;
   photos: ProjectPhoto[];
+  attachments: ProjectAttachment[];
 };
 
 export type PortfolioProjectData = {
@@ -48,6 +65,16 @@ export type PortfolioProjectData = {
   positionY?: number;
   scale?: number;
   sortOrder?: number;
+  attachmentsEnabled?: boolean;
+};
+
+export type AttachmentData = {
+  kind: 'FILE' | 'LINK';
+  label?: string;
+  url: string;
+  fileKey?: string | null;
+  fileSize?: number | null;
+  contentType?: string | null;
 };
 
 async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -61,13 +88,15 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
   }
-  return res.json() as Promise<T>;
+  const data = await res.json() as T;
+  return normalizeMediaFields(data);
 }
 
 export async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
   const res = await fetch(`${API}/portfolio-projects`);
   if (!res.ok) return [];
-  return res.json() as Promise<PortfolioProject[]>;
+  const data = await res.json() as PortfolioProject[];
+  return normalizeMediaFields(data);
 }
 
 export async function adminListPortfolioProjects(): Promise<PortfolioProject[]> {
@@ -128,5 +157,23 @@ export async function updateProjectPhotoPosition(photoId: number, positionX: num
   return adminRequest<ProjectPhoto>(`/admin/portfolio-projects/photos/${photoId}/position`, {
     method: 'PATCH',
     body: JSON.stringify({ positionX, positionY, scale }),
+  });
+}
+
+export async function addProjectAttachment(projectId: number, data: AttachmentData): Promise<ProjectAttachment> {
+  return adminRequest<ProjectAttachment>(`/admin/portfolio-projects/${projectId}/attachments`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteProjectAttachment(attachmentId: number): Promise<void> {
+  return adminRequest<void>(`/admin/portfolio-projects/attachments/${attachmentId}`, { method: 'DELETE' });
+}
+
+export async function reorderProjectAttachment(attachmentId: number, sortOrder: number): Promise<void> {
+  return adminRequest<void>(`/admin/portfolio-projects/attachments/${attachmentId}/order`, {
+    method: 'PATCH',
+    body: JSON.stringify({ sortOrder }),
   });
 }

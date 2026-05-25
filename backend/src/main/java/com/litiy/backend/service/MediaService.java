@@ -83,7 +83,8 @@ public class MediaService {
         }
 
         String fullKey = baseKey + "/" + fullName;
-        String fullUrl = publicUrl + "/" + fullKey;
+        String mediaBaseUrl = normalizedPublicUrl();
+        String fullUrl = mediaBaseUrl + "/" + fullKey;
 
         // resized variants
         Map<Integer, String> variants = new LinkedHashMap<>();
@@ -101,7 +102,7 @@ public class MediaService {
                 deleteDir(dir);
                 throw e;
             }
-            variants.put(w, publicUrl + "/" + baseKey + "/" + variantName);
+            variants.put(w, mediaBaseUrl + "/" + baseKey + "/" + variantName);
         }
 
         // build srcset string: "url 400w, url 800w, ..."
@@ -120,6 +121,11 @@ public class MediaService {
         return result;
     }
 
+    private String normalizedPublicUrl() {
+        if (publicUrl == null || publicUrl.isBlank()) return "/media";
+        return publicUrl.replaceAll("/+$", "");
+    }
+
     private void writeWebP(BufferedImage image, Path target, int targetWidth) throws IOException {
         try (OutputStream out = Files.newOutputStream(target)) {
             Thumbnails.Builder<BufferedImage> b = Thumbnails.of(image);
@@ -132,6 +138,56 @@ public class MediaService {
              .outputQuality(WEBP_QUALITY)
              .toOutputStream(out);
         }
+    }
+
+    /**
+     * Uploads an arbitrary file as-is (no image processing, no whitelist).
+     * For portfolio attachments — any file type.
+     *
+     * @return map with keys "publicUrl", "key", "fileSize", "contentType", "originalName".
+     */
+    public Map<String, Object> uploadRawFile(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Файл пустой");
+        }
+
+        String safeName = sanitizeFilename(file.getOriginalFilename());
+        String baseKey = UUID.randomUUID().toString();
+        Path dir = Paths.get(uploadDir).resolve(baseKey);
+        Files.createDirectories(dir);
+
+        Path target = dir.resolve(safeName);
+        try {
+            file.transferTo(target);
+        } catch (IOException e) {
+            deleteDir(dir);
+            throw e;
+        }
+
+        String key = baseKey + "/" + safeName;
+        String mediaBaseUrl = normalizedPublicUrl();
+        String publicUrlOut = mediaBaseUrl + "/" + key;
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("publicUrl", publicUrlOut);
+        result.put("key", key);
+        result.put("fileSize", file.getSize());
+        result.put("contentType", file.getContentType());
+        result.put("originalName", safeName);
+        return result;
+    }
+
+    /** Strip directory separators and non-printable chars; cap to 200 chars; ensure non-empty. */
+    private String sanitizeFilename(String name) {
+        if (name == null || name.isBlank()) return "file";
+        String base = name.replace("\\", "/");
+        int slash = base.lastIndexOf('/');
+        if (slash >= 0) base = base.substring(slash + 1);
+        base = base.replaceAll("[\\p{Cntrl}]", "");
+        base = base.replaceAll("[^\\w.\\-]+", "_");
+        if (base.isBlank() || base.equals(".") || base.equals("..")) base = "file";
+        if (base.length() > 200) base = base.substring(0, 200);
+        return base;
     }
 
     public void deleteFile(String key) {

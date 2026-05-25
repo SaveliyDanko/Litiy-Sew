@@ -73,6 +73,10 @@ public class PortfolioProject {
     @Builder.Default
     private Integer sortOrder = 0;
 
+    @Column(name = "attachments_enabled", nullable = false)
+    @Builder.Default
+    private Boolean attachmentsEnabled = false;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 }

@@ -1,0 +1,84 @@
+# Optional "files & links" block for portfolio project cards.
+# Adds attachments_enabled flag on portfolio_projects and a child table for
+# attachments (kind = FILE | LINK).
+
+databaseChangeLog:
+  - changeSet:
+      id: 2026-05-25-portfolio-projects-add-attachments-enabled
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - tableExists:
+                tableName: portfolio_projects
+            - not:
+                - columnExists:
+                    tableName: portfolio_projects
+                    columnName: attachments_enabled
+      changes:
+        - addColumn:
+            tableName: portfolio_projects
+            columns:
+              - column:
+                  name: attachments_enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints: { nullable: false }
+
+  - changeSet:
+      id: 2026-05-25-create-portfolio-project-attachments
+      author: savadanko
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: portfolio_project_attachments
+      changes:
+        - createTable:
+            tableName: portfolio_project_attachments
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: project_id
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: kind
+                  type: VARCHAR(16)
+                  constraints: { nullable: false }
+              - column:
+                  name: label
+                  type: VARCHAR(256)
+              - column:
+                  name: url
+                  type: VARCHAR(1024)
+                  constraints: { nullable: false }
+              - column:
+                  name: file_key
+                  type: VARCHAR(512)
+              - column:
+                  name: file_size
+                  type: BIGINT
+              - column:
+                  name: content_type
+                  type: VARCHAR(128)
+              - column:
+                  name: sort_order
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: NOW()
+                  constraints: { nullable: false }
+        - createIndex:
+            indexName: idx_portfolio_project_attachments_project_id
+            tableName: portfolio_project_attachments
+            columns:
+              - column:
+                  name: project_id
