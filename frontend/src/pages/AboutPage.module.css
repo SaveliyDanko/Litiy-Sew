@@ -548,7 +548,7 @@
     --about-portfolio-card-meta-size: 0.9rem;
     --about-portfolio-card-eyebrow-size: 11px;
     --about-side-padding: 24px;
-    --about-hero-height: 70svh;
+    --about-hero-height: calc(100svh - 44px);
     --about-hero-content-max-width: 680px;
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
@@ -591,7 +591,7 @@
 @media (min-width: 1024px) {
   .page {
     --about-side-padding: 40px;
-    --about-hero-height: 70svh;
+    --about-hero-height: calc(100svh - 71px);
     --about-hero-content-width: 58%;
     --about-hero-content-max-width: 760px;
     --about-hero-content-padding: 60px 100px 100px;

@@ -243,6 +243,11 @@
     --card-button-padding-y: 17px;
     --card-button-padding-x: 32px;
     --card-button-font-size: 13px;
+
+    /* Header + Hero вместе должны занимать 100% экрана. Header на 1280px
+       имеет высоту ~84px (padding 17px*2 + logo 50px). */
+    height: calc(100svh - 84px);
+    min-height: 0;
   }
 
   .featured {

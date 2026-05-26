@@ -166,7 +166,8 @@
 
 @media (min-width: 640px) {
   .header {
-    padding: 10px 32px;
+    /* -25% по высоте на планшете (10px → 7.5px). */
+    padding: 7.5px 32px;
   }
 
   .logo {
@@ -194,11 +195,12 @@
 
 @media (min-width: 1024px) {
   .header {
-    padding: 17px 48px;
+    /* -15% по высоте на 1024–1280 (13px → 11px, logo 37px → 31px). */
+    padding: 11px 48px;
   }
 
   .logo {
-    font-size: 37px;
+    font-size: 31px;
   }
 
   .nav {
@@ -207,6 +209,11 @@
 }
 
 @media (min-width: 1280px) {
+  .header {
+    /* На широких экранах возвращаем исходную высоту. */
+    padding: 17px 48px;
+  }
+
   .logo {
     font-size: 50px;
   }

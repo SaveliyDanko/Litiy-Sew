@@ -183,8 +183,15 @@ export default function AboutPage() {
   const [projectsLoading, setProjectsLoading] = useState(
     () => getCached<PortfolioProject[]>('portfolioProjects') === undefined
   );
-  // По умолчанию все карточки закрыты — раскрываются только по клику.
-  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
+  // На мобайле (<640px) все карточки закрыты по умолчанию,
+  // на планшете/десктопе — раскрыта первая.
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const isDesktop = window.matchMedia('(min-width: 640px)').matches;
+    if (!isDesktop) return null;
+    const cached = getCached<PortfolioProject[]>('portfolioProjects');
+    return cached && cached.length > 0 ? cached[0].id : null;
+  });
   const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>(
     () => getCached<PortfolioPhoto[]>('portfolioPhotos') ?? []
@@ -209,18 +216,25 @@ export default function AboutPage() {
       (list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .then((list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .catch(() => {});
-    cachedFetch<PortfolioProject[]>('portfolioProjects', fetchPortfolioProjects, setProjects)
-      .then(setProjects)
+    cachedFetch<PortfolioProject[]>('portfolioProjects', fetchPortfolioProjects, (list) => {
+      setProjects(list);
+      // На десктопе/планшете — открыть первую карточку,
+      // если пользователь ещё не выбрал другую. На мобайле всё закрыто.
+      if (list.length > 0 && window.matchMedia('(min-width: 640px)').matches) {
+        setActiveProjectId((prev) => prev ?? list[0].id);
+      }
+    })
+      .then((list) => {
+        setProjects(list);
+        if (list.length > 0 && window.matchMedia('(min-width: 640px)').matches) {
+          setActiveProjectId((prev) => prev ?? list[0].id);
+        }
+      })
       .catch(() => {})
       .finally(() => setProjectsLoading(false));
   }, []);
 
   const activePortfolio = projects.find((p) => p.id === activeProjectId) ?? null;
-
-  function imgUrl(slotKey: string, fallback: string) {
-    const si = siteImages.get(slotKey);
-    return si ? si.imageUrl : fallback;
-  }
 
   function imgStyle(slotKey: string): React.CSSProperties {
     const si = siteImages.get(slotKey);
@@ -259,22 +273,24 @@ export default function AboutPage() {
             } as React.CSSProperties;
           })()}
         >
-          <picture>
-            {siteImages.get('about-hero-mobile') && (
-              <source
-                media="(max-width: 639px)"
-                srcSet={normalizeMediaSrcSet(siteImages.get('about-hero-mobile')!.imageSrcSet ?? siteImages.get('about-hero-mobile')!.imageUrl)}
-                sizes="100vw"
+          {siteImages.get('about-hero') && (
+            <picture>
+              {siteImages.get('about-hero-mobile') && (
+                <source
+                  media="(max-width: 639px)"
+                  srcSet={normalizeMediaSrcSet(siteImages.get('about-hero-mobile')!.imageSrcSet ?? siteImages.get('about-hero-mobile')!.imageUrl)}
+                  sizes="100vw"
+                />
+              )}
+              <img
+                className={styles.heroImage}
+                src={siteImages.get('about-hero')!.imageUrl}
+                {...slotSrcSet('about-hero', '100vw')}
+                alt={ABOUT_PAGE_DATA.hero.imageAlt}
+                fetchPriority="high"
               />
-            )}
-            <img
-              className={styles.heroImage}
-              src={imgUrl('about-hero', ABOUT_PAGE_DATA.hero.imageUrl)}
-              {...slotSrcSet('about-hero', '100vw')}
-              alt={ABOUT_PAGE_DATA.hero.imageAlt}
-              fetchPriority="high"
-            />
-          </picture>
+            </picture>
+          )}
           <div className={styles.heroOverlay} />
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>{ABOUT_PAGE_DATA.hero.title}</h1>
@@ -282,16 +298,18 @@ export default function AboutPage() {
         </section>
 
         <section className={styles.story}>
-          <div className={styles.storyFigure}>
-            <img
-              className={styles.storyImage}
-              src={imgUrl('about-portrait', ABOUT_PAGE_DATA.story.imageUrl)}
-              {...slotSrcSet('about-portrait', '(min-width: 1024px) 40vw, 100vw')}
-              alt={ABOUT_PAGE_DATA.story.imageAlt}
-              loading="lazy"
-              style={imgStyle('about-portrait')}
-            />
-          </div>
+          {siteImages.get('about-portrait') && (
+            <div className={styles.storyFigure}>
+              <img
+                className={styles.storyImage}
+                src={siteImages.get('about-portrait')!.imageUrl}
+                {...slotSrcSet('about-portrait', '(min-width: 1024px) 40vw, 100vw')}
+                alt={ABOUT_PAGE_DATA.story.imageAlt}
+                loading="lazy"
+                style={imgStyle('about-portrait')}
+              />
+            </div>
+          )}
 
           <div className={styles.storyCopy}>
             {ABOUT_PAGE_DATA.story.paragraphs.map((fallback, i) => {
