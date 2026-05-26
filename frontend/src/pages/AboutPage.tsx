@@ -183,10 +183,8 @@ export default function AboutPage() {
   const [projectsLoading, setProjectsLoading] = useState(
     () => getCached<PortfolioProject[]>('portfolioProjects') === undefined
   );
-  const [activeProjectId, setActiveProjectId] = useState<number | null>(() => {
-    const cached = getCached<PortfolioProject[]>('portfolioProjects');
-    return cached && cached.length > 0 ? cached[0].id : null;
-  });
+  // По умолчанию все карточки закрыты — раскрываются только по клику.
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
   const detailRef = useRef<HTMLElement>(null);
   const [photos, setPhotos] = useState<PortfolioPhoto[]>(
     () => getCached<PortfolioPhoto[]>('portfolioPhotos') ?? []
@@ -211,14 +209,8 @@ export default function AboutPage() {
       (list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .then((list) => setSiteTexts(new Map(list.map((t) => [t.slotKey, t.value]))))
       .catch(() => {});
-    cachedFetch<PortfolioProject[]>('portfolioProjects', fetchPortfolioProjects, (list) => {
-      setProjects(list);
-      if (list.length > 0) setActiveProjectId((prev) => prev ?? list[0].id);
-    })
-      .then((list) => {
-        setProjects(list);
-        if (list.length > 0) setActiveProjectId((prev) => prev ?? list[0].id);
-      })
+    cachedFetch<PortfolioProject[]>('portfolioProjects', fetchPortfolioProjects, setProjects)
+      .then(setProjects)
       .catch(() => {})
       .finally(() => setProjectsLoading(false));
   }, []);

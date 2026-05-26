@@ -8,7 +8,7 @@
   --about-max-width: 1240px;
 
   /* Hero: на мобайле хедер ~56px (padding 14px*2 + logo 28px) */
-  --about-hero-height: calc(100svh - 56px);
+  --about-hero-height: 70svh;
 
   /* Настройка hero-изображения:
      1) `position-x/y` меняют точку кадрирования.
@@ -79,8 +79,11 @@
   --about-portfolio-card-min-height: 168px;
   --about-portfolio-card-padding: 20px;
   --about-portfolio-card-radius: 24px;
-  --about-portfolio-card-title-size: 1.5rem;
-  --about-portfolio-card-meta-size: 0.9rem;
+  /* Мобайл — на 15% меньше прежних значений (title 1.5 → 1.275, meta 0.9 → 0.765).
+     На планшетах и шире возвращаем дефолт через @media. */
+  --about-portfolio-card-title-size: 1.275rem;
+  --about-portfolio-card-meta-size: 0.765rem;
+  --about-portfolio-card-eyebrow-size: 9.35px;
   --about-portfolio-detail-padding: 16px;
   --about-portfolio-detail-radius: 30px;
   --about-portfolio-preview-radius: 22px;
@@ -293,7 +296,7 @@
 }
 
 .portfolioCardEyebrow {
-  font-size: 11px;
+  font-size: var(--about-portfolio-card-eyebrow-size);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -539,8 +542,13 @@
     --about-page-padding-bottom: 88px;
     --about-section-gap: 72px;
     --about-portfolio-gap: 58px;
+    /* Возвращаем размеры шрифта карточек портфолио к дефолту
+       (на мобайле выше явно занижено на 15%). */
+    --about-portfolio-card-title-size: 1.5rem;
+    --about-portfolio-card-meta-size: 0.9rem;
+    --about-portfolio-card-eyebrow-size: 11px;
     --about-side-padding: 24px;
-    --about-hero-height: calc(100svh - 44px);
+    --about-hero-height: 70svh;
     --about-hero-content-max-width: 680px;
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
@@ -583,7 +591,7 @@
 @media (min-width: 1024px) {
   .page {
     --about-side-padding: 40px;
-    --about-hero-height: calc(100svh - 71px);
+    --about-hero-height: 70svh;
     --about-hero-content-width: 58%;
     --about-hero-content-max-width: 760px;
     --about-hero-content-padding: 60px 100px 100px;
