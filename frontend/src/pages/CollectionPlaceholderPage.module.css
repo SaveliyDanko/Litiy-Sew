@@ -25,7 +25,7 @@
 
   /* Размер заголовка коллекции поверх баннера.
      clamp(мин, адаптив, макс) — автоматически масштабируется. */
-  --hero-title-size: clamp(3rem, 10vw, 7rem);
+  --hero-title-size: clamp(2.1rem, 7vw, 4.9rem);
 
   /* Отступ заголовка от нижнего края баннера */
   --hero-title-bottom: 48px;
@@ -109,7 +109,7 @@
     /* Три колонки: фото узкие, текст широкий по центру */
     --detail-cols: 0.7fr 1.6fr 0.7fr;
     --detail-photo-radius: 24px;
-    --detail-text-size: 2.325rem;
+    --detail-text-size: 1.302rem;
 
     --mosaic-padding-h: 60px;
     --mosaic-padding-b: 100px;
@@ -126,7 +126,7 @@
     --detail-padding-h: 100px;
     --detail-gap: 48px;
     --detail-cols: 0.65fr 1.7fr 0.65fr;
-    --detail-text-size: 3.825rem;
+    --detail-text-size: 2.142rem;
 
     --mosaic-padding-h: 100px;
     --mosaic-padding-b: 120px;
@@ -141,7 +141,7 @@
     --mosaic-padding-h: 120px;
     --detail-gap: 56px;
     --detail-cols: 0.6fr 1.8fr 0.6fr;
-    --detail-text-size: 4.17rem;
+    --detail-text-size: 2.3352rem;
   }
 }
 

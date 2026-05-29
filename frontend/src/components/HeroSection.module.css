@@ -137,7 +137,7 @@
      ---------------------------------------------------------- */
 
   /* Горизонтальные отступы от краёв */
-  --featured-side-padding: 16px;
+  --featured-side-padding: 34.32px;
 
   /* Отступ между фото и текстом */
   --featured-gap: 20px;
@@ -205,7 +205,7 @@
     --featured-media-height: 273px;
     --featured-title-size: 4.2rem;
     --featured-subtitle-size: 1.1rem;
-    --featured-side-padding: 24px;
+    --featured-side-padding: 51.48px;
   }
 }
 
@@ -229,7 +229,7 @@
     --featured-media-height: 325px;
     --featured-title-size: 5.4rem;
     --featured-subtitle-size: 1.2rem;
-    --featured-side-padding: 40px;
+    --featured-side-padding: 85.8px;
   }
 }
 
@@ -244,16 +244,23 @@
     --card-button-padding-x: 32px;
     --card-button-font-size: 13px;
 
-    /* Header + Hero вместе должны занимать 100% экрана. Header на 1280px
-       имеет высоту ~84px (padding 17px*2 + logo 50px). */
-    height: calc(100svh - 84px);
+    /* Header + Hero вместе = 100% экрана. На 1280–1366 header ~53px
+       (padding 11.5px*2 + logo 30px). */
+    height: calc(100svh - 53px);
     min-height: 0;
   }
 
   .featured {
     --featured-media-height: 390px;
     --featured-title-size: 6.6rem;
-    --featured-side-padding: 56px;
+    --featured-side-padding: 120.12px;
+  }
+}
+
+/* На широких экранах (1366+) header возвращается к большой высоте ~84px. */
+@media (min-width: 1366px) {
+  .hero {
+    height: calc(100svh - 84px);
   }
 }
 
