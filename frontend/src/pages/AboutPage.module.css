@@ -548,7 +548,8 @@
     --about-portfolio-card-meta-size: 0.9rem;
     --about-portfolio-card-eyebrow-size: 11px;
     --about-side-padding: 24px;
-    --about-hero-height: calc(100svh - 44px);
+    /* Header на 640–1024 ~33px (padding 6.5px*2 + logo 20px). */
+    --about-hero-height: calc(100svh - 33px);
     --about-hero-content-max-width: 680px;
     --about-hero-content-padding: 36px 28px 40px;
     --about-hero-title-size: 5.75rem;
@@ -591,7 +592,8 @@
 @media (min-width: 1024px) {
   .page {
     --about-side-padding: 40px;
-    --about-hero-height: calc(100svh - 71px);
+    /* Header на 1024–1366 ~53px (padding 11.5px*2 + logo 30px). */
+    --about-hero-height: calc(100svh - 53px);
     --about-hero-content-width: 58%;
     --about-hero-content-max-width: 760px;
     --about-hero-content-padding: 60px 100px 100px;
@@ -623,6 +625,8 @@
     --about-section-gap: 88px;
     --about-portfolio-gap: 70px;
     --about-side-padding: 48px;
+    /* Header на 1280–1366 ~68px (padding 14px*2 + logo 40px). */
+    --about-hero-height: calc(100svh - 68px);
     --about-hero-title-size: 10rem;
     --about-story-gap: 96px;
     --about-story-media-width: min(44vw, 700px);
@@ -630,5 +634,12 @@
     --about-story-text-size: 1.8rem;
     --about-portfolio-card-min-height: 228px;
     --about-section-title-size: 4.2rem;
+  }
+}
+
+/* На широких экранах header ~59px (padding 12px*2 + logo 35px). */
+@media (min-width: 1366px) {
+  .page {
+    --about-hero-height: calc(100svh - 59px);
   }
 }

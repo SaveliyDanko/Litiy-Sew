@@ -208,14 +208,25 @@
   }
 }
 
-@media (min-width: 1366px) {
+/* Промежуточный шаг: между 1280–1366. Header плавно растёт от ~53px к ~84px. */
+@media (min-width: 1280px) {
   .header {
-    /* На широких экранах возвращаем исходную высоту. */
-    padding: 17px 48px;
+    padding: 14px 48px;
   }
 
   .logo {
-    font-size: 50px;
+    font-size: 40px;
+  }
+}
+
+@media (min-width: 1366px) {
+  .header {
+    /* -30% от исходных значений (17px → 12px, logo 50px → 35px). */
+    padding: 12px 48px;
+  }
+
+  .logo {
+    font-size: 35px;
   }
 
   .nav {
